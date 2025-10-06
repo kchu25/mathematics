@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Linear map through vectorization</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="linear_map_through_vectorization"><a href="#linear_map_through_vectorization" class="header-anchor">Linear map through vectorization</a></h1>
+<h2 id="the_big_picture"><a href="#the_big_picture" class="header-anchor">The Big Picture</a></h2>
+<p>Imagine you have a matrix \(x\) of size \(L \times M\) &#40;think of it as a small image or data grid&#41;, and you want to transform it into another matrix of size \(S \times P\). The most general way to do this linearly is to have a weight for <em>every possible connection</em> between input and output positions.</p>
+<h2 id="the_transformation"><a href="#the_transformation" class="header-anchor">The Transformation</a></h2>
+<p>Here&#39;s the formula that captures this idea:</p>
+\[\text{output}[s,p] = \sum_{l=1}^{L} \sum_{m=1}^{M} w[s,p,l,m] \cdot x[l,m]\]
+<p>What this says: <em>&quot;To get the value at output position \((s,p)\), take a weighted sum of ALL input values, where the weight depends on both where you&#39;re reading from \((l,m)\) and where you&#39;re writing to \((s,p)\).&quot;</em></p>
+<p>The weight tensor \(w\) has four indices because it needs to know:</p>
+<ul>
+<li><p>Where in the output? → \((s, p)\)</p>
+</li>
+<li><p>Where in the input? → \((l, m)\)</p>
+</li>
+</ul>
+<h2 id="why_is_this_linear"><a href="#why_is_this_linear" class="header-anchor">Why Is This Linear?</a></h2>
+<p>A transformation is linear if it plays nice with addition and scalar multiplication:</p>
+<p><strong>Adding inputs:</strong> If you add two inputs together first, then transform, you get the same result as transforming each separately and adding the outputs:</p>
+\[f(x + y) = f(x) + f(y)\]
+<p><strong>Scaling inputs:</strong> If you multiply the input by some constant, the output gets multiplied by the same constant:</p>
+\[f(c \cdot x) = c \cdot f(x)\]
+<p>Our transformation satisfies both properties because we&#39;re just doing multiplication and addition—no nonlinear operations like squaring or taking maximums.</p>
+<h2 id="the_matrix_formulation_flattening_everything"><a href="#the_matrix_formulation_flattening_everything" class="header-anchor">The Matrix Formulation: Flattening Everything</a></h2>
+<p>Here&#39;s the key insight: <strong>any linear transformation can be written as matrix multiplication</strong>. To do this, we need to &quot;flatten&quot; our 2D matrices into 1D vectors.</p>
+<h3 id="vectorization_stacking_columns"><a href="#vectorization_stacking_columns" class="header-anchor">Vectorization: Stacking Columns</a></h3>
+<p>The standard way to flatten a matrix is <strong>column-major vectorization</strong>—we stack the columns on top of each other:</p>
+\[\text{vec}(x) = \begin{bmatrix} x[1,1] \\ x[2,1] \\ \vdots \\ x[L,1] \\ x[1,2] \\ \vdots \\ x[L,M] \end{bmatrix}\]
+<p>Think of it like reading a spreadsheet column by column, top to bottom.</p>
+<h3 id="the_matrix_form"><a href="#the_matrix_form" class="header-anchor">The Matrix Form</a></h3>
+<p>Once everything is vectorized, our transformation becomes simple matrix multiplication:</p>
+\[\text{vec}(\text{output}) = W \cdot \text{vec}(x)\]
+<p>where \(W\) is an \((SP) \times (LM)\) matrix. Each entry of \(W\) corresponds to one weight from our original 4D tensor:</p>
+\[W_{j,i} = w[s,p,l,m]\]
+<p>The trick is figuring out how the indices \((s,p,l,m)\) map to the flat indices \(j\) and \(i\).</p>
+<h2 id="the_index_mapping_the_bookkeeping"><a href="#the_index_mapping_the_bookkeeping" class="header-anchor">The Index Mapping: The Bookkeeping</a></h2>
+<h3 id="from_multi-dimensional_to_flat_forward"><a href="#from_multi-dimensional_to_flat_forward" class="header-anchor">From Multi-dimensional to Flat &#40;Forward&#41;</a></h3>
+<p>For an element at position \((l, m)\) in an \(L \times M\) matrix:</p>
+\[\text{flat index} = l + (m-1) \cdot L\]
+<p>This formula says: <em>&quot;Skip \((m-1)\) complete columns of length \(L\), then move down \(l\) rows.&quot;</em></p>
+<p>Similarly, for the output position \((s, p)\) in an \(S \times P\) matrix:</p>
+\[\text{flat index} = s + (p-1) \cdot S\]
+<p><strong>So the complete mapping is:</strong></p>
+\[W_{s + (p-1)S, \, l + (m-1)L} = w[s,p,l,m]\]
+<h3 id="from_flat_back_to_multi-dimensional_inverse"><a href="#from_flat_back_to_multi-dimensional_inverse" class="header-anchor">From Flat Back to Multi-dimensional &#40;Inverse&#41;</a></h3>
+<p>If you have a flat index \(i\) and want to recover the original position \((l, m)\) in an \(L \times M\) matrix:</p>
+\[l = ((i-1) \bmod L) + 1\]
+\[m = \left\lfloor \frac{i-1}{L} \right\rfloor + 1\]
+<p>The intuition: </p>
+<ul>
+<li><p>The remainder when dividing by \(L\) tells you the row</p>
+</li>
+<li><p>The quotient tells you which column you&#39;re in</p>
+</li>
+</ul>
+<h2 id="why_does_this_matter"><a href="#why_does_this_matter" class="header-anchor">Why Does This Matter?</a></h2>
+<p>This framework shows that seemingly complex tensor operations are just matrix multiplications in disguise. This is powerful because:</p>
+<ol>
+<li><p><strong>Theoretical clarity</strong>: We can use all the tools from linear algebra</p>
+</li>
+<li><p><strong>Computational efficiency</strong>: Optimized matrix multiplication libraries &#40;BLAS, etc.&#41;</p>
+</li>
+<li><p><strong>Implementation simplicity</strong>: Reshape, multiply, reshape back</p>
+</li>
+</ol>
+<p>The cost? We need to keep track of these index mappings, which is the tedious part—but it&#39;s just bookkeeping&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 06, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
