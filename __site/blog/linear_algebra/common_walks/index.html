@@ -174,6 +174,50 @@
 </li>
 </ol>
 <p><strong>Complexity</strong>: \(O(m \cdot n^2)\) for intersection &#43; \(O(k \cdot n^3)\) for powering &#40;or \(O(n^3 \log k)\) via matrix exponentiation&#41;</p>
+<hr />
+<p><strong>Side Note: Why is matrix exponentiation \(O(n^3 \log k)\) cheaper than repeated multiplication \(O(k \cdot n^3)\)?</strong></p>
+<p>Matrix exponentiation uses <strong>repeated squaring</strong> &#40;also called binary exponentiation&#41;:</p>
+<p>To compute \(\mathbf{A}^k\):</p>
+<ol>
+<li><p>Write \(k\) in binary: \(k = \sum_{i=0}^{\lfloor \log_2 k \rfloor} b_i 2^i\) where \(b_i \in \{0, 1\}\)</p>
+</li>
+<li><p>Compute \(\mathbf{A}^{2^0}, \mathbf{A}^{2^1}, \mathbf{A}^{2^2}, \ldots, \mathbf{A}^{2^{\lfloor \log_2 k \rfloor}}\) by successive squaring</p>
+</li>
+<li><p>Multiply together only the terms where \(b_i = 1\)</p>
+</li>
+</ol>
+<p><strong>Example</strong>: Computing \(\mathbf{A}^{13}\)</p>
+<p>Binary: \(13 = 8 + 4 + 1 = 2^3 + 2^2 + 2^0 = (1101)_2\)</p>
+<p>Steps:</p>
+<ul>
+<li><p>\(\mathbf{A}^1 = \mathbf{A}\) &#40;given&#41;</p>
+</li>
+<li><p>\(\mathbf{A}^2 = \mathbf{A} \cdot \mathbf{A}\) &#40;1 multiplication&#41;</p>
+</li>
+<li><p>\(\mathbf{A}^4 = \mathbf{A}^2 \cdot \mathbf{A}^2\) &#40;1 multiplication&#41;</p>
+</li>
+<li><p>\(\mathbf{A}^8 = \mathbf{A}^4 \cdot \mathbf{A}^4\) &#40;1 multiplication&#41;</p>
+</li>
+<li><p>\(\mathbf{A}^{13} = \mathbf{A}^8 \cdot \mathbf{A}^4 \cdot \mathbf{A}^1\) &#40;2 multiplications&#41;</p>
+</li>
+</ul>
+<p><strong>Total</strong>: \(3 + 2 = 5\) matrix multiplications instead of \(12\) for naive repeated multiplication&#33;</p>
+<p>In general:</p>
+<ul>
+<li><p><strong>Naive approach</strong>: \(k-1\) multiplications to get \(\mathbf{A}^k\)</p>
+</li>
+<li><p><strong>Exponentiation by squaring</strong>: \(\lfloor \log_2 k \rfloor + \text{(number of 1's in binary)} - 1 \leq 2\log_2 k\) multiplications</p>
+</li>
+</ul>
+<p>Since each matrix multiplication is \(O(n^3)\):</p>
+<ul>
+<li><p>Naive: \(O(k \cdot n^3)\)</p>
+</li>
+<li><p>Exponentiation: \(O(n^3 \log k)\)</p>
+</li>
+</ul>
+<p>When \(k\) is large &#40;e.g., \(k = 1000\)&#41;, this is a <strong>huge</strong> difference: \(1000\) multiplications vs. \(\sim 10\) multiplications&#33;</p>
+<hr />
 <h3 id="spectral_method"><a href="#spectral_method" class="header-anchor">Spectral Method</a></h3>
 <p>If \(\mathbf{A}_{\cap}\) has eigenvalues \(\lambda_1, \ldots, \lambda_n\):</p>
 \(\text{tr}(\mathbf{A}_{\cap}^k) = \sum_{i=1}^n \lambda_i^k\)

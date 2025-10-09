@@ -1,7 +1,6 @@
 @def title = "Common Closed Walks Across Multiple Graphs"
 @def published = "9 October 2025"
 @def tags = ["linear-algebra", "graphs"]
-
 # Common Closed Walks Across Multiple Graphs
 
 ## Problem Setup
@@ -204,6 +203,42 @@ The common graph $G_{\cap}$ represents the **consensus structure**—edges that 
 3. Sum diagonal: $\text{tr}(\mathbf{A}_{\cap}^k)$
 
 **Complexity**: $O(m \cdot n^2)$ for intersection + $O(k \cdot n^3)$ for powering (or $O(n^3 \log k)$ via matrix exponentiation)
+
+---
+
+**Side Note: Why is matrix exponentiation $O(n^3 \log k)$ cheaper than repeated multiplication $O(k \cdot n^3)$?**
+
+Matrix exponentiation uses **repeated squaring** (also called binary exponentiation):
+
+To compute $\mathbf{A}^k$:
+1. Write $k$ in binary: $k = \sum_{i=0}^{\lfloor \log_2 k \rfloor} b_i 2^i$ where $b_i \in \{0, 1\}$
+2. Compute $\mathbf{A}^{2^0}, \mathbf{A}^{2^1}, \mathbf{A}^{2^2}, \ldots, \mathbf{A}^{2^{\lfloor \log_2 k \rfloor}}$ by successive squaring
+3. Multiply together only the terms where $b_i = 1$
+
+**Example**: Computing $\mathbf{A}^{13}$
+
+Binary: $13 = 8 + 4 + 1 = 2^3 + 2^2 + 2^0 = (1101)_2$
+
+Steps:
+- $\mathbf{A}^1 = \mathbf{A}$ (given)
+- $\mathbf{A}^2 = \mathbf{A} \cdot \mathbf{A}$ (1 multiplication)
+- $\mathbf{A}^4 = \mathbf{A}^2 \cdot \mathbf{A}^2$ (1 multiplication)
+- $\mathbf{A}^8 = \mathbf{A}^4 \cdot \mathbf{A}^4$ (1 multiplication)
+- $\mathbf{A}^{13} = \mathbf{A}^8 \cdot \mathbf{A}^4 \cdot \mathbf{A}^1$ (2 multiplications)
+
+**Total**: $3 + 2 = 5$ matrix multiplications instead of $12$ for naive repeated multiplication!
+
+In general:
+- **Naive approach**: $k-1$ multiplications to get $\mathbf{A}^k$
+- **Exponentiation by squaring**: $\lfloor \log_2 k \rfloor + \text{(number of 1's in binary)} - 1 \leq 2\log_2 k$ multiplications
+
+Since each matrix multiplication is $O(n^3)$:
+- Naive: $O(k \cdot n^3)$
+- Exponentiation: $O(n^3 \log k)$
+
+When $k$ is large (e.g., $k = 1000$), this is a **huge** difference: $1000$ multiplications vs. $\sim 10$ multiplications!
+
+---
 
 ### Spectral Method
 
