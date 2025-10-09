@@ -6,5 +6,5 @@
 
 - [measure-theory](tag/measure-theory)
 - [linear-algebra](tag/linear-algebra)
-- [infomation-theory](tag/infomation-theory)
+- [information-theory](tag/information-theory)
 
