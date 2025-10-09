@@ -41,12 +41,14 @@ Since $f(x) = \max_S g_S(x)$ is the pointwise maximum of convex functions, and t
 
 **Verification:** Let $x, y \in \mathbb{R}^n$ and $\lambda \in [0,1]$:
 
-$\begin{align}
-f(\lambda x + (1-\lambda)y) &= \max_{S: |S|=k} \sum_{i \in S} (\lambda x_i + (1-\lambda) y_i) \\
-&= \max_{S: |S|=k} \left[\lambda \sum_{i \in S} x_i + (1-\lambda) \sum_{i \in S} y_i\right] \\
-&\leq \lambda \max_{S: |S|=k} \sum_{i \in S} x_i + (1-\lambda) \max_{S: |S|=k} \sum_{i \in S} y_i \\
+\[
+\begin{aligned}
+f(\lambda x + (1-\lambda)y) &= \max_{S:\, |S|=k} \sum_{i \in S} (\lambda x_i + (1-\lambda) y_i) \\
+&= \max_{S:\, |S|=k} \big[\lambda \sum_{i \in S} x_i + (1-\lambda) \sum_{i \in S} y_i\big] \\
+&\le \lambda \max_{S:\, |S|=k} \sum_{i \in S} x_i + (1-\lambda) \max_{S:\, |S|=k} \sum_{i \in S} y_i \\
 &= \lambda f(x) + (1-\lambda) f(y)
-\end{align}$
+\end{aligned}
+\]
 
 ## How to Optimize It
 
@@ -80,11 +82,13 @@ As $\mu \to 0$, $f_\mu(x) \to f(x)$. This smooth version can be optimized with g
 
 Minimize $\sum_{i=1}^{k} x_{[i]}$ over $x$ subject to constraints by introducing auxiliary variables:
 
-$\begin{align}
+\[
+\begin{aligned}
 \min_{x, t} \quad & \sum_{j=1}^{k} t_j \\
-\text{s.t.} \quad & t_1 \geq t_2 \geq \cdots \geq t_k \\
-& t_j \geq x_i \text{ for all } i, j
-\end{align}$
+\text{s.t.} \quad & t_1 \ge t_2 \ge \cdots \ge t_k \\
+& t_j \ge x_i \quad \text{for all } i, j
+\end{aligned}
+\]
 
 Plus any original constraints on $x$. This can be solved with LP solvers.
 

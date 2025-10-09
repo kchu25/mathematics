@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Convexity of the Sum of k Largest Elements</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="convexity_of_the_sum_of_k_largest_elements"><a href="#convexity_of_the_sum_of_k_largest_elements" class="header-anchor">Convexity of the Sum of k Largest Elements</a></h1>
+<h2 id="the_result"><a href="#the_result" class="header-anchor">The Result</a></h2>
+<p>The function \(f(x) = \sum_{i=1}^{k} x_{[i]}\), which sums the k largest components of a vector \(x \in \mathbb{R}^n\), is <strong>convex</strong>.</p>
+<h2 id="why_its_true"><a href="#why_its_true" class="header-anchor">Why It&#39;s True</a></h2>
+<p>The proof relies on a clever reformulation: the sum of the k largest elements can be written as:</p>
+\[f(x) = \max_{S \subseteq \{1,\ldots,n\}, |S|=k} \sum_{i \in S} x_i\]
+<p>In other words, \(f(x)\) is the maximum sum we can get by choosing any k coordinates from \(x\).</p>
+<h2 id="the_key_insight"><a href="#the_key_insight" class="header-anchor">The Key Insight</a></h2>
+<ul>
+<li><p>Each choice of k coordinates gives us a <strong>linear function</strong>: \(g_S(x) = \sum_{i \in S} x_i\)</p>
+</li>
+<li><p>Linear functions are convex</p>
+</li>
+<li><p>Taking the <strong>pointwise maximum</strong> of convex functions yields a convex function</p>
+</li>
+<li><p>Therefore, \(f(x)\) is convex</p>
+</li>
+</ul>
+<h2 id="intuition"><a href="#intuition" class="header-anchor">Intuition</a></h2>
+<p>Think of it this way: we&#39;re computing \(\binom{n}{k}\) different linear functions &#40;one for each way to choose k indices&#41;, and then taking their maximum. Since the maximum of any collection of convex functions is convex, we&#39;re done.</p>
+<h2 id="detailed_proof"><a href="#detailed_proof" class="header-anchor">Detailed Proof</a></h2>
+<p><strong>Proof &#40;Maximum of Linear Functions&#41;:</strong></p>
+<p>We express \(f(x)\) as a maximum over all k-element subsets:</p>
+\(f(x) = \max_{S \subseteq \{1,\ldots,n\}, |S|=k} \sum_{i \in S} x_i\)
+<p>For each fixed subset \(S\) with \(|S| = k\), define \(g_S(x) = \sum_{i \in S} x_i\). This is a linear function &#40;hence convex&#41;.</p>
+<p>Since \(f(x) = \max_S g_S(x)\) is the pointwise maximum of convex functions, and the pointwise maximum of any collection of convex functions is convex, we conclude that \(f\) is convex. \(\square\)</p>
+<p><strong>Verification:</strong> Let \(x, y \in \mathbb{R}^n\) and \(\lambda \in [0,1]\):</p>
+\[
+\begin{aligned}
+f(\lambda x + (1-\lambda)y) &= \max_{S:\, |S|=k} \sum_{i \in S} (\lambda x_i + (1-\lambda) y_i) \\
+&= \max_{S:\, |S|=k} \big[\lambda \sum_{i \in S} x_i + (1-\lambda) \sum_{i \in S} y_i\big] \\
+&\le \lambda \max_{S:\, |S|=k} \sum_{i \in S} x_i + (1-\lambda) \max_{S:\, |S|=k} \sum_{i \in S} y_i \\
+&= \lambda f(x) + (1-\lambda) f(y)
+\end{aligned}
+\]
+<h2 id="how_to_optimize_it"><a href="#how_to_optimize_it" class="header-anchor">How to Optimize It</a></h2>
+<p>Since \(f(x) = \sum_{i=1}^{k} x_{[i]}\) is convex, we can use standard convex optimization techniques:</p>
+<h3 id="subgradient_methods"><a href="#subgradient_methods" class="header-anchor"><ol>
+<li><p><strong>Subgradient Methods</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The function is not differentiable everywhere, but we can compute subgradients. A subgradient at \(x\) is:</p>
+\(g \in \partial f(x) \text{ where } g_i = \begin{cases} 1 & \text{if } x_i \text{ is among the k largest (and unique)} \\ \in [0,1] & \text{if } x_i \text{ is on the boundary (tied for k-th place)} \\ 0 & \text{otherwise} \end{cases}\)
+<p><strong>Subgradient descent:</strong> \(x^{t+1} = x^t - \alpha_t g^t\) where \(g^t \in \partial f(x^t)\)</p>
+<h3 id="ol_start2_proximal_operators"><a href="#ol_start2_proximal_operators" class="header-anchor"><ol start="2">
+<li><p><strong>Proximal Operators</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>For regularization problems like \(\min_x \frac{1}{2}\|Ax - b\|^2 + \lambda \sum_{i=1}^{k} x_{[i]}\), we need the proximal operator:</p>
+\(\text{prox}_{\lambda f}(y) = \arg\min_x \left\{ \frac{1}{2}\|x - y\|^2 + \lambda \sum_{i=1}^{k} x_{[i]} \right\}\)
+<p>This can be computed efficiently using soft-thresholding with a careful calculation of the threshold value.</p>
+<h3 id="ol_start3_smoothing_approaches"><a href="#ol_start3_smoothing_approaches" class="header-anchor"><ol start="3">
+<li><p><strong>Smoothing Approaches</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Replace the non-smooth max with a smooth approximation:</p>
+\(f_\mu(x) = \mu \log\left(\sum_{S: |S|=k} \exp\left(\frac{1}{\mu}\sum_{i \in S} x_i\right)\right)\)
+<p>As \(\mu \to 0\), \(f_\mu(x) \to f(x)\). This smooth version can be optimized with gradient-based methods.</p>
+<h3 id="ol_start4_reformulation_as_linear_program"><a href="#ol_start4_reformulation_as_linear_program" class="header-anchor"><ol start="4">
+<li><p><strong>Reformulation as Linear Program</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Minimize \(\sum_{i=1}^{k} x_{[i]}\) over \(x\) subject to constraints by introducing auxiliary variables:</p>
+\[
+\begin{aligned}
+\min_{x, t} \quad & \sum_{j=1}^{k} t_j \\
+\text{s.t.} \quad & t_1 \ge t_2 \ge \cdots \ge t_k \\
+& t_j \ge x_i \quad \text{for all } i, j
+\end{aligned}
+\]
+<p>Plus any original constraints on \(x\). This can be solved with LP solvers.</p>
+<h3 id="ol_start5_projected_subgradient_for_constrained_problems"><a href="#ol_start5_projected_subgradient_for_constrained_problems" class="header-anchor"><ol start="5">
+<li><p><strong>Projected Subgradient for Constrained Problems</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>For \(\min_{x \in C} f(x)\) where \(C\) is a convex set:</p>
+\(x^{t+1} = \Pi_C(x^t - \alpha_t g^t)\)
+<p>where \(\Pi_C\) is projection onto \(C\) and \(g^t \in \partial f(x^t)\).</p>
+<h2 id="why_this_matters"><a href="#why_this_matters" class="header-anchor">Why This Matters</a></h2>
+<p>This result is used throughout convex optimization, particularly in:</p>
+<ul>
+<li><p>Robust optimization</p>
+</li>
+<li><p>Sparse signal processing  </p>
+</li>
+<li><p>Portfolio optimization &#40;e.g., focusing on worst-case scenarios&#41;</p>
+</li>
+<li><p>The k-support norm and other regularizers</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
