@@ -8,4 +8,5 @@
 - [linear-algebra](tag/linear-algebra)
 - [information-theory](tag/information-theory)
 - [graphs](tag/graphs)
+- [convexity](tag/convexity)
 
