@@ -7,4 +7,5 @@
 - [measure-theory](tag/measure-theory)
 - [linear-algebra](tag/linear-algebra)
 - [information-theory](tag/information-theory)
+- [graphs](tag/graphs)
 
