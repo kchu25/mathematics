@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Deep Dive: Mutual Information</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="deep_dive_mutual_information"><a href="#deep_dive_mutual_information" class="header-anchor">Deep Dive: Mutual Information</a></h1>
+<h2 id="what_is_it_really"><a href="#what_is_it_really" class="header-anchor">What Is It, Really?</a></h2>
+<p>Mutual information &#40;MI&#41; measures how much knowing one variable tells you about another. More precisely, it quantifies the reduction in uncertainty about \(X\) when you learn \(Y\), and vice versa.</p>
+<p>The formula is elegant:</p>
+\[I(X; Y) = \sum_{x,y} p(x,y) \log \frac{p(x,y)}{p(x)p(y)}\]
+<p>Or equivalently:</p>
+\[I(X; Y) = H(X) - H(X|Y) = H(Y) - H(Y|X)\]
+<p>where \(H\) denotes entropy. It&#39;s the amount of information \(X\) and \(Y\) share.</p>
+<h2 id="why_its_special"><a href="#why_its_special" class="header-anchor">Why It&#39;s Special</a></h2>
+<p>Here&#39;s what makes MI genuinely unique:</p>
+<h3 id="perfect_symmetry"><a href="#perfect_symmetry" class="header-anchor"><ol>
+<li><p><strong>Perfect Symmetry</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>\(I(X; Y) = I(Y; X)\) always. There&#39;s no &quot;direction&quot; to the relationship. This is profound: MI doesn&#39;t care about cause and effect, only about information overlap. Like correlation, it&#39;s symmetric—but unlike correlation, it captures <em>all</em> dependencies, not just linear ones.</p>
+<h3 id="ol_start2_nonlinear_relationships"><a href="#ol_start2_nonlinear_relationships" class="header-anchor"><ol start="2">
+<li><p><strong>Nonlinear Relationships</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Correlation only catches linear dependencies. MI catches <em>everything</em>. If \(Y = X^2\) and \(X\) is uniform on \([-1, 1]\), the correlation might be zero &#40;due to symmetry&#41;, but MI is positive—it knows they&#39;re deeply related.</p>
+<h3 id="ol_start3_always_non-negative"><a href="#ol_start3_always_non-negative" class="header-anchor"><ol start="3">
+<li><p><strong>Always Non-Negative</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>\(I(X; Y) \geq 0\) always, with equality if and only if \(X\) and \(Y\) are independent. It&#39;s a proper &quot;distance from independence.&quot;</p>
+<h3 id="ol_start4_invariant_to_transformations"><a href="#ol_start4_invariant_to_transformations" class="header-anchor"><ol start="4">
+<li><p><strong>Invariant to Transformations</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>If you apply any invertible function \(f\) to \(X\), then \(I(f(X); Y) = I(X; Y)\). The information content is preserved under reparameterization.</p>
+<h2 id="mi_vs_kl_divergence"><a href="#mi_vs_kl_divergence" class="header-anchor">MI vs KL Divergence</a></h2>
+<p>Here&#39;s the connection people often miss: <strong>MI is a special case of KL divergence</strong>.</p>
+\(I(X; Y) = D_{KL}(p(x,y) \| p(x)p(y))\)
+<p>MI is the KL divergence between the joint distribution and the product of marginals. So MI measures how far the joint distribution is from independence.</p>
+<blockquote>
+<p><strong>Quick Proof</strong>: Start with the KL divergence definition:</p>
+\(D_{KL}(p(x,y) \| p(x)p(y)) = \sum_{x,y} p(x,y) \log \frac{p(x,y)}{p(x)p(y)}\)
+<p>Split the logarithm:</p>
+\(= \sum_{x,y} p(x,y) \log p(x,y) - \sum_{x,y} p(x,y) \log p(x) - \sum_{x,y} p(x,y) \log p(y)\)
+<p>The first term is \(-H(X,Y)\) &#40;negative joint entropy&#41;. For the second term:</p>
+\(\sum_{x,y} p(x,y) \log p(x) = \sum_x p(x) \log p(x) \sum_y p(y|x) = \sum_x p(x) \log p(x) = -H(X)\)
+<p>Similarly, the third term gives \(-H(Y)\). Therefore:</p>
+\(D_{KL}(p(x,y) \| p(x)p(y)) = -H(X,Y) + H(X) + H(Y) = I(X;Y)\)
+<p>This also immediately shows why \(I(X;Y) \geq 0\) &#40;since KL divergence is always non-negative&#41; and why \(I(X;Y) = 0\) iff \(X\) and \(Y\) are independent &#40;since \(D_{KL} = 0\) iff the distributions are equal&#41;.</p>
+</blockquote>
+<h3 id="key_differences"><a href="#key_differences" class="header-anchor">Key Differences:</a></h3>
+<table><tr><th align="right">Mutual Information</th><th align="right">KL Divergence</th></tr><tr><td align="right">Symmetric: \(I(X;Y) = I(Y;X)\)</td><td align="right">Asymmetric: \(D_{KL}(P \| Q) \neq D_{KL}(Q \| P)\)</td></tr><tr><td align="right">Special case: divergence from independence</td><td align="right">General: divergence between any two distributions</td></tr><tr><td align="right">Always involves two random variables</td><td align="right">Can compare distributions over single variable</td></tr><tr><td align="right">Bounded by entropies: \(I(X;Y) \leq \min(H(X), H(Y))\)</td><td align="right">Unbounded &#40;can be infinite&#41;</td></tr></table>
+<p>Think of it this way: KL divergence is the Swiss Army knife of comparing distributions. MI is what you get when you specifically ask &quot;how far from independent are these variables?&quot;</p>
+<h2 id="real-valued_variables_yes_absolutely"><a href="#real-valued_variables_yes_absolutely" class="header-anchor">Real-Valued Variables: Yes, Absolutely&#33;</a></h2>
+<p>People often see MI applied to discrete variables and assume that&#39;s the natural domain. <strong>Wrong</strong>. MI applies beautifully to continuous variables—you just need differential entropy:</p>
+\[I(X; Y) = \int \int p(x,y) \log \frac{p(x,y)}{p(x)p(y)} \, dx \, dy\]
+<h3 id="the_gaussian_case"><a href="#the_gaussian_case" class="header-anchor">The Gaussian Case</a></h3>
+<p>For jointly Gaussian \((X, Y)\) with correlation \(\rho\):</p>
+\[I(X; Y) = -\frac{1}{2} \log(1 - \rho^2)\]
+<p>This is remarkable&#33; For Gaussians only, MI and correlation contain the same information. But this is the exception, not the rule.</p>
+<h3 id="estimation_challenge"><a href="#estimation_challenge" class="header-anchor">Estimation Challenge</a></h3>
+<p>Here&#39;s the catch: estimating MI for continuous variables is <em>hard</em>. With discrete variables, you just count frequencies. With continuous ones, you need to estimate densities, which is notoriously difficult in high dimensions. Common approaches:</p>
+<ul>
+<li><p><strong>Binning</strong> &#40;discretize and compute discrete MI—crude but simple&#41;</p>
+</li>
+<li><p><strong>Kernel density estimation</strong> &#40;smooth but slow&#41;</p>
+</li>
+<li><p><strong>k-NN methods</strong> &#40;Kraskov et al., 2004—surprisingly effective&#41;</p>
+<ul>
+<li><p>Core idea: estimate \(I(X;Y) = H(X) + H(Y) - H(X,Y)\) using nearest neighbor distances</p>
+</li>
+<li><p>For each point \((x_i, y_i)\):</p>
+<ul>
+<li><p>Find distance \(\epsilon_i\) to its \(k\)-th nearest neighbor in joint space \((X,Y)\)</p>
+</li>
+<li><p>Count \(n_x(i)\) &#61; neighbors within \(\epsilon_i\) in \(X\)-space only</p>
+</li>
+<li><p>Count \(n_y(i)\) &#61; neighbors within \(\epsilon_i\) in \(Y\)-space only</p>
+</li>
+</ul>
+</li>
+<li><p>Estimate: \(\hat{I}(X;Y) = \psi(k) - \langle \psi(n_x + 1) + \psi(n_y + 1) \rangle + \psi(N)\)</p>
+</li>
+<li><p>Where \(\psi\) is the digamma function, \(N\) is sample size, \(\langle \cdot \rangle\) is average over samples</p>
+</li>
+<li><p><strong>Why it works</strong>: In high-density regions &#40;low entropy&#41;, \(\epsilon_i\) is small, so \(n_x\) and \(n_y\) are small. In low-density regions &#40;high entropy&#41;, \(\epsilon_i\) is large. The estimator cleverly balances these density ratios to approximate MI without explicitly estimating densities</p>
+</li>
+<li><p>No binning needed, adapts to local density, works well even in moderate dimensions</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Neural estimators</strong> &#40;MINE algorithm—modern deep learning approach&#41;</p>
+</li>
+</ul>
+<h2 id="surprising_perspectives_people_ignore"><a href="#surprising_perspectives_people_ignore" class="header-anchor">Surprising Perspectives People Ignore</a></h2>
+<h3 id="mi_can_be_zero_even_with_perfect_dependence"><a href="#mi_can_be_zero_even_with_perfect_dependence" class="header-anchor"><ol>
+<li><p><strong>MI Can Be Zero Even With Perfect Dependence</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Wait, what? If \(X \sim \mathcal{N}(0, 1)\) and \(Y = |X|\), then \(Y\) is completely determined by \(X\). But \(I(X; Y) < I(X; X) = H(X)\). Why? Because you lose information in the mapping—you can&#39;t recover \(X\) from \(Y\). MI is about <em>shared</em> information, not one-way dependence.</p>
+<p>Actually, let me be more precise: \(I(X; Y)\) can be <em>less than maximal</em> even with functional dependence if the function isn&#39;t invertible. For truly zero MI with dependence, you&#39;d need something like \(X\) uniform on \([-1, 1]\) and \(Y = X^2\)... but wait, that has positive MI. </p>
+<p>The real surprise: <strong>MI can be zero for dependent variables only when they&#39;re uncorrelated in a very specific information-theoretic sense.</strong> If \(Y\) is a function of \(X\), MI is zero only if that function is constant &#40;trivial dependence&#41;.</p>
+<h3 id="ol_start2_conditional_mi_can_be_higher_than_unconditional_mi"><a href="#ol_start2_conditional_mi_can_be_higher_than_unconditional_mi" class="header-anchor"><ol start="2">
+<li><p><strong>Conditional MI Can Be Higher Than Unconditional MI</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>This is wild: \(I(X; Y | Z)\) can exceed \(I(X; Y)\). Learning \(Z\) can reveal <em>more</em> relationship between \(X\) and \(Y\) than existed marginally. This happens with &quot;explaining away&quot; in Bayesian networks.</p>
+<p>Example: \(X\) and \(Y\) are independent coin flips. \(Z = X \oplus Y\) &#40;XOR&#41;. Marginally, \(I(X; Y) = 0\). But \(I(X; Y | Z) = 1\) bit&#33; Once you know \(Z\), learning \(X\) tells you \(Y\) exactly.</p>
+<h3 id="ol_start3_mi_is_not_a_metric"><a href="#ol_start3_mi_is_not_a_metric" class="header-anchor"><ol start="3">
+<li><p><strong>MI Is Not a Metric</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Despite being a &quot;distance from independence,&quot; MI doesn&#39;t satisfy the triangle inequality. \(I(X; Y) + I(Y; Z) \not\geq I(X; Z)\) in general. There are normalized versions &#40;variation of information&#41; that are metrics, but plain MI isn&#39;t.</p>
+<h3 id="ol_start4_the_data_processing_inequality"><a href="#ol_start4_the_data_processing_inequality" class="header-anchor"><ol start="4">
+<li><p><strong>The Data Processing Inequality</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>If you form a Markov chain \(X \to Y \to Z\), then:</p>
+\[I(X; Z) \leq I(X; Y)\]
+<p>Processing \(Y\) to get \(Z\) can only lose information about \(X\), never gain it. This is fundamental in information theory and explains why lossy compression is lossy—you can&#39;t recover what you&#39;ve thrown away.</p>
+<h3 id="ol_start5_multivariate_mi_gets_weird"><a href="#ol_start5_multivariate_mi_gets_weird" class="header-anchor"><ol start="5">
+<li><p><strong>Multivariate MI Gets Weird</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>For three variables, there&#39;s no single &quot;mutual information of \(X\), \(Y\), and \(Z\).&quot; You have various options:</p>
+<ul>
+<li><p><strong>Total correlation</strong>: \(I(X; Y; Z) = H(X) + H(Y) + H(Z) - H(X,Y,Z)\)</p>
+</li>
+<li><p><strong>Interaction information</strong>: \(I(X; Y; Z) = I(X; Y|Z) - I(X; Y)\)</p>
+</li>
+</ul>
+<p>And here&#39;s the kicker: <strong>interaction information can be negative</strong>&#33; It measures whether \(Z\) creates or destroys dependence between \(X\) and \(Y\). This has no intuitive analog in correlation.</p>
+<h3 id="ol_start6_mi_and_machine_learning"><a href="#ol_start6_mi_and_machine_learning" class="header-anchor"><ol start="6">
+<li><p><strong>MI and Machine Learning</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>MI is all over ML, sometimes hiding:</p>
+<ul>
+<li><p><strong>Information Bottleneck</strong>: Deep learning as successive compression preserving task-relevant information</p>
+</li>
+<li><p><strong>InfoGAN</strong>: Learning disentangled representations by maximizing MI between latent codes and observations</p>
+</li>
+<li><p><strong>Attention mechanisms</strong>: Attention weights approximately maximize MI between queries and the relevant parts of keys/values, routing information where it&#39;s most informative &#40;though this connection is more conceptual than rigorously proven&#41;</p>
+</li>
+<li><p><strong>Feature selection</strong>: Maximizing MI with target while minimizing redundancy</p>
+</li>
+</ul>
+<p>But here&#39;s what people miss: <strong>maximizing MI can lead to overfitting</strong>. Just because two variables share information doesn&#39;t mean one should be used to predict the other in a finite sample. The bias-variance tradeoff applies to information too.</p>
+<h2 id="the_philosophy_of_mi"><a href="#the_philosophy_of_mi" class="header-anchor">The Philosophy of MI</a></h2>
+<p>At its core, MI is about <strong>surprise reduction</strong>—or more precisely, uncertainty reduction. </p>
+<p>Here&#39;s the concrete intuition: Suppose you don&#39;t know \(Y\) yet. Your uncertainty about \(Y\) is its entropy \(H(Y)\), measured in bits. Now someone tells you \(X\). Your remaining uncertainty about \(Y\) is now \(H(Y|X)\) &#40;conditional entropy&#41;. </p>
+<p>The difference \(H(Y) - H(Y|X)\) is how much uncertainty you lost—how much less surprised you&#39;ll be when you finally learn \(Y\). That&#39;s exactly \(I(X; Y)\).</p>
+<p><strong>Concrete Example</strong>: You&#39;re waiting for a package.</p>
+<ul>
+<li><p>\(Y\) &#61; which day it arrives &#40;Mon-Fri&#41;, each equally likely</p>
+</li>
+<li><p>\(H(Y) = \log_2(5) \approx 2.32\) bits of uncertainty</p>
+</li>
+<li><p>Now you learn \(X\) &#61; &quot;tracking says it&#39;s in your city&quot;</p>
+</li>
+<li><p>If packages in your city always arrive the next day, \(H(Y|X) = 0\)</p>
+</li>
+<li><p>Then \(I(X; Y) = 2.32\) bits—learning \(X\) eliminated all surprise about \(Y\)</p>
+</li>
+<li><p>If tracking status is completely uninformative, \(H(Y|X) = H(Y)\) and \(I(X; Y) = 0\)</p>
+</li>
+</ul>
+<p>The &quot;surprise&quot; language comes from information theory&#39;s roots: \(-\log p(y)\) is called the &quot;surprisal&quot; of outcome \(y\) &#40;rare events are surprising&#41;. MI is the expected reduction in surprisal about \(Y\) when you learn \(X\).</p>
+<p>It&#39;s also beautifully agnostic. MI doesn&#39;t care if the relationship is:</p>
+<ul>
+<li><p>Linear or nonlinear</p>
+</li>
+<li><p>Monotonic or non-monotonic</p>
+</li>
+<li><p>Causal or just correlated</p>
+</li>
+<li><p>Simple or hideously complex</p>
+</li>
+</ul>
+<p>It just asks: does knowing one reduce uncertainty about the other?</p>
+<h3 id="making_this_intuitive_the_guessing_game_framing"><a href="#making_this_intuitive_the_guessing_game_framing" class="header-anchor">Making This Intuitive: The &quot;Guessing Game&quot; Framing</a></h3>
+<p>Here&#39;s the clearest way to think about MI: <strong>It measures how much better you can guess \(Y\) after seeing \(X\)</strong>.</p>
+<p><strong>Example 1: Perfect Circle</strong></p>
+<ul>
+<li><p>\(X\) is angle around a circle: \(X \sim \text{Uniform}[0, 2\pi)\)</p>
+</li>
+<li><p>\(Y = \sin(X)\)</p>
+</li>
+</ul>
+<p>This is highly nonlinear, non-monotonic, and complicated. But here&#39;s what matters: <strong>if I tell you \(X\), you know \(Y\) exactly</strong>. Your uncertainty about \(Y\) goes from \(H(Y) \approx 1\) bit &#40;for uniform \(Y\) on \([-1,1]\)&#41; to \(H(Y|X) = 0\). So \(I(X;Y)\) is maximal for this relationship&#33;</p>
+<p>Correlation? Near zero &#40;sine wave averages out&#41;. But MI says: &quot;These variables share maximum information.&quot;</p>
+<p><strong>Example 2: The XOR Gate</strong></p>
+<ul>
+<li><p>\(X, Y\) are independent fair coin flips</p>
+</li>
+<li><p>\(Z = X \oplus Y\) &#40;XOR: equals 1 if \(X \neq Y\)&#41;</p>
+</li>
+</ul>
+<p>Try guessing \(Y\) without any info: you&#39;re right 50&#37; of the time. Now I tell you \(Z\):</p>
+<ul>
+<li><p>If \(Z=0\), then \(Y=X\)</p>
+</li>
+<li><p>If \(Z=1\), then \(Y \neq X\)</p>
+</li>
+</ul>
+<p>Wait, you don&#39;t know \(X\) either&#33; So you still guess \(Y\) correctly 50&#37; of the time. \(I(Y; Z) = 0\).</p>
+<p>But now I tell you <strong>both</strong> \(Z\) and \(X\): suddenly you know \(Y\) with certainty&#33; \(I(Y; Z|X) = 1\) bit.</p>
+<p>This shows MI doesn&#39;t care about <em>how</em> the relationship works—just whether knowing one helps predict the other.</p>
+<p><strong>Example 3: Backwards Causation Doesn&#39;t Matter</strong></p>
+<ul>
+<li><p>\(X\) &#61; it rained yesterday</p>
+</li>
+<li><p>\(Y\) &#61; the ground is wet today</p>
+</li>
+</ul>
+<p>Clearly \(X\) causes \(Y\). \(I(X; Y)\) is positive.</p>
+<p>Now flip it:</p>
+<ul>
+<li><p>\(X\) &#61; the ground is wet today  </p>
+</li>
+<li><p>\(Y\) &#61; it rained yesterday</p>
+</li>
+</ul>
+<p>Same \(I(X; Y)\)&#33; MI is perfectly symmetric. It doesn&#39;t care that wet ground doesn&#39;t <em>cause</em> rain. It only cares that observing wet ground <strong>reduces your uncertainty</strong> about whether it rained.</p>
+<p><strong>Example 4: Hideously Complex</strong></p>
+<ul>
+<li><p>\(X \sim \mathcal{N}(0, 1)\)</p>
+</li>
+<li><p>\(Y = \begin{cases} X^3 - 2X & \text{if } X > 0 \\ \sin(5X) + X^2 & \text{if } X \leq 0 \end{cases}\)</p>
+</li>
+</ul>
+<p>This relationship is a nightmare. Different formulas in different regions, non-monotonic, weird. </p>
+<p>But MI doesn&#39;t care&#33; It just asks: &quot;If I give you \(X=0.7\), can you tell me \(Y\)?&quot; Yes, exactly&#33; \(Y = 0.7^3 - 1.4 = -1.057\). So \(H(Y|X) = 0\), meaning \(I(X;Y) = H(Y)\) &#40;maximal MI given \(H(Y)\)&#41;.</p>
+<h3 id="the_core_insight"><a href="#the_core_insight" class="header-anchor">The Core Insight</a></h3>
+<p>MI is like a universal detector that says: <strong>&quot;I don&#39;t care HOW \(X\) and \(Y\) are related—through multiplication, sine waves, logical operations, causal chains, or spaghetti code. I only care: does \(X\) contain clues about \(Y\)?&quot;</strong></p>
+<p>Think of it as playing 20 questions:</p>
+<ul>
+<li><p>High MI &#61; learning \(X\) is like getting lots of good answers to your questions about \(Y\)</p>
+</li>
+<li><p>Low MI &#61; learning \(X\) is like getting useless answers</p>
+</li>
+<li><p>Zero MI &#61; learning \(X\) tells you literally nothing</p>
+</li>
+</ul>
+<p>The relationship could be simple &#40;\(Y=2X\)&#41; or baroque &#40;\(Y = \lfloor \sin(17X) \cdot e^{|X|} \rfloor \mod 42\)&#41;, but if knowing \(X\) lets you narrow down \(Y\), MI captures it.</p>
+<h2 id="final_thought"><a href="#final_thought" class="header-anchor">Final Thought</a></h2>
+<p>The most underappreciated fact about MI: <strong>it&#39;s the only way to measure dependence that satisfies certain natural axioms</strong> &#40;Rényi, 1959&#41;. If you want a symmetric, non-negative measure that&#39;s zero iff independence holds and that decomposes properly over variable combinations, you basically must use MI &#40;or a monotonic function of it&#41;.</p>
+<p>So when someone asks &quot;why mutual information?&quot;, the answer is: because the axioms of information theory lead us there inevitably. It&#39;s not just <em>a</em> way to measure dependence—it&#39;s <em>the</em> way, in a precise mathematical sense.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

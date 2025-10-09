@@ -1,4 +1,4 @@
-@def title = "LDeep Dive: Mutual Information"
+@def title = "Deep Dive: Mutual Information"
 @def published = "9 October 2025"
 @def tags = ["information-theory"]
 
