@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Hard Thresholding: A Mathematical Overview</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="hard_thresholding_a_mathematical_overview"><a href="#hard_thresholding_a_mathematical_overview" class="header-anchor">Hard Thresholding: A Mathematical Overview</a></h1>
+<h2 id="definition"><a href="#definition" class="header-anchor"><ol>
+<li><p>Definition</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="hard_thresholding_operator"><a href="#hard_thresholding_operator" class="header-anchor">Hard Thresholding Operator</a></h3>
+\(H_\lambda(x) = \begin{cases} 
+x & \text{if } |x| > \lambda \\
+0 & \text{if } |x| \leq \lambda
+\end{cases}\)
+<h3 id="soft_thresholding_operator_for_comparison"><a href="#soft_thresholding_operator_for_comparison" class="header-anchor">Soft Thresholding Operator &#40;for comparison&#41;</a></h3>
+\(S_\lambda(x) = \begin{cases} 
+x - \lambda & \text{if } x > \lambda \\
+0 & \text{if } |x| \leq \lambda \\
+x + \lambda & \text{if } x < -\lambda
+\end{cases} = \text{sign}(x) \cdot \max(|x| - \lambda, 0)\)
+<h3 id="visual_comparison"><a href="#visual_comparison" class="header-anchor">Visual Comparison</a></h3>
+<p><img src="/blog/convex_stuff/soft_hard.svg" alt="Hard vs Soft Thresholding" /></p>
+<p><strong>Key Visual Differences:</strong></p>
+<table><tr><th align="right">Hard Thresholding</th><th align="right">Soft Thresholding</th></tr><tr><td align="right">Discontinuous at ±λ</td><td align="right">Continuous everywhere</td></tr><tr><td align="right">Identity mapping for |x| &gt; λ</td><td align="right">Shifted by λ &#40;biased&#41;</td></tr><tr><td align="right">Flat &#40;zero&#41; for |x| ≤ λ</td><td align="right">Flat &#40;zero&#41; for |x| ≤ λ</td></tr></table>
+<p><strong>Key Properties:</strong></p>
+<ul>
+<li><p><strong>Hard</strong>: Flat at zero for \(|x| \leq \lambda\), then vertical jump to diagonal \(y = x\) </p>
+</li>
+<li><p><strong>Soft</strong>: Flat at zero for \(|x| \leq \lambda\), then diagonal lines \(y = x - \lambda\) &#40;upper&#41; and \(y = x + \lambda\) &#40;lower&#41;</p>
+</li>
+</ul>
+<h2 id="ol_start2_optimization_formulation"><a href="#ol_start2_optimization_formulation" class="header-anchor"><ol start="2">
+<li><p>Optimization Formulation</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="proximal_operators"><a href="#proximal_operators" class="header-anchor">Proximal Operators</a></h3>
+<p><strong>Hard thresholding</strong> is the proximal operator of the \(\ell_0\) &quot;norm&quot;:</p>
+\[\text{prox}_{\lambda \|\cdot\|_0}(y) = \arg\min_x \left\{ \frac{1}{2}\|x - y\|^2 + \lambda \|x\|_0 \right\} = H_{\sqrt{2\lambda}}(y)\]
+<p>where \(\|x\|_0 = |\{i : x_i \neq 0\}|\) counts non-zero entries.</p>
+<p><strong>Soft thresholding</strong> is the proximal operator of the \(\ell_1\) norm:</p>
+\[\text{prox}_{\lambda \|\cdot\|_1}(y) = \arg\min_x \left\{ \frac{1}{2}\|x - y\|^2 + \lambda \|x\|_1 \right\} = S_\lambda(y)\]
+<h3 id="derivation_of_hard_thresholding"><a href="#derivation_of_hard_thresholding" class="header-anchor">Derivation of Hard Thresholding</a></h3>
+<p>For each coordinate \(i\) independently, solve:</p>
+\[\min_{x_i} \left\{ \frac{1}{2}(x_i - y_i)^2 + \lambda \cdot \mathbb{1}_{x_i \neq 0} \right\}\]
+<p>Compare two cases:</p>
+<ul>
+<li><p>Set \(x_i = 0\): cost \(= \frac{1}{2}y_i^2 + \lambda\)</p>
+</li>
+<li><p>Set \(x_i = y_i\): cost \(= 0\)</p>
+</li>
+</ul>
+<p>Choose \(x_i = y_i\) when: \(0 < \frac{1}{2}y_i^2 + \lambda\), giving \(|y_i| > \sqrt{2\lambda}\).</p>
+<p>Therefore: \(x_i^* = H_{\sqrt{2\lambda}}(y_i)\)</p>
+<h2 id="ol_start3_mathematical_properties"><a href="#ol_start3_mathematical_properties" class="header-anchor"><ol start="3">
+<li><p>Mathematical Properties</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="comparison_table"><a href="#comparison_table" class="header-anchor">Comparison Table</a></h3>
+<table><tr><th align="right">Property</th><th align="right">Soft Thresholding</th><th align="right">Hard Thresholding</th></tr><tr><td align="right">Penalty</td><td align="right">\(\lambda\|x\|_1\) &#40;convex&#41;</td><td align="right">\(\lambda\|x\|_0\) &#40;non-convex&#41;</td></tr><tr><td align="right">Continuity</td><td align="right">Continuous</td><td align="right">Discontinuous at \(\pm\lambda\)</td></tr><tr><td align="right">Differentiability</td><td align="right">Not at \(\pm\lambda\)</td><td align="right">Not at \(\pm\lambda\)</td></tr><tr><td align="right">Bias</td><td align="right">Biased: \(\mathbb{E}[S_\lambda(\theta + \varepsilon)] = \text{sign}(\theta)(\|\theta\| - \lambda)_+\)</td><td align="right">Unbiased: \(\mathbb{E}[H_\lambda(\theta + \varepsilon)] = \theta\) for \(\|\theta\| > \lambda\)</td></tr><tr><td align="right">Convexity</td><td align="right">Convex problem</td><td align="right">Non-convex &#40;NP-hard in general&#41;</td></tr></table>
+<h3 id="key_properties_of_hard_thresholding"><a href="#key_properties_of_hard_thresholding" class="header-anchor">Key Properties of Hard Thresholding</a></h3>
+<ol>
+<li><p><strong>Unbiasedness</strong>: For \(|\theta| > \lambda\), the estimator \(H_\lambda(\theta + \varepsilon)\) is unbiased for \(\theta\)</p>
+</li>
+<li><p><strong>Oracle Property</strong>: Under appropriate conditions, selects the true support set</p>
+</li>
+<li><p><strong>Idempotence</strong>: \(H_\lambda(H_\lambda(x)) = H_\lambda(x)\)</p>
+</li>
+<li><p><strong>Scaling</strong>: For \(\alpha > 0\), \(H_\lambda(\alpha x) = \alpha H_{\lambda/\alpha}(x)\)</p>
+</li>
+</ol>
+<h2 id="ol_start4_practical_algorithms"><a href="#ol_start4_practical_algorithms" class="header-anchor"><ol start="4">
+<li><p>Practical Algorithms</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="41_iterative_hard_thresholding_iht"><a href="#41_iterative_hard_thresholding_iht" class="header-anchor">4.1 Iterative Hard Thresholding &#40;IHT&#41;</a></h3>
+<p><strong>Problem</strong>: Solve \(\min_x \frac{1}{2}\|y - Ax\|^2\) subject to \(\|x\|_0 \leq k\)</p>
+<p><strong>Algorithm</strong>:</p>
+\[x^{(t+1)} = H_k\left(x^{(t)} + \mu A^\top(y - Ax^{(t)})\right)\]
+<p>where \(H_k(z)\) keeps the \(k\) largest magnitude entries of \(z\) and zeros out the rest:</p>
+\[[H_k(z)]_i = \begin{cases} 
+z_i & \text{if } i \in \text{indices of top-}k \text{ values of } |z| \\
+0 & \text{otherwise}
+\end{cases}\]
+<p>Step size: \(\mu \in (0, 2/\|A\|^2)\)</p>
+<h3 id="42_hard_thresholding_pursuit_htp"><a href="#42_hard_thresholding_pursuit_htp" class="header-anchor">4.2 Hard Thresholding Pursuit &#40;HTP&#41;</a></h3>
+<p><strong>Algorithm</strong>:</p>
+<ol>
+<li><p>\(x^{(t+1/2)} = x^{(t)} + \mu A^\top(y - Ax^{(t)})\) &#40;gradient step&#41;</p>
+</li>
+<li><p>\(S = \text{support of top-}k \text{ entries of } x^{(t+1/2)}\)</p>
+</li>
+<li><p>\(x^{(t+1)}_S = \arg\min_z \|y - A_S z\|^2\) &#40;least squares on support&#41;</p>
+</li>
+<li><p>\(x^{(t+1)}_{S^c} = 0\)</p>
+</li>
+</ol>
+<h3 id="43_smoothed_hard_thresholding"><a href="#43_smoothed_hard_thresholding" class="header-anchor">4.3 Smoothed Hard Thresholding</a></h3>
+<p>To handle discontinuity, use a smooth approximation:</p>
+\[H_{\lambda,\delta}(x) = \begin{cases} 
+0 & \text{if } |x| \leq \lambda - \delta \\
+\frac{x}{2\delta}(|x| - \lambda + \delta) & \text{if } \lambda - \delta < |x| < \lambda + \delta \\
+x & \text{if } |x| \geq \lambda + \delta
+\end{cases}\]
+<p>As \(\delta \to 0\), this converges to hard thresholding.</p>
+<h2 id="ol_start5_theoretical_guarantees"><a href="#ol_start5_theoretical_guarantees" class="header-anchor"><ol start="5">
+<li><p>Theoretical Guarantees</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="51_restricted_isometry_property_rip"><a href="#51_restricted_isometry_property_rip" class="header-anchor">5.1 Restricted Isometry Property &#40;RIP&#41;</a></h3>
+<p>Matrix \(A \in \mathbb{R}^{m \times n}\) satisfies RIP of order \(k\) with constant \(\delta_k\) if:</p>
+\[(1 - \delta_k)\|x\|^2 \leq \|Ax\|^2 \leq (1 + \delta_k)\|x\|^2\]
+<p>for all \(k\)-sparse vectors \(x\).</p>
+<h3 id="52_convergence_of_iht"><a href="#52_convergence_of_iht" class="header-anchor">5.2 Convergence of IHT</a></h3>
+<p><strong>Theorem</strong>: If \(A\) satisfies RIP with \(\delta_{3k} < 1/\sqrt{32}\), then IHT converges to the true \(k\)-sparse signal \(x^*\):</p>
+\[\|x^{(t)} - x^*\| \leq \rho^t \|x^{(0)} - x^*\| + C\|\eta\|\]
+<p>where \(\rho < 1\) and \(\eta\) is measurement noise.</p>
+<h3 id="53_sample_complexity"><a href="#53_sample_complexity" class="header-anchor">5.3 Sample Complexity</a></h3>
+<p>For \(k\)-sparse signals in \(\mathbb{R}^n\):</p>
+<ul>
+<li><p><strong>\(\ell_1\) minimization</strong> &#40;soft&#41;: requires \(m = O(k \log(n/k))\) measurements</p>
+</li>
+<li><p><strong>Hard thresholding</strong>: requires \(m = O(k \log(n/k))\) measurements &#40;similar order, better constants&#41;</p>
+</li>
+</ul>
+<h3 id="54_mse_comparison"><a href="#54_mse_comparison" class="header-anchor">5.4 MSE Comparison</a></h3>
+<p>For estimating \(k\)-sparse \(\theta\) from \(y = \theta + \varepsilon\) where \(\varepsilon \sim \mathcal{N}(0, \sigma^2 I)\):</p>
+<p><strong>Soft thresholding</strong>: \(\text{MSE} = \mathbb{E}\|S_\lambda(y) - \theta\|^2\)</p>
+<ul>
+<li><p>Bias-variance trade-off</p>
+</li>
+<li><p>Shrinks all coefficients</p>
+</li>
+</ul>
+<p><strong>Hard thresholding</strong>: \(\text{MSE} = \mathbb{E}\|H_\lambda(y) - \theta\|^2\)</p>
+<ul>
+<li><p>Lower MSE when \(\theta\) is truly sparse</p>
+</li>
+<li><p>Higher variance near threshold</p>
+</li>
+</ul>
+<p><strong>Oracle property</strong>: Under sparsity, hard thresholding achieves:</p>
+\[\text{MSE}_{\text{hard}} \approx k\sigma^2 + o(k\sigma^2)\]
+<p>which matches the oracle estimator that knows the true support.</p>
+<h2 id="ol_start6_variants_and_extensions"><a href="#ol_start6_variants_and_extensions" class="header-anchor"><ol start="6">
+<li><p>Variants and Extensions</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="61_firm_thresholding"><a href="#61_firm_thresholding" class="header-anchor">6.1 Firm Thresholding</a></h3>
+<p>Compromise between soft and hard:</p>
+\[F_{\lambda_1,\lambda_2}(x) = \begin{cases} 
+0 & \text{if } |x| \leq \lambda_1 \\
+\text{sign}(x) \cdot \frac{\lambda_2(|x| - \lambda_1)}{\lambda_2 - \lambda_1} & \text{if } \lambda_1 < |x| < \lambda_2 \\
+x & \text{if } |x| \geq \lambda_2
+\end{cases}\]
+<h3 id="62_scad_smoothly_clipped_absolute_deviation"><a href="#62_scad_smoothly_clipped_absolute_deviation" class="header-anchor">6.2 SCAD &#40;Smoothly Clipped Absolute Deviation&#41;</a></h3>
+<p>Penalty function:</p>
+\[p_\lambda(x) = \begin{cases} 
+\lambda |x| & \text{if } |x| \leq \lambda \\
+\frac{2a\lambda|x| - x^2 - \lambda^2}{2(a-1)} & \text{if } \lambda < |x| \leq a\lambda \\
+\frac{\lambda^2(a+1)}{2} & \text{if } |x| > a\lambda
+\end{cases}\]
+<p>Derivative gives a thresholding rule that transitions from soft to hard.</p>
+<h2 id="ol_start7_computational_complexity"><a href="#ol_start7_computational_complexity" class="header-anchor"><ol start="7">
+<li><p>Computational Complexity</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="per-iteration_cost"><a href="#per-iteration_cost" class="header-anchor">Per-Iteration Cost</a></h3>
+<p><strong>Soft thresholding</strong> &#40;LASSO via proximal gradient&#41;:</p>
+<ul>
+<li><p>Gradient computation: \(O(mn)\) for \(A \in \mathbb{R}^{m \times n}\)</p>
+</li>
+<li><p>Soft threshold: \(O(n)\)</p>
+</li>
+<li><p>Total: \(O(mn)\)</p>
+</li>
+</ul>
+<p><strong>Hard thresholding</strong> &#40;IHT&#41;:</p>
+<ul>
+<li><p>Gradient computation: \(O(mn)\)</p>
+</li>
+<li><p>Find top-\(k\) elements: \(O(n \log k)\) using quickselect or \(O(n)\) average case</p>
+</li>
+<li><p>Total: \(O(mn)\)</p>
+</li>
+</ul>
+<p>Both have similar per-iteration cost, but convergence behavior differs.</p>
+<h2 id="ol_start8_when_to_use_which"><a href="#ol_start8_when_to_use_which" class="header-anchor"><ol start="8">
+<li><p>When to Use Which</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="use_hard_thresholding_when"><a href="#use_hard_thresholding_when" class="header-anchor">Use Hard Thresholding When:</a></h3>
+<ul>
+<li><p>True sparsity level \(k\) is known</p>
+</li>
+<li><p>Signal is truly sparse &#40;many exact zeros&#41;</p>
+</li>
+<li><p>Unbiased estimates are critical</p>
+</li>
+<li><p>Fast approximate solutions suffice</p>
+</li>
+<li><p>Applications: compressed sensing with known sparsity, sparse neural network pruning</p>
+</li>
+</ul>
+<h3 id="use_soft_thresholding_when"><a href="#use_soft_thresholding_when" class="header-anchor">Use Soft Thresholding When:</a></h3>
+<ul>
+<li><p>Sparsity level is unknown</p>
+</li>
+<li><p>Need convex optimization guarantees</p>
+</li>
+<li><p>Robustness to noise is critical</p>
+</li>
+<li><p>Signal is compressible but not exactly sparse</p>
+</li>
+<li><p>Applications: LASSO regression, general regularization</p>
+</li>
+</ul>
+<h3 id="use_intermediate_methods_when"><a href="#use_intermediate_methods_when" class="header-anchor">Use Intermediate Methods When:</a></h3>
+<ul>
+<li><p>Want oracle properties with convexity</p>
+</li>
+<li><p>Need smooth optimization landscape</p>
+</li>
+<li><p>Applications: high-dimensional statistics &#40;SCAD, MCP&#41;</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
