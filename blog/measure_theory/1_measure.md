@@ -64,7 +64,7 @@ The Borel σ-algebra is not the only σ-algebra containing all open intervals—
     - **Non-measurable subsets of $[0,1]$:** Using a lot of mathematical "magic" (the Axiom of Choice), you can build sets inside $[0,1]$ that are so scrambled up, you can't say how long they are—not even zero or infinity! There's no way to measure them consistently.
     - **Sets with non-measurable characteristic functions:** For some of these wild sets, even the function that just says "is $x$ in the set or not?" (the characteristic function) is so weird that you can't integrate it using Lebesgue measure. It's like asking for the area under a curve that can't even be drawn!
           
-  > **Note:** The Borel σ-algebra does **not** contain these wild sets! Sets like the Vitali set are so strange that they can't be built from open or closed sets using countable unions, intersections, and complements. That's why they're not Borel—they only show up in much bigger σ-algebras like the power set or the Lebesgue σ-algebra.
+  > **Note:** The Borel σ-algebra does **not** contain these wild sets! Sets like the Vitali set are so strange that they can't be built from open or closed sets using countable unions, intersections, and complements. That's why they're not Borel—they only show up in much bigger σ-algebras like the power set or the Lebesgue σ-algebra.  
 
 
 - **The Lebesgue σ-algebra:** This is the collection of all Lebesgue measurable sets. It strictly contains the Borel σ-algebra, because it includes all Borel sets plus additional sets that can be constructed using the Lebesgue measure (for example, by adding subsets of Borel sets of measure zero).
