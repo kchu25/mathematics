@@ -1,6 +1,6 @@
 @def title = "Convexity of the Sum of k Largest Elements"
 @def published = "9 October 2025"
-@def tags = ["convexity"]
+@def tags = ["convex-optimization"]
 
 # Convexity of the Sum of k Largest Elements
 
