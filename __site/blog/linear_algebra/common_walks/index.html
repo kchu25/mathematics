@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Common Closed Walks Across Multiple Graphs</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="common_closed_walks_across_multiple_graphs"><a href="#common_closed_walks_across_multiple_graphs" class="header-anchor">Common Closed Walks Across Multiple Graphs</a></h1>
+<h2 id="problem_setup"><a href="#problem_setup" class="header-anchor">Problem Setup</a></h2>
+<p>You have multiple graphs \(G_1, G_2, \ldots, G_m\) on the <strong>same vertex set</strong> \(V = \{1, 2, \ldots, n\}\). You want to find closed walks that exist in <strong>all</strong> graphs simultaneously—that is, walks where every edge in the walk is present in every graph.</p>
+<h2 id="the_key_insight_element-wise_product"><a href="#the_key_insight_element-wise_product" class="header-anchor">The Key Insight: Element-wise Product</a></h2>
+<p>A closed walk of length \(k\) exists in <strong>all</strong> graphs if and only if every edge in the walk exists in every graph. This is captured by the <strong>element-wise &#40;Hadamard&#41; product</strong>:</p>
+\[\mathbf{A}_{\text{common}} = \mathbf{A}_1 \odot \mathbf{A}_2 \odot \cdots \odot \mathbf{A}_m\]
+<p>where:</p>
+\[[{\mathbf{A}_{\text{common}}}]_{ij} = \begin{cases} 
+1 & \text{if edge } (i,j) \text{ exists in ALL graphs } G_1, \ldots, G_m \\
+0 & \text{otherwise}
+\end{cases}\]
+<p>Then common closed walks are counted by:</p>
+\[\boxed{\text{Common closed walks of length } k = \text{tr}(\mathbf{A}_{\text{common}}^k)}\]
+<h2 id="wait_if_each_graph_is_complete"><a href="#wait_if_each_graph_is_complete" class="header-anchor">Wait... If Each Graph is Complete?</a></h2>
+<p>If <strong>each individual graph is complete</strong> &#40;every \(G_i\) is \(K_n\)&#41;, this becomes a special case. Then each adjacency matrix is:</p>
+\(\mathbf{A}_i = \mathbf{J} - \mathbf{I}\)
+<p>where \(\mathbf{J}\) is the all-ones matrix and \(\mathbf{I}\) is the identity.</p>
+<p>The Hadamard product of complete graphs is:</p>
+\(\mathbf{A}_{\text{common}} = (\mathbf{J} - \mathbf{I}) \odot (\mathbf{J} - \mathbf{I}) \odot \cdots \odot (\mathbf{J} - \mathbf{I}) = \mathbf{J} - \mathbf{I}\)
+<p>So the <strong>common graph is also complete</strong>&#33; But for general graphs, \(\mathbf{A}_{\text{common}}\) can be any graph that is a subgraph of each \(G_i\).</p>
+<h2 id="general_properties"><a href="#general_properties" class="header-anchor">General Properties</a></h2>
+<h3 id="the_common_graph_structure"><a href="#the_common_graph_structure" class="header-anchor">The Common Graph Structure</a></h3>
+<p>The common graph \(G_{\cap} = (V, E_{\cap})\) has edge set:</p>
+\(E_{\cap} = E_1 \cap E_2 \cap \cdots \cap E_m\)
+<p>This is the <strong>most restrictive</strong> graph—it only contains edges that appear in all layers.</p>
+<h3 id="interpreting_common_closed_walks"><a href="#interpreting_common_closed_walks" class="header-anchor">Interpreting Common Closed Walks</a></h3>
+\([\mathbf{A}_{\cap}^k]_{ii} = \text{closed walks of length } k \text{ from } i \text{ using only common edges}\)
+<p>These walks are &quot;robust&quot; in the sense that they exist regardless of which graph layer you&#39;re observing.</p>
+<h3 id="relationship_to_individual_graphs"><a href="#relationship_to_individual_graphs" class="header-anchor">Relationship to Individual Graphs</a></h3>
+<p>Since \(E_{\cap} \subseteq E_i\) for all \(i\):</p>
+\(\mathbf{A}_{\cap} \leq \mathbf{A}_i \quad \text{(element-wise)}\)
+<p>Therefore: \(\text{tr}(\mathbf{A}_{\cap}^k) \leq \text{tr}(\mathbf{A}_i^k) \quad \text{for all } i\)</p>
+<p>The number of common closed walks is <strong>at most</strong> the number in any individual graph.</p>
+<h2 id="more_interesting_case_different_vertex_sets"><a href="#more_interesting_case_different_vertex_sets" class="header-anchor">More Interesting Case: Different Vertex Sets</a></h2>
+<p>Perhaps you meant each graph is on a <strong>different vertex set</strong> but you want to find common <strong>patterns</strong>?</p>
+<h3 id="setup"><a href="#setup" class="header-anchor">Setup</a></h3>
+<ul>
+<li><p>Graph \(G_1\) on vertices \(V_1\) with \(|V_1| = n_1\)</p>
+</li>
+<li><p>Graph \(G_2\) on vertices \(V_2\) with \(|V_2| = n_2\)</p>
+</li>
+<li><p>Each is complete within its vertex set</p>
+</li>
+</ul>
+<h3 id="interpretation_1_graph_union"><a href="#interpretation_1_graph_union" class="header-anchor">Interpretation 1: Graph Union</a></h3>
+<p>If you consider the <strong>union</strong> of these graphs &#40;disjoint vertex sets&#41;, you get disconnected complete components. Common closed walks would only exist within each component.</p>
+<h3 id="interpretation_2_labeled_pattern_matching"><a href="#interpretation_2_labeled_pattern_matching" class="header-anchor">Interpretation 2: Labeled Pattern Matching</a></h3>
+<p>You want to find <strong>isomorphic closed walks</strong> across graphs. For example, if both graphs contain triangles &#40;which all complete graphs do&#41;, you&#39;re asking how many triangles exist in each.</p>
+<p>For complete graph \(K_n\), the number of each motif is:</p>
+<ul>
+<li><p><strong>Triangles</strong>: \(\binom{n}{3}\)</p>
+</li>
+<li><p><strong>4-cycles</strong>: \(\binom{n}{4} \times 3\) &#40;choose 4 vertices, then 3 ways to form a 4-cycle&#41;</p>
+</li>
+<li><p><strong>\(k\)-cycles</strong>: depends on \(k\) and \(n\)</p>
+</li>
+</ul>
+<h2 id="practical_example_three_general_graphs"><a href="#practical_example_three_general_graphs" class="header-anchor">Practical Example: Three General Graphs</a></h2>
+<p>Consider three graphs on vertices \(\{1, 2, 3, 4\}\):</p>
+<p><strong>Graph 1</strong>: Triangle with tail</p>
+<pre><code class="language-julia">1---2
+  |   |
+  3---4</code></pre>
+\(\mathbf{A}_1 = \begin{pmatrix} 
+0 & 1 & 1 & 0 \\
+1 & 0 & 0 & 1 \\
+1 & 0 & 0 & 1 \\
+0 & 1 & 1 & 0
+\end{pmatrix}\)
+<p><strong>Graph 2</strong>: 4-cycle</p>
+<pre><code class="language-julia">1---2
+  |   |
+  4---3</code></pre>
+\(\mathbf{A}_2 = \begin{pmatrix} 
+0 & 1 & 0 & 1 \\
+1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 1 \\
+1 & 0 & 1 & 0
+\end{pmatrix}\)
+<p><strong>Graph 3</strong>: Star from vertex 1</p>
+<pre><code class="language-julia">2
+    |
+  1-&#43;-4
+    |
+    3</code></pre>
+\(\mathbf{A}_3 = \begin{pmatrix} 
+0 & 1 & 1 & 1 \\
+1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0
+\end{pmatrix}\)
+<p><strong>Common edges</strong> &#40;intersection&#41;:</p>
+<p>Edge \((1,2)\): ✓ in all three Edge \((1,3)\): ✓ in \(G_1\) and \(G_3\), ✗ in \(G_2\) Edge \((1,4)\): ✗ in \(G_1\), ✓ in \(G_2\) and \(G_3\)</p>
+<p>Only edge \((1,2)\) is common to all&#33;</p>
+\(\mathbf{A}_{\cap} = \begin{pmatrix} 
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0
+\end{pmatrix}\)
+<p><strong>Common closed walks</strong>:</p>
+<p>For \(k=2\): \(\mathbf{A}_{\cap}^2 = \begin{pmatrix} 
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0
+\end{pmatrix}\)</p>
+\(\text{tr}(\mathbf{A}_{\cap}^2) = 2\)
+<p>These are the walks \(1 \to 2 \to 1\) and \(2 \to 1 \to 2\).</p>
+<p>For \(k=3\): \(\text{tr}(\mathbf{A}_{\cap}^3) = 0\)</p>
+<p>No triangles in the common graph &#40;it&#39;s just a single edge&#41;.</p>
+<p>For \(k=4\): \(\text{tr}(\mathbf{A}_{\cap}^4) = 2\)</p>
+<p>Same as \(k=2\) since we just go back and forth twice.</p>
+<h2 id="applications_and_interpretations"><a href="#applications_and_interpretations" class="header-anchor">Applications and Interpretations</a></h2>
+<h3 id="multilayer_networks"><a href="#multilayer_networks" class="header-anchor">Multilayer Networks</a></h3>
+<p>In <strong>multilayer network</strong> analysis, each graph represents a different type of relationship:</p>
+<ul>
+<li><p>Layer 1: Co-authorship network</p>
+</li>
+<li><p>Layer 2: Citation network  </p>
+</li>
+<li><p>Layer 3: Collaboration network</p>
+</li>
+</ul>
+<p>Common closed walks represent <strong>robust patterns</strong> that exist across all relationship types.</p>
+<h3 id="temporal_networks"><a href="#temporal_networks" class="header-anchor">Temporal Networks</a></h3>
+<p>If graphs represent <strong>snapshots over time</strong>:</p>
+<ul>
+<li><p>\(G_1\): Network at time \(t_1\)</p>
+</li>
+<li><p>\(G_2\): Network at time \(t_2\)</p>
+</li>
+<li><p>\(G_3\): Network at time \(t_3\)</p>
+</li>
+</ul>
+<p>Common closed walks are <strong>persistent structures</strong> that exist throughout the time period.</p>
+<h3 id="consensusaggregation"><a href="#consensusaggregation" class="header-anchor">Consensus/Aggregation</a></h3>
+<p>The common graph \(G_{\cap}\) represents the <strong>consensus structure</strong>—edges that all observers agree exist. This is conservative compared to union \(G_{\cup}\) which includes any edge reported by at least one observer.</p>
+<h2 id="computing_efficiency"><a href="#computing_efficiency" class="header-anchor">Computing Efficiency</a></h2>
+<h3 id="direct_computation"><a href="#direct_computation" class="header-anchor">Direct Computation</a></h3>
+<ol>
+<li><p>Compute \(\mathbf{A}_{\cap} = \mathbf{A}_1 \odot \mathbf{A}_2 \odot \cdots \odot \mathbf{A}_m\) &#40;element-wise AND&#41;</p>
+</li>
+<li><p>Compute \(\mathbf{A}_{\cap}^k\) via repeated matrix multiplication</p>
+</li>
+<li><p>Sum diagonal: \(\text{tr}(\mathbf{A}_{\cap}^k)\)</p>
+</li>
+</ol>
+<p><strong>Complexity</strong>: \(O(m \cdot n^2)\) for intersection &#43; \(O(k \cdot n^3)\) for powering &#40;or \(O(n^3 \log k)\) via matrix exponentiation&#41;</p>
+<h3 id="spectral_method"><a href="#spectral_method" class="header-anchor">Spectral Method</a></h3>
+<p>If \(\mathbf{A}_{\cap}\) has eigenvalues \(\lambda_1, \ldots, \lambda_n\):</p>
+\(\text{tr}(\mathbf{A}_{\cap}^k) = \sum_{i=1}^n \lambda_i^k\)
+<p><strong>Complexity</strong>: \(O(n^3)\) for eigendecomposition &#40;one time&#41;, then \(O(n)\) per query for different \(k\)</p>
+<p>This is <strong>much faster</strong> if you need counts for many different walk lengths&#33;</p>
+<h2 id="advanced_weighted_common_walks"><a href="#advanced_weighted_common_walks" class="header-anchor">Advanced: Weighted Common Walks</a></h2>
+<p>If edges have weights/probabilities in each graph, use:</p>
+\(\mathbf{W}_{\cap} = \mathbf{W}_1 \odot \mathbf{W}_2 \odot \cdots \odot \mathbf{W}_m\)
+<p>where \([{\mathbf{W}_{\cap}}]_{ij} = \prod_{\ell=1}^m [\mathbf{W}_{\ell}]_{ij}\)</p>
+<p>Then \([\mathbf{W}_{\cap}^k]_{ii}\) counts weighted closed walks with weight equal to the product of edge weights across all layers along the walk.</p>
+<h2 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h2>
+<table><tr><th align="right">Concept</th><th align="right">Formula</th><th align="right">Interpretation</th></tr><tr><td align="right">Common adjacency</td><td align="right">\(\mathbf{A}_{\cap} = \mathbf{A}_1 \odot \cdots \odot \mathbf{A}_m\)</td><td align="right">Edges in ALL graphs</td></tr><tr><td align="right">Common walks of length \(k\)</td><td align="right">\(\text{tr}(\mathbf{A}_{\cap}^k)\)</td><td align="right">Closed walks using only common edges</td></tr><tr><td align="right">Spectral form</td><td align="right">\(\sum_{i=1}^n \lambda_i^k\)</td><td align="right">Using eigenvalues of \(\mathbf{A}_{\cap}\)</td></tr><tr><td align="right">Common triangles</td><td align="right">\(\frac{\text{tr}(\mathbf{A}_{\cap}^3)}{6}\)</td><td align="right">Triangles present in all graphs</td></tr><tr><td align="right">Bound</td><td align="right">\(\text{tr}(\mathbf{A}_{\cap}^k) \leq \min_i \text{tr}(\mathbf{A}_i^k)\)</td><td align="right">At most the minimum across graphs</td></tr></table>
+<p><strong>Key insight</strong>: The Hadamard product \(\odot\) implements edge intersection, converting a multilayer/temporal problem into a single-graph motif counting problem&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

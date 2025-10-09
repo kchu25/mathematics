@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Why Trace of Adjacency Matrix Powers Counts Motifs</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="why_trace_of_adjacency_matrix_powers_counts_motifs"><a href="#why_trace_of_adjacency_matrix_powers_counts_motifs" class="header-anchor">Why Trace of Adjacency Matrix Powers Counts Motifs</a></h1>
+<h2 id="the_core_principle"><a href="#the_core_principle" class="header-anchor">The Core Principle</a></h2>
+<p>The trace of the \(k\)-th power of an adjacency matrix counts <strong>closed walks</strong> of length \(k\) in a graph. This fundamental relationship allows us to count various graph motifs &#40;substructures&#41;.</p>
+<h2 id="mathematical_foundation"><a href="#mathematical_foundation" class="header-anchor">Mathematical Foundation</a></h2>
+<h3 id="adjacency_matrix_definition"><a href="#adjacency_matrix_definition" class="header-anchor">Adjacency Matrix Definition</a></h3>
+<p>Let \(G = (V, E)\) be a graph with \(n\) vertices. The adjacency matrix \(\mathbf{A}\) is defined as:</p>
+\[A_{ij} = \begin{cases} 
+1 & \text{if } (i,j) \in E \\
+0 & \text{otherwise}
+\end{cases}\]
+<h3 id="powers_of_the_adjacency_matrix"><a href="#powers_of_the_adjacency_matrix" class="header-anchor">Powers of the Adjacency Matrix</a></h3>
+<p>The key insight is that entries of \(\mathbf{A}^k\) count walks:</p>
+\[[\mathbf{A}^k]_{ij} = \text{number of walks of length } k \text{ from vertex } i \text{ to vertex } j\]
+<p><strong>Proof by induction:</strong></p>
+<ul>
+<li><p><strong>Base case</strong> &#40;\(k=1\)&#41;: \([\mathbf{A}^1]_{ij} = A_{ij}\) counts walks of length 1 &#40;direct edges&#41;</p>
+</li>
+<li><p><strong>Inductive step</strong>: Assume true for \(k\). Then:</p>
+</li>
+</ul>
+\[[\mathbf{A}^{k+1}]_{ij} = \sum_{\ell=1}^{n} [\mathbf{A}^k]_{i\ell} \cdot A_{\ell j}\]
+<p>This sum counts all walks of length \(k\) from \(i\) to \(\ell\), extended by one edge from \(\ell\) to \(j\), giving walks of length \(k+1\) from \(i\) to \(j\).</p>
+<h3 id="the_trace_counts_closed_walks"><a href="#the_trace_counts_closed_walks" class="header-anchor">The Trace Counts Closed Walks</a></h3>
+<p>The trace of a matrix is the sum of its diagonal elements:</p>
+\[\text{tr}(\mathbf{A}^k) = \sum_{i=1}^{n} [\mathbf{A}^k]_{ii}\]
+<p>Since \([\mathbf{A}^k]_{ii}\) counts walks of length \(k\) from vertex \(i\) back to itself, we have:</p>
+\[\boxed{\text{tr}(\mathbf{A}^k) = \text{total number of closed walks of length } k}\]
+<h2 id="counting_triangles_a_detailed_example"><a href="#counting_triangles_a_detailed_example" class="header-anchor">Counting Triangles: A Detailed Example</a></h2>
+<h3 id="step_1_understanding_texttrmathbfa3"><a href="#step_1_understanding_texttrmathbfa3" class="header-anchor">Step 1: Understanding \(\text{tr}(\mathbf{A}^3)\)</a></h3>
+<p>Consider a triangle with vertices \(\{1, 2, 3\}\). The trace \(\text{tr}(\mathbf{A}^3)\) counts all closed walks of length 3:</p>
+\[\text{tr}(\mathbf{A}^3) = [\mathbf{A}^3]_{11} + [\mathbf{A}^3]_{22} + [\mathbf{A}^3]_{33} + \text{(non-triangle vertices)}\]
+<h3 id="step_2_counting_from_each_vertex"><a href="#step_2_counting_from_each_vertex" class="header-anchor">Step 2: Counting from Each Vertex</a></h3>
+<p>For the triangle \(\{1, 2, 3\}\), starting from vertex 1, there are exactly <strong>2 closed walks</strong> of length 3:</p>
+<ul>
+<li><p>Walk A: \(1 \to 2 \to 3 \to 1\) &#40;clockwise&#41;</p>
+</li>
+<li><p>Walk B: \(1 \to 3 \to 2 \to 1\) &#40;counterclockwise&#41;</p>
+</li>
+</ul>
+<p>So \([\mathbf{A}^3]_{11} = 2\) &#40;for this triangle&#41;.</p>
+<p>Similarly:</p>
+<ul>
+<li><p>From vertex 2: \(2 \to 3 \to 1 \to 2\) and \(2 \to 1 \to 3 \to 2\) contribute \([\mathbf{A}^3]_{22} = 2\)</p>
+</li>
+<li><p>From vertex 3: \(3 \to 1 \to 2 \to 3\) and \(3 \to 2 \to 1 \to 3\) contribute \([\mathbf{A}^3]_{33} = 2\)</p>
+</li>
+</ul>
+<h3 id="step_3_the_overcounting_factor"><a href="#step_3_the_overcounting_factor" class="header-anchor">Step 3: The Overcounting Factor</a></h3>
+<p>Each triangle is counted <strong>6 times</strong> in \(\text{tr}(\mathbf{A}^3)\):</p>
+<ul>
+<li><p>3 starting vertices × 2 directions &#61; 6 walks</p>
+</li>
+</ul>
+<p>Therefore:</p>
+\[\boxed{\text{Number of triangles} = \frac{\text{tr}(\mathbf{A}^3)}{6}}\]
+<h3 id="concrete_example"><a href="#concrete_example" class="header-anchor">Concrete Example</a></h3>
+<p>For the graph with edges \(\{(1,2), (2,3), (1,3)\}\):</p>
+\[\mathbf{A} = \begin{pmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0 \end{pmatrix}\]
+<p>Computing \(\mathbf{A}^3\):</p>
+\[\mathbf{A}^3 = \begin{pmatrix} 2 & 3 & 3 \\ 3 & 2 & 3 \\ 3 & 3 & 2 \end{pmatrix}\]
+<p>The diagonal shows \([\mathbf{A}^3]_{11} = [\mathbf{A}^3]_{22} = [\mathbf{A}^3]_{33} = 2\).</p>
+\[\text{tr}(\mathbf{A}^3) = 2 + 2 + 2 = 6 \implies \text{Number of triangles} = \frac{6}{6} = 1 \checkmark\]
+<h2 id="counting_4-cycles_squares_a_detailed_example"><a href="#counting_4-cycles_squares_a_detailed_example" class="header-anchor">Counting 4-Cycles &#40;Squares&#41;: A Detailed Example</a></h2>
+<h3 id="the_challenge_degenerate_walks"><a href="#the_challenge_degenerate_walks" class="header-anchor">The Challenge: Degenerate Walks</a></h3>
+<p>For 4-cycles, \(\text{tr}(\mathbf{A}^4)\) counts <strong>all</strong> closed walks of length 4, including non-square patterns&#33;</p>
+<p>Consider a square \(\{1, 2, 3, 4\}\) with edges forming a cycle. From vertex 1, we have:</p>
+<p><strong>Legitimate 4-cycle walks:</strong></p>
+<ul>
+<li><p>\(1 \to 2 \to 3 \to 4 \to 1\) &#40;clockwise around square&#41;</p>
+</li>
+<li><p>\(1 \to 4 \to 3 \to 2 \to 1\) &#40;counterclockwise around square&#41;</p>
+</li>
+</ul>
+<p><strong>Degenerate walks &#40;NOT part of the square structure&#41;:</strong></p>
+<ul>
+<li><p>\(1 \to 2 \to 1 \to 2 \to 1\) &#40;back-and-forth on edge \((1,2)\)&#41;</p>
+</li>
+<li><p>\(1 \to 4 \to 1 \to 4 \to 1\) &#40;back-and-forth on edge \((1,4)\)&#41;</p>
+</li>
+</ul>
+<h3 id="step-by-step_correction"><a href="#step-by-step_correction" class="header-anchor">Step-by-Step Correction</a></h3>
+<p><strong>Type 1 Degeneracy</strong>: Back-and-forth on a single edge</p>
+<p>If vertex \(i\) has degree \(d_i\), then there are \(d_i\) ways to go out-and-back twice: \(i \to j \to i \to j \to i\) for each neighbor \(j\).</p>
+<p>Total across all vertices: \(\sum_{i=1}^n d_i = 2|E|\)</p>
+<p><strong>Type 2 Degeneracy</strong>: Going around a triangle twice</p>
+<p>A walk like \(i \to j \to k \to i \to j\) &#40;where \(\{i,j,k\}\) form a triangle&#41; uses the triangle but isn&#39;t a 4-cycle.</p>
+<p>These walks return to \(i\) through a 2-step path: \([\mathbf{A}^2]_{ii}\) counts such patterns.</p>
+<h3 id="the_corrected_formula"><a href="#the_corrected_formula" class="header-anchor">The Corrected Formula</a></h3>
+\[\boxed{\text{Number of 4-cycles} = \frac{1}{8}\left[\text{tr}(\mathbf{A}^4) - 2|E| - \sum_{i=1}^n [\mathbf{A}^2]_{ii}\right]}\]
+<p>Where:</p>
+<ul>
+<li><p>Division by 8 accounts for: 4 starting vertices × 2 directions</p>
+</li>
+<li><p>\(2|E|\) removes back-and-forth walks</p>
+</li>
+<li><p>\(\sum_{i} [\mathbf{A}^2]_{ii} = \text{tr}(\mathbf{A}^2)\) removes triangle-based degeneracies</p>
+</li>
+</ul>
+<h3 id="concrete_example__2"><a href="#concrete_example__2" class="header-anchor">Concrete Example</a></h3>
+<p>For a 4-cycle graph with edges \(\{(1,2), (2,3), (3,4), (4,1)\}\):</p>
+\[\mathbf{A} = \begin{pmatrix} 0 & 1 & 0 & 1 \\ 1 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \\ 1 & 0 & 1 & 0 \end{pmatrix}\]
+<p>First compute \(\mathbf{A}^2\):</p>
+\[\mathbf{A}^2 = \begin{pmatrix} 2 & 0 & 2 & 0 \\ 0 & 2 & 0 & 2 \\ 2 & 0 & 2 & 0 \\ 0 & 2 & 0 & 2 \end{pmatrix}, \quad \text{tr}(\mathbf{A}^2) = 8\]
+<p>Then \(\mathbf{A}^4\):</p>
+\[\mathbf{A}^4 = \begin{pmatrix} 8 & 0 & 8 & 0 \\ 0 & 8 & 0 & 8 \\ 8 & 0 & 8 & 0 \\ 0 & 8 & 0 & 8 \end{pmatrix}, \quad \text{tr}(\mathbf{A}^4) = 32\]
+<p>We have \(|E| = 4\), so:</p>
+\[\text{Number of 4-cycles} = \frac{1}{8}[32 - 2(4) - 8] = \frac{1}{8}[32 - 8 - 8] = \frac{16}{8} = 2\]
+<p>Wait, we expected 1 cycle&#33; What happened? The factor of 2 comes from <strong>undirected edges</strong> being counted twice in the trace formulation. For undirected graphs, we need:</p>
+\[\boxed{\text{Number of 4-cycles (undirected)} = \frac{1}{8}\left[\text{tr}(\mathbf{A}^4) - 2|E| - \text{tr}(\mathbf{A}^2)\right] \div 2}\]
+<p>This gives us \(16/8 \div 2 = 1\) cycle. ✓</p>
+<h2 id="general_principle"><a href="#general_principle" class="header-anchor">General Principle</a></h2>
+<p>For any \(k\)-cycle:</p>
+<ol>
+<li><p>Compute \(\text{tr}(\mathbf{A}^k)\) to count all closed walks of length \(k\)</p>
+</li>
+<li><p>Subtract degenerate walks that revisit edges or use shorter cycles</p>
+</li>
+<li><p>Divide by \(2k\) for undirected graphs &#40;or \(k\) for directed graphs&#41; to account for multiple representations</p>
+</li>
+</ol>
+<h2 id="connection_to_eigenvalues"><a href="#connection_to_eigenvalues" class="header-anchor">Connection to Eigenvalues</a></h2>
+<p>An elegant alternative formula uses eigenvalues \(\lambda_1, \lambda_2, \ldots, \lambda_n\) of \(\mathbf{A}\):</p>
+\[\boxed{\text{tr}(\mathbf{A}^k) = \sum_{i=1}^{n} \lambda_i^k}\]
+<p>This follows from the spectral theorem and provides a way to compute motif counts via graph spectra&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

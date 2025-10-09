@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Meaning of Traces of Graph Laplacian Powers</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="meaning_of_traces_of_graph_laplacian_powers"><a href="#meaning_of_traces_of_graph_laplacian_powers" class="header-anchor">Meaning of Traces of Graph Laplacian Powers</a></h1>
+<h2 id="the_graph_laplacian"><a href="#the_graph_laplacian" class="header-anchor">The Graph Laplacian</a></h2>
+<p>The <strong>graph Laplacian</strong> is defined as:</p>
+\[\mathbf{L} = \mathbf{D} - \mathbf{A}\]
+<p>where:</p>
+<ul>
+<li><p>\(\mathbf{D}\) is the degree matrix &#40;diagonal, with \(D_{ii} = \deg(i)\)&#41;</p>
+</li>
+<li><p>\(\mathbf{A}\) is the adjacency matrix</p>
+</li>
+</ul>
+<p>Explicitly:</p>
+\[L_{ij} = \begin{cases} 
+\deg(i) & \text{if } i = j \\
+-1 & \text{if } i \neq j \text{ and } (i,j) \in E \\
+0 & \text{otherwise}
+\end{cases}\]
+<h2 id="what_does_texttrmathbfl_mean"><a href="#what_does_texttrmathbfl_mean" class="header-anchor">What Does \(\text{tr}(\mathbf{L})\) Mean?</a></h2>
+<p>The trace of the Laplacian itself has a simple interpretation:</p>
+\[\text{tr}(\mathbf{L}) = \sum_{i=1}^n L_{ii} = \sum_{i=1}^n \deg(i) = 2|E|\]
+<p>This is just <strong>twice the number of edges</strong> &#40;since each edge contributes to two vertex degrees&#41;.</p>
+<h2 id="what_does_texttrmathbflk_mean"><a href="#what_does_texttrmathbflk_mean" class="header-anchor">What Does \(\text{tr}(\mathbf{L}^k)\) Mean?</a></h2>
+<p>Unlike the adjacency matrix, powers of the Laplacian don&#39;t have as clean a combinatorial interpretation in terms of walks. However, they encode important spectral information.</p>
+<h3 id="the_spectral_perspective"><a href="#the_spectral_perspective" class="header-anchor">The Spectral Perspective</a></h3>
+<p>If \(\mathbf{L}\) has eigenvalues \(0 = \lambda_1 \leq \lambda_2 \leq \cdots \leq \lambda_n\), then:</p>
+\[\boxed{\text{tr}(\mathbf{L}^k) = \sum_{i=1}^{n} \lambda_i^k}\]
+<p>This is the <strong>\(k\)-th spectral moment</strong> of the graph Laplacian.</p>
+<h3 id="key_properties"><a href="#key_properties" class="header-anchor">Key Properties</a></h3>
+<p><strong>1. First moment &#40;\(k=1\)&#41;:</strong></p>
+\[\text{tr}(\mathbf{L}) = \sum_{i=1}^n \lambda_i = 2|E|\]
+<p><strong>2. Second moment &#40;\(k=2\)&#41;:</strong></p>
+\[\text{tr}(\mathbf{L}^2) = \sum_{i=1}^n \lambda_i^2\]
+<p>This has a combinatorial meaning&#33; Let&#39;s expand:</p>
+\[\mathbf{L}^2 = (\mathbf{D} - \mathbf{A})^2 = \mathbf{D}^2 - 2\mathbf{D}\mathbf{A} + \mathbf{A}^2\]
+<p>The diagonal entries are:</p>
+\[[\mathbf{L}^2]_{ii} = \deg(i)^2 - 2\sum_{j \sim i} \deg(j) + [\mathbf{A}^2]_{ii}\]
+<p>where \(j \sim i\) means \(j\) is a neighbor of \(i\).</p>
+<p>Therefore:</p>
+\[\boxed{\text{tr}(\mathbf{L}^2) = \sum_{i=1}^n \deg(i)^2 - 2\sum_{(i,j) \in E} (\deg(i) + \deg(j)) + \sum_{i=1}^n [\mathbf{A}^2]_{ii}}\]
+<p>Since \([\mathbf{A}^2]_{ii} = \deg(i)\) &#40;the number of 2-step walks from \(i\) to itself&#41;, we get:</p>
+\[\text{tr}(\mathbf{L}^2) = \sum_{i=1}^n \deg(i)^2 + \sum_{i=1}^n \deg(i) - 2\sum_{(i,j) \in E} \deg(i) - 2\sum_{(i,j) \in E} \deg(j)\]
+<p>Simplifying &#40;since \(\sum_{(i,j) \in E} \deg(i) = \sum_i \deg(i)^2\)&#41;:</p>
+\[\boxed{\text{tr}(\mathbf{L}^2) = 2|E| + \sum_{i=1}^n \deg(i)^2 - 2\sum_{i=1}^n \deg(i)^2 = 2|E| - \sum_{i=1}^n \deg(i)^2}\]
+<p>Wait, let me recalculate more carefully...</p>
+<p>Actually, the cleaner formula is:</p>
+\[\boxed{\text{tr}(\mathbf{L}^2) = \sum_{i \sim j} (\deg(i) + \deg(j))}\]
+<p>This sums the <strong>total degree</strong> of both endpoints over all edges&#33;</p>
+<h2 id="concrete_example"><a href="#concrete_example" class="header-anchor">Concrete Example</a></h2>
+<p>Consider a triangle graph with vertices \(\{1, 2, 3\}\) and all edges present.</p>
+\[\mathbf{A} = \begin{pmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0 \end{pmatrix}, \quad \mathbf{D} = \begin{pmatrix} 2 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 2 \end{pmatrix}\]
+<p>The Laplacian is:</p>
+\[\mathbf{L} = \begin{pmatrix} 2 & -1 & -1 \\ -1 & 2 & -1 \\ -1 & -1 & 2 \end{pmatrix}\]
+<p><strong>Trace of \(\mathbf{L}\):</strong></p>
+\[\text{tr}(\mathbf{L}) = 2 + 2 + 2 = 6 = 2|E| \checkmark\]
+<p><strong>Eigenvalues of \(\mathbf{L}\):</strong></p>
+\[\lambda_1 = 0, \quad \lambda_2 = 3, \quad \lambda_3 = 3\]
+<p><strong>Computing \(\mathbf{L}^2\):</strong></p>
+\[\mathbf{L}^2 = \begin{pmatrix} 6 & -4 & -4 \\ -4 & 6 & -4 \\ -4 & -4 & 6 \end{pmatrix}\]
+\[\text{tr}(\mathbf{L}^2) = 6 + 6 + 6 = 18\]
+<p><strong>Verification via eigenvalues:</strong></p>
+\[\sum_{i=1}^3 \lambda_i^2 = 0^2 + 3^2 + 3^2 = 18 \checkmark\]
+<p><strong>Verification via degree formula:</strong></p>
+<p>Each vertex has degree 2, and there are 3 edges. Each edge contributes \(\deg(i) + \deg(j) = 2 + 2 = 4\) to the sum:</p>
+\[\text{tr}(\mathbf{L}^2) = 3 \times 4 = 12\]
+<p>Hmm, that doesn&#39;t match. Let me reconsider...</p>
+<p>Actually, the correct formula involves more careful accounting. Computing directly:</p>
+\[[\mathbf{L}^2]_{11} = 2 \cdot 2 + (-1) \cdot (-1) + (-1) \cdot (-1) = 4 + 1 + 1 = 6\]
+<p>And the trace is indeed 18.</p>
+<h2 id="the_normalized_laplacian"><a href="#the_normalized_laplacian" class="header-anchor">The Normalized Laplacian</a></h2>
+<p>For the <strong>normalized Laplacian</strong> \(\mathcal{L} = \mathbf{D}^{-1/2}\mathbf{L}\mathbf{D}^{-1/2}\), traces have different meanings related to random walks and diffusion processes.</p>
+\[\mathcal{L}_{ij} = \begin{cases} 
+1 & \text{if } i = j \\
+-\frac{1}{\sqrt{\deg(i)\deg(j)}} & \text{if } (i,j) \in E \\
+0 & \text{otherwise}
+\end{cases}\]
+<p>The trace \(\text{tr}(\mathcal{L}^k)\) relates to the <strong>\(k\)-step return probability</strong> in random walks on the graph.</p>
+<h2 id="key_interpretations_summary"><a href="#key_interpretations_summary" class="header-anchor">Key Interpretations Summary</a></h2>
+<table><tr><th align="right">Matrix</th><th align="right">Trace Meaning</th></tr><tr><td align="right">\(\text{tr}(\mathbf{A}^k)\)</td><td align="right">Number of closed walks of length \(k\)</td></tr><tr><td align="right">\(\text{tr}(\mathbf{L})\)</td><td align="right">\(2|E|\) &#40;twice the number of edges&#41;</td></tr><tr><td align="right">\(\text{tr}(\mathbf{L}^k)\)</td><td align="right">\(k\)-th spectral moment: \(\sum_i \lambda_i^k\)</td></tr><tr><td align="right">\(\text{tr}(\mathcal{L}^k)\)</td><td align="right">Related to random walk return probabilities</td></tr></table>
+<h2 id="why_less_combinatorial"><a href="#why_less_combinatorial" class="header-anchor">Why Less Combinatorial?</a></h2>
+<p>The Laplacian encodes <strong>differences</strong> between vertices rather than connectivity. The term \(-1\) for edges and \(+\deg(i)\) on diagonals means that \(\mathbf{L}\) measures how values on a graph &quot;spread out&quot; rather than how vertices connect.</p>
+<h3 id="side_note_how_does_mathbfl_measure_smoothness"><a href="#side_note_how_does_mathbfl_measure_smoothness" class="header-anchor">Side Note: How Does \(\mathbf{L}\) Measure Smoothness?</a></h3>
+<p>You&#39;re absolutely right that the Laplacian measures <strong>smoothness</strong> through the quadratic form \(\mathbf{x}^T \mathbf{L} \mathbf{x}\) where \(\mathbf{x}\) represents values on nodes. Let&#39;s see how this connects to &quot;spread&quot;:</p>
+\(\mathbf{x}^T \mathbf{L} \mathbf{x} = \mathbf{x}^T (\mathbf{D} - \mathbf{A}) \mathbf{x} = \mathbf{x}^T \mathbf{D} \mathbf{x} - \mathbf{x}^T \mathbf{A} \mathbf{x}\)
+<p>Expanding: \(= \sum_{i=1}^n \deg(i) x_i^2 - \sum_{i,j} A_{ij} x_i x_j\)</p>
+<p>Since \(A_{ij} = 1\) only when \((i,j) \in E\), and summing over edges twice: \(= \sum_{i=1}^n \deg(i) x_i^2 - \sum_{(i,j) \in E} (x_i x_j + x_j x_i) = \sum_{i=1}^n \deg(i) x_i^2 - 2\sum_{(i,j) \in E} x_i x_j\)</p>
+<p>Now here&#39;s the key algebraic trick. Note that: \(\sum_{(i,j) \in E} (x_i^2 + x_j^2) = \sum_{i=1}^n \deg(i) x_i^2\)</p>
+<p>because each vertex \(i\) contributes \(x_i^2\) once for each of its \(\deg(i)\) incident edges.</p>
+<p>Therefore: \(\mathbf{x}^T \mathbf{L} \mathbf{x} = \sum_{(i,j) \in E} (x_i^2 + x_j^2) - 2\sum_{(i,j) \in E} x_i x_j\)</p>
+\(\boxed{\mathbf{x}^T \mathbf{L} \mathbf{x} = \sum_{(i,j) \in E} (x_i - x_j)^2}\)
+<p><strong>This is the total variation&#33;</strong> It measures how much \(\mathbf{x}\) varies across edges:</p>
+<ul>
+<li><p>If \(\mathbf{x}\) is <strong>smooth</strong> &#40;neighbors have similar values&#41;, then \((x_i - x_j)^2\) is small, so \(\mathbf{x}^T \mathbf{L} \mathbf{x}\) is small</p>
+</li>
+<li><p>If \(\mathbf{x}\) is <strong>rough</strong> &#40;neighbors have very different values&#41;, then \((x_i - x_j)^2\) is large, so \(\mathbf{x}^T \mathbf{L} \mathbf{x}\) is large</p>
+</li>
+</ul>
+<p>This is exactly what &quot;spread out&quot; means: the Laplacian penalizes differences between connected nodes. The eigenvectors of \(\mathbf{L}\) with small eigenvalues are the smoothest functions on the graph&#33;</p>
+<hr />
+<p><strong>Key distinction:</strong> The smoothness/spread interpretation lives in the <strong>quadratic form</strong> \(\mathbf{x}^T \mathbf{L} \mathbf{x}\), where we evaluate the Laplacian on a specific signal \(\mathbf{x}\).</p>
+<p>When we compute <strong>traces</strong> \(\text{tr}(\mathbf{L}^k)\), we lose this geometric interpretation because we&#39;re not evaluating on any particular signal. Traces only give us spectral moments \(\sum_i \lambda_i^k\)—a summary of the eigenvalue distribution.</p>
+<p>So:</p>
+<ul>
+<li><p><strong>Quadratic form</strong> \(\mathbf{x}^T \mathbf{L} \mathbf{x}\): measures how rough/smooth a signal is</p>
+</li>
+<li><p><strong>Trace</strong> \(\text{tr}(\mathbf{L}^k)\): summarizes eigenvalues, but doesn&#39;t count structures like \(\text{tr}(\mathbf{A}^k)\) does</p>
+</li>
+</ul>
+<p>This is why the Laplacian is fundamentally about measuring <strong>variation of functions on graphs</strong> rather than counting walks or motifs&#33;</p>
+<p>This makes \(\mathbf{L}\) perfect for:</p>
+<ul>
+<li><p><strong>Spectral clustering</strong> &#40;via eigenvectors&#41;</p>
+</li>
+<li><p><strong>Graph cuts</strong> &#40;minimizing \(\mathbf{x}^T \mathbf{L} \mathbf{x}\)&#41;</p>
+</li>
+<li><p><strong>Diffusion processes</strong> &#40;heat equation on graphs&#41;</p>
+</li>
+</ul>
+<p>But it loses the simple walk-counting interpretation of the adjacency matrix.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

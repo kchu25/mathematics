@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Adjacency and Laplacian Matrices: Intuition & Math</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="adjacency_and_laplacian_matrices_intuition_math"><a href="#adjacency_and_laplacian_matrices_intuition_math" class="header-anchor">Adjacency and Laplacian Matrices: Intuition &amp; Math</a></h1>
+<h2 id="adjacency_matrix_vector"><a href="#adjacency_matrix_vector" class="header-anchor">Adjacency Matrix × Vector</a></h2>
+<h3 id="the_intuition"><a href="#the_intuition" class="header-anchor">The Intuition</a></h3>
+<p>When you multiply the adjacency matrix \(A\) by a node feature vector \(\mathbf{x}\), you&#39;re <strong>aggregating information from neighbors</strong>. Each node collects and sums up the values from all nodes connected to it.</p>
+<h3 id="the_math"><a href="#the_math" class="header-anchor">The Math</a></h3>
+<p>Let&#39;s say you have a graph with adjacency matrix \(A\) where \(A_{ij} = 1\) if there&#39;s an edge from \(j\) to \(i\), and 0 otherwise.</p>
+<p>When you compute \(\mathbf{y} = A\mathbf{x}\):</p>
+\[y_i = \sum_{j=1}^{n} A_{ij} x_j = \sum_{j \in \mathcal{N}(i)} x_j\]
+<p>where \(\mathcal{N}(i)\) is the set of neighbors of node \(i\).</p>
+<h3 id="simple_example"><a href="#simple_example" class="header-anchor">Simple Example</a></h3>
+<p>Consider a graph: <code>1 -- 2 -- 3</code></p>
+\[A = \begin{bmatrix} 0 & 1 & 0 \\ 1 & 0 & 1 \\ 0 & 1 & 0 \end{bmatrix}, \quad \mathbf{x} = \begin{bmatrix} 5 \\ 3 \\ 7 \end{bmatrix}\]
+<p>Then:</p>
+\[A\mathbf{x} = \begin{bmatrix} 3 \\ 12 \\ 3 \end{bmatrix}\]
+<ul>
+<li><p>Node 1 aggregates from node 2: gets 3</p>
+</li>
+<li><p>Node 2 aggregates from nodes 1 &amp; 3: gets 5 &#43; 7 &#61; 12</p>
+</li>
+<li><p>Node 3 aggregates from node 2: gets 3</p>
+</li>
+</ul>
+<p><strong>Key insight</strong>: Each position in \(A\mathbf{x}\) tells you the sum of your neighbors&#39; values&#33;</p>
+<hr />
+<h2 id="graph_laplacian_matrix"><a href="#graph_laplacian_matrix" class="header-anchor">Graph Laplacian Matrix</a></h2>
+<h3 id="the_intuition__2"><a href="#the_intuition__2" class="header-anchor">The Intuition</a></h3>
+<p>The Laplacian \(L = D - A\) &#40;where \(D\) is the degree matrix&#41; measures how much a node&#39;s value <strong>differs from its neighbors</strong>. It captures the &quot;roughness&quot; or variation across edges.</p>
+<h3 id="the_math__2"><a href="#the_math__2" class="header-anchor">The Math</a></h3>
+<p>The Laplacian is defined as:</p>
+\[L = D - A\]
+<p>where \(D_{ii} = \deg(i)\) is the degree of node \(i\).</p>
+<p>When you compute \(L\mathbf{x}\):</p>
+\[L\mathbf{x} = D\mathbf{x} - A\mathbf{x}\]
+\[(L\mathbf{x})_i = d_i x_i - \sum_{j \in \mathcal{N}(i)} x_j = \sum_{j \in \mathcal{N}(i)} (x_i - x_j)\]
+<p>This gives you the <strong>difference between a node&#39;s value and each neighbor&#39;s value</strong>, summed up&#33;</p>
+<h3 id="smoothness_measure"><a href="#smoothness_measure" class="header-anchor">Smoothness Measure</a></h3>
+<p>The <strong>quadratic form</strong> captures total smoothness:</p>
+\[\mathbf{x}^T L \mathbf{x} = \frac{1}{2} \sum_{i,j} A_{ij}(x_i - x_j)^2\]
+<ul>
+<li><p>Small value → nodes and their neighbors have similar values &#40;smooth signal&#41;</p>
+</li>
+<li><p>Large value → big differences across edges &#40;rough signal&#41;</p>
+</li>
+</ul>
+<h3 id="same_example"><a href="#same_example" class="header-anchor">Same Example</a></h3>
+<p>With our graph <code>1 -- 2 -- 3</code> and \(\mathbf{x} = [5, 3, 7]^T\):</p>
+\[D = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 1 \end{bmatrix}, \quad L = \begin{bmatrix} 1 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 1 \end{bmatrix}\]
+\[L\mathbf{x} = \begin{bmatrix} 2 \\ -2 \\ 4 \end{bmatrix}\]
+<ul>
+<li><p>Node 1: \((5-3) = 2\) → it&#39;s 2 units higher than its neighbor</p>
+</li>
+<li><p>Node 2: \((3-5) + (3-7) = -2 - 4 = -6\)... wait, let me recalculate: \(2(3) - 12 = -6\)</p>
+</li>
+<li><p>Actually: Node 2 has degree 2, value 3, neighbors sum to 12, so: \(2(3) - 12 = -6\)</p>
+</li>
+</ul>
+<p>Let me fix this:</p>
+\[L\mathbf{x} = \begin{bmatrix} 2 \\ -6 \\ 4 \end{bmatrix}\]
+<ul>
+<li><p>Node 1: difference from average neighbor &#61; positive &#40;higher than neighbors&#41;</p>
+</li>
+<li><p>Node 2: difference &#61; negative &#40;lower than neighbors&#41; </p>
+</li>
+<li><p>Node 3: difference &#61; positive &#40;higher than neighbors&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="why_this_matters"><a href="#why_this_matters" class="header-anchor">Why This Matters</a></h2>
+<p><strong>GNNs</strong>: Neural networks use \(A\mathbf{x}\) &#40;or normalized versions&#41; to let nodes communicate with neighbors&#33;</p>
+<p><strong>Graph Signal Processing</strong>: Laplacian eigenvalues/eigenvectors tell you about graph structure and smooth vs. oscillatory patterns on the graph.</p>
+<p><strong>Spectral Clustering</strong>: Uses Laplacian eigenvectors to find communities&#33;</p>
+<hr />
+<h2 id="how_these_operations_are_used_in_practice"><a href="#how_these_operations_are_used_in_practice" class="header-anchor">How These Operations Are Used in Practice</a></h2>
+<h3 id="in_optimization_problems_objective_functions"><a href="#in_optimization_problems_objective_functions" class="header-anchor">In Optimization Problems &#40;Objective Functions&#41;</a></h3>
+<h4 id="graph_regularization"><a href="#graph_regularization" class="header-anchor">Graph Regularization</a></h4>
+<p>The Laplacian appears as a <strong>smoothness penalty</strong> in semi-supervised learning:</p>
+\(\mathcal{L} = \underbrace{\sum_{i \in \text{labeled}} \ell(y_i, \hat{y}_i)}_{\text{supervised loss}} + \underbrace{\lambda \mathbf{x}^T L \mathbf{x}}_{\text{smoothness regularizer}}\)
+<p><strong>What this does</strong>: The first term fits labeled data, the second term encourages predictions to be smooth across edges. If two nodes are connected, we want their predicted values \(x_i\) and \(x_j\) to be similar&#33;</p>
+<p><strong>Interpretation</strong>: Since \(\mathbf{x}^T L \mathbf{x} = \sum_{(i,j) \in E} (x_i - x_j)^2\), minimizing this term penalizes large differences between connected nodes. You&#39;re assuming <strong>connected nodes should have similar labels</strong> &#40;homophily assumption&#41;.</p>
+<h4 id="graph_cuts_clustering"><a href="#graph_cuts_clustering" class="header-anchor">Graph Cuts &amp; Clustering</a></h4>
+<p>In spectral clustering, we minimize:</p>
+\(\text{RatioCut}(A_1, \ldots, A_k) = \sum_{i=1}^{k} \frac{\text{cut}(A_i, \bar{A}_i)}{|A_i|}\)
+<p>This relaxes to solving:</p>
+\(\min_{\mathbf{x}} \mathbf{x}^T L \mathbf{x} \quad \text{subject to constraints}\)
+<p><strong>Interpretation</strong>: Finding the eigenvectors with smallest eigenvalues of \(L\) gives you the &quot;smoothest&quot; signals on the graph, which naturally separate communities&#33;</p>
+<h3 id="in_neural_networks_forward_pass"><a href="#in_neural_networks_forward_pass" class="header-anchor">In Neural Networks &#40;Forward Pass&#41;</a></h3>
+<h4 id="graph_convolutional_networks_gcn"><a href="#graph_convolutional_networks_gcn" class="header-anchor">Graph Convolutional Networks &#40;GCN&#41;</a></h4>
+<p>The classic GCN layer does:</p>
+\(H^{(l+1)} = \sigma\left(\tilde{D}^{-1/2}\tilde{A}\tilde{D}^{-1/2} H^{(l)} W^{(l)}\right)\)
+<p>where \(\tilde{A} = A + I\) &#40;add self-loops&#41;, \(\tilde{D}\) is the degree matrix of \(\tilde{A}\).</p>
+<p><strong>Breaking it down</strong>:</p>
+<ol>
+<li><p>\(H^{(l)}W^{(l)}\): Transform features with learnable weights</p>
+</li>
+<li><p>\(\tilde{A}(\cdot)\): Aggregate from neighbors &#40;including self&#41;</p>
+</li>
+<li><p>\(\tilde{D}^{-1/2}(\cdot)\tilde{D}^{-1/2}\): Normalize by degree &#40;symmetric normalization&#41;</p>
+</li>
+</ol>
+<p><strong>Interpretation</strong>: Each layer, every node collects information from its neighbors, transforms it, and passes it along. After \(k\) layers, each node has aggregated information from its \(k\)-hop neighborhood&#33;</p>
+<h4 id="message_passing_neural_networks_mpnn"><a href="#message_passing_neural_networks_mpnn" class="header-anchor">Message Passing Neural Networks &#40;MPNN&#41;</a></h4>
+<p>More general framework:</p>
+\(h_i^{(l+1)} = \text{UPDATE}\left(h_i^{(l)}, \sum_{j \in \mathcal{N}(i)} \text{MESSAGE}(h_i^{(l)}, h_j^{(l)}, e_{ij})\right)\)
+<p>This is essentially:</p>
+<ul>
+<li><p>Compute messages from neighbors &#40;function of their features&#41;</p>
+</li>
+<li><p>Aggregate messages &#40;\(\sum\) is the adjacency matrix operation&#33;&#41;</p>
+</li>
+<li><p>Update your own representation</p>
+</li>
+</ul>
+<p><strong>Interpretation</strong>: The adjacency matrix structure determines <strong>who talks to whom</strong>. The neural network learns <strong>what to say</strong> &#40;MESSAGE&#41; and <strong>how to listen</strong> &#40;UPDATE&#41;.</p>
+<h4 id="graph_attention_networks_gat"><a href="#graph_attention_networks_gat" class="header-anchor">Graph Attention Networks &#40;GAT&#41;</a></h4>
+<p>GAT learns the adjacency structure:</p>
+\(h_i^{(l+1)} = \sigma\left(\sum_{j \in \mathcal{N}(i)} \alpha_{ij} W h_j^{(l)}\right)\)
+<p>where \(\alpha_{ij}\) are attention weights &#40;learned, not fixed by \(A\)&#41;.</p>
+<p><strong>Interpretation</strong>: Instead of using fixed \(A_{ij}\), the network learns <strong>how much to weight each neighbor</strong>. Some neighbors matter more than others for the prediction task&#33;</p>
+<h4 id="example_node_classification_forward_pass"><a href="#example_node_classification_forward_pass" class="header-anchor">Example: Node Classification Forward Pass</a></h4>
+<pre><code class="language-julia">Input: Node features X ∈ ℝ^&#40;n×d&#41;, Adjacency A
+Layer 1: H₁ &#61; ReLU&#40;ÂXW₁&#41;  ← aggregation via Â
+Layer 2: H₂ &#61; ReLU&#40;ÂH₁W₂&#41; ← aggregation again
+Output: Ŷ &#61; softmax&#40;H₂&#41;</code></pre>
+<p>At each layer, \(\hat{A}\) &#40;normalized adjacency&#41; <strong>mixes features from neighbors</strong>, and \(W\)<strong>transforms</strong> the mixed features. The network learns which transformations are useful for the task&#33;</p>
+<h3 id="key_insight"><a href="#key_insight" class="header-anchor">Key Insight</a></h3>
+<ul>
+<li><p><strong>Laplacian in loss</strong>: Acts as a <strong>regularizer</strong> that enforces smoothness assumptions</p>
+</li>
+<li><p><strong>Adjacency in forward pass</strong>: Acts as the <strong>information routing</strong> mechanism that determines how node features flow through the network</p>
+</li>
+</ul>
+<p>Both leverage the same mathematical principle: <strong>connected nodes should influence each other</strong>&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 09, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
