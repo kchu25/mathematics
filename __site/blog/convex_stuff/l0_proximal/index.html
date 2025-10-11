@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>L0 Norm and Its Proximal Operator</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="l0_norm_and_its_proximal_operator"><a href="#l0_norm_and_its_proximal_operator" class="header-anchor">L0 Norm and Its Proximal Operator</a></h1>
+<h2 id="what_is_the_l0_norm"><a href="#what_is_the_l0_norm" class="header-anchor">What is the L0 Norm?</a></h2>
+<p>The <strong>L0 norm</strong> counts the number of non-zero elements in a vector. For a vector \(\mathbf{x} \in \mathbb{R}^n\):</p>
+\[\|\mathbf{x}\|_0 = |\{i : x_i \neq 0\}|\]
+<p>It&#39;s not technically a norm &#40;doesn&#39;t satisfy the triangle inequality&#41;, but we call it that anyway. Think of it as a measure of <strong>sparsity</strong> - how many entries are actually &quot;active&quot; or non-zero.</p>
+<h3 id="example"><a href="#example" class="header-anchor">Example</a></h3>
+<p>For \(\mathbf{x} = [0, 3, 0, -2, 0, 1]\):</p>
+<ul>
+<li><p>\(\|\mathbf{x}\|_0 = 3\) &#40;three non-zero entries&#41;</p>
+</li>
+</ul>
+<h2 id="why_do_we_care_about_l0"><a href="#why_do_we_care_about_l0" class="header-anchor">Why Do We Care About L0?</a></h2>
+<p>L0 regularization encourages <strong>sparse solutions</strong> - solutions where most entries are exactly zero. This is incredibly useful in:</p>
+<ul>
+<li><p><strong>Feature selection</strong>: Pick only the most relevant features</p>
+</li>
+<li><p><strong>Signal processing</strong>: Compress signals by keeping only important components</p>
+</li>
+<li><p><strong>Machine learning</strong>: Build simpler, more interpretable models</p>
+</li>
+<li><p><strong>Image processing</strong>: Remove noise while preserving edges</p>
+</li>
+</ul>
+<h2 id="the_l0_regularization_problem"><a href="#the_l0_regularization_problem" class="header-anchor">The L0 Regularization Problem</a></h2>
+<p>We typically solve optimization problems like:</p>
+\[\min_{\mathbf{x}} \frac{1}{2}\|\mathbf{y} - A\mathbf{x}\|_2^2 + \lambda \|\mathbf{x}\|_0\]
+<p>Where:</p>
+<ul>
+<li><p>\(\mathbf{y}\) is our observed data</p>
+</li>
+<li><p>\(A\) is some linear operator &#40;like a measurement matrix&#41;</p>
+</li>
+<li><p>\(\lambda > 0\) is the <strong>regularization parameter</strong></p>
+</li>
+<li><p>The first term is the data fidelity &#40;fit the data&#41;</p>
+</li>
+<li><p>The second term is the sparsity penalty &#40;keep it simple&#41;</p>
+</li>
+</ul>
+<h2 id="the_role_of_λ_lambda"><a href="#the_role_of_λ_lambda" class="header-anchor">The Role of λ &#40;Lambda&#41;</a></h2>
+<p>Lambda is the <strong>sparsity-inducing parameter</strong> that controls the trade-off:</p>
+<h3 id="small_λ_λ_0"><a href="#small_λ_λ_0" class="header-anchor">Small λ &#40;λ → 0&#41;</a></h3>
+<ul>
+<li><p><strong>Less sparsity pressure</strong></p>
+</li>
+<li><p>More entries can be non-zero</p>
+</li>
+<li><p>Solution fits the data more closely</p>
+</li>
+<li><p>Risk of overfitting</p>
+</li>
+</ul>
+<h3 id="large_λ"><a href="#large_λ" class="header-anchor">Large λ</a></h3>
+<ul>
+<li><p><strong>Strong sparsity pressure</strong></p>
+</li>
+<li><p>Fewer non-zero entries &#40;sparser solution&#41;</p>
+</li>
+<li><p>Solution may not fit data as well</p>
+</li>
+<li><p>More regularization/compression</p>
+</li>
+</ul>
+<h3 id="the_sweet_spot"><a href="#the_sweet_spot" class="header-anchor">The Sweet Spot</a></h3>
+<p>Choosing λ is an art and science:</p>
+<ul>
+<li><p>Too small: noisy, dense solutions</p>
+</li>
+<li><p>Too large: over-simplified, loss of information</p>
+</li>
+<li><p>Just right: sparse AND accurate</p>
+</li>
+</ul>
+<h2 id="the_proximal_operator"><a href="#the_proximal_operator" class="header-anchor">The Proximal Operator</a></h2>
+<p>The <strong>proximal operator</strong> is a key tool in optimization. For a function \(g(\mathbf{x})\) and step size \(t > 0\):</p>
+\[\text{prox}_{t \cdot g}(\mathbf{v}) = \arg\min_{\mathbf{x}} \left\{ g(\mathbf{x}) + \frac{1}{2t}\|\mathbf{x} - \mathbf{v}\|_2^2 \right\}\]
+<p>Think of it as: &quot;Find the point \(\mathbf{x}\) that balances being close to \(\mathbf{v}\) while having small \(g(\mathbf{x})\).&quot;</p>
+<h2 id="proximal_operator_of_l0_norm"><a href="#proximal_operator_of_l0_norm" class="header-anchor">Proximal Operator of L0 Norm</a></h2>
+<p>For the L0 norm, the proximal operator has a beautiful closed form&#33; For \(g(\mathbf{x}) = \lambda \|\mathbf{x}\|_0\):</p>
+\([\text{prox}_{\lambda \|\cdot\|_0}(\mathbf{v})]_i = \begin{cases} 
+v_i & \text{if } |v_i| > \sqrt{2\lambda} \\
+0 & \text{if } |v_i| \leq \sqrt{2\lambda}
+\end{cases}\)
+<p>This is called <strong>hard thresholding</strong>&#33;</p>
+<h3 id="proof_deriving_the_hard_thresholding_operator"><a href="#proof_deriving_the_hard_thresholding_operator" class="header-anchor">Proof: Deriving the Hard Thresholding Operator</a></h3>
+<p>Let&#39;s prove this step by step. We want to solve:</p>
+\(\text{prox}_{\lambda \|\cdot\|_0}(\mathbf{v}) = \arg\min_{\mathbf{x}} \left\{ \lambda \|\mathbf{x}\|_0 + \frac{1}{2}\|\mathbf{x} - \mathbf{v}\|_2^2 \right\}\)
+<p><strong>Key Insight</strong>: The problem is <strong>separable</strong> across components&#33; We can minimize each component independently.</p>
+<p>For component \(i\), we need to solve:</p>
+\(x_i^* = \arg\min_{x_i} \left\{ \lambda \cdot \mathbb{1}_{x_i \neq 0} + \frac{1}{2}(x_i - v_i)^2 \right\}\)
+<p>where \(\mathbb{1}_{x_i \neq 0}\) is the indicator function &#40;equals 1 if \(x_i \neq 0\), equals 0 otherwise&#41;.</p>
+<p><strong>Two Choices</strong>: For each component, we have exactly two options:</p>
+<p><strong>Option 1</strong>: Set \(x_i = 0\) \(\text{Cost}_1 = \lambda \cdot \mathbb{1}_{0 \neq 0} + \frac{1}{2}(0 - v_i)^2 = 0 + \frac{1}{2}v_i^2 = \frac{v_i^2}{2}\)</p>
+<p><strong>Option 2</strong>: Set \(x_i = v_i\) &#40;the minimizer of the quadratic term alone&#41; \(\text{Cost}_2 = \lambda \cdot \mathbb{1}_{v_i \neq 0} + \frac{1}{2}(v_i - v_i)^2 = \lambda + 0 = \lambda\)</p>
+<p>&#40;assuming \(v_i \neq 0\), which is the interesting case&#41;</p>
+<p><strong>Wait, why \(x_i = v_i\) for Option 2?</strong></p>
+<p>If we decide to have \(x_i \neq 0\), we pay the penalty \(\lambda\) anyway &#40;the indicator is 1&#41;. So we should minimize the quadratic part:</p>
+\(\min_{x_i \neq 0} \frac{1}{2}(x_i - v_i)^2\)
+<p>The minimizer is clearly \(x_i = v_i\) &#40;zero gradient: \(x_i - v_i = 0\)&#41;.</p>
+<p><strong>Comparing the Two Options</strong>:</p>
+<p>Choose \(x_i = 0\) if: \(\text{Cost}_1 < \text{Cost}_2\) \(\frac{v_i^2}{2} < \lambda\) \(v_i^2 < 2\lambda\) \(|v_i| < \sqrt{2\lambda}\)</p>
+<p>Choose \(x_i = v_i\) if: \(\text{Cost}_2 < \text{Cost}_1\) \(\lambda < \frac{v_i^2}{2}\) \(|v_i| > \sqrt{2\lambda}\)</p>
+<p>When \(|v_i| = \sqrt{2\lambda}\), both options have the same cost, so we can choose either &#40;typically we set to 0 by convention&#41;.</p>
+<p><strong>Final Result</strong>:</p>
+\(x_i^* = \begin{cases} 
+v_i & \text{if } |v_i| > \sqrt{2\lambda} \\
+0 & \text{if } |v_i| \leq \sqrt{2\lambda}
+\end{cases}\)
+<p>This is the <strong>hard thresholding operator</strong>:</p>
+\(\mathcal{H}_{\tau}(v) = \begin{cases} 
+v & \text{if } |v| > \tau \\
+0 & \text{if } |v| \leq \tau
+\end{cases}\)
+<p>with threshold \(\tau = \sqrt{2\lambda}\).</p>
+<p><strong>Geometric Interpretation</strong>: </p>
+<p>Imagine a parabola \((x_i - v_i)^2/2\) centered at \(v_i\). If we&#39;re forced to choose a non-zero \(x_i\), we want to be at the bottom of the parabola &#40;at \(v_i\)&#41;. But there&#39;s a fixed &quot;entry fee&quot; of \(\lambda\) for being non-zero. </p>
+<ul>
+<li><p>If \(v_i\) is far from zero &#40;\(|v_i| > \sqrt{2\lambda}\)&#41;, it&#39;s worth paying the \(\lambda\) penalty to stay at \(v_i\)</p>
+</li>
+<li><p>If \(v_i\) is close to zero &#40;\(|v_i| \leq \sqrt{2\lambda}\)&#41;, the quadratic cost of moving to zero is less than the penalty \(\lambda\), so we choose \(x_i = 0\)</p>
+</li>
+</ul>
+<p>The threshold \(\sqrt{2\lambda}\) is exactly the break-even point&#33;</p>
+<h3 id="what_does_this_mean"><a href="#what_does_this_mean" class="header-anchor">What Does This Mean?</a></h3>
+<p>The proximal operator acts <strong>element-wise</strong>:</p>
+<ul>
+<li><p>Keep components with large magnitude: \(|v_i| > \sqrt{2\lambda}\)</p>
+</li>
+<li><p>Kill components with small magnitude: \(|v_i| \leq \sqrt{2\lambda}\)</p>
+</li>
+</ul>
+<p>The threshold \(\sqrt{2\lambda}\) is determined by λ&#33;</p>
+<h3 id="example__2"><a href="#example__2" class="header-anchor">Example</a></h3>
+<p>Let \(\lambda = 2\) and \(\mathbf{v} = [3, 1, -2.5, 0.5, -1]\)</p>
+<p>The threshold is \(\sqrt{2 \times 2} = 2\)</p>
+\[\text{prox}_{2\|\cdot\|_0}(\mathbf{v}) = [3, 0, -2.5, 0, 0]\]
+<p>Only entries with \(|v_i| > 2\) survive&#33;</p>
+<h2 id="how_λ_controls_sparsity_in_the_proximal_operator"><a href="#how_λ_controls_sparsity_in_the_proximal_operator" class="header-anchor">How λ Controls Sparsity in the Proximal Operator</a></h2>
+<p>The parameter λ directly determines the threshold:</p>
+\[\text{threshold} = \sqrt{2\lambda}\]
+<h3 id="larger_λ_higher_threshold_more_sparsity"><a href="#larger_λ_higher_threshold_more_sparsity" class="header-anchor">Larger λ → Higher Threshold → More Sparsity</a></h3>
+<ul>
+<li><p>\(\lambda = 8\) gives threshold \(= 4\)</p>
+</li>
+<li><p>Only values with \(|v_i| > 4\) survive</p>
+</li>
+<li><p>Very sparse result</p>
+</li>
+</ul>
+<h3 id="smaller_λ_lower_threshold_less_sparsity"><a href="#smaller_λ_lower_threshold_less_sparsity" class="header-anchor">Smaller λ → Lower Threshold → Less Sparsity</a></h3>
+<ul>
+<li><p>\(\lambda = 0.5\) gives threshold \(= 1\)</p>
+</li>
+<li><p>Values with \(|v_i| > 1\) survive</p>
+</li>
+<li><p>Less sparse result</p>
+</li>
+</ul>
+<h3 id="λ_0_no_thresholding"><a href="#λ_0_no_thresholding" class="header-anchor">λ &#61; 0 → No Thresholding</a></h3>
+<ul>
+<li><p>Threshold &#61; 0</p>
+</li>
+<li><p>All entries survive</p>
+</li>
+<li><p>No sparsity</p>
+</li>
+</ul>
+<h2 id="why_hard_thresholding"><a href="#why_hard_thresholding" class="header-anchor">Why Hard Thresholding?</a></h2>
+<p>The L0 proximal operator performs <strong>hard thresholding</strong> because:</p>
+<ol>
+<li><p><strong>All-or-nothing decision</strong>: Either keep the full value or set it to zero</p>
+</li>
+<li><p><strong>No shrinkage</strong>: Unlike L1 &#40;soft thresholding&#41;, values aren&#39;t reduced, just kept or killed</p>
+</li>
+<li><p><strong>Combinatorial nature</strong>: L0 is counting discrete events &#40;non-zeros&#41;, leading to discrete decisions</p>
+</li>
+</ol>
+<p>Compare to <strong>soft thresholding</strong> &#40;L1 norm&#41;:</p>
+<ul>
+<li><p>L1: \(\text{sign}(v_i) \max(|v_i| - \lambda, 0)\) → shrinks values</p>
+</li>
+<li><p>L0: Keep or kill → binary decision</p>
+</li>
+</ul>
+<h2 id="using_the_proximal_operator_in_algorithms"><a href="#using_the_proximal_operator_in_algorithms" class="header-anchor">Using the Proximal Operator in Algorithms</a></h2>
+<p>Proximal operators enable efficient algorithms for non-smooth optimization:</p>
+<h3 id="proximal_gradient_descent"><a href="#proximal_gradient_descent" class="header-anchor">Proximal Gradient Descent</a></h3>
+<pre><code class="language-julia">Initialize x
+For each iteration:
+  1. Gradient step: v &#61; x - t * ∇f&#40;x&#41;
+  2. Proximal step: x &#61; prox_&#123;t*λ||·||_0&#125;&#40;v&#41;</code></pre>
+<h3 id="iterative_hard_thresholding_iht"><a href="#iterative_hard_thresholding_iht" class="header-anchor">Iterative Hard Thresholding &#40;IHT&#41;</a></h3>
+<p>A classic algorithm for L0-regularized problems:</p>
+<pre><code class="language-julia">Initialize x &#61; 0
+For each iteration:
+  1. Gradient step: v &#61; x &#43; t * A^T&#40;y - Ax&#41;
+  2. Hard threshold: x &#61; HT_√&#40;2λ&#41;&#40;v&#41;</code></pre>
+<h2 id="practical_considerations"><a href="#practical_considerations" class="header-anchor">Practical Considerations</a></h2>
+<h3 id="computational_complexity"><a href="#computational_complexity" class="header-anchor">Computational Complexity</a></h3>
+<ul>
+<li><p>L0 problems are NP-hard in general</p>
+</li>
+<li><p>Proximal operator is O&#40;n&#41; - very fast&#33;</p>
+</li>
+<li><p>But finding global optimum is hard</p>
+</li>
+<li><p>The combinatorial nature of L0 optimization makes it intractable for large models</p>
+</li>
+</ul>
+<h3 id="non-convexity"><a href="#non-convexity" class="header-anchor">Non-Convexity</a></h3>
+<ul>
+<li><p>L0 norm is <strong>non-convex</strong></p>
+</li>
+<li><p>Multiple local minima</p>
+</li>
+<li><p>Algorithms may get stuck</p>
+</li>
+<li><p>Often use L1 as a convex relaxation</p>
+</li>
+</ul>
+<h3 id="choosing_λ"><a href="#choosing_λ" class="header-anchor">Choosing λ</a></h3>
+<p>Common approaches:</p>
+<ul>
+<li><p><strong>Cross-validation</strong>: Try different λ, pick the best</p>
+</li>
+<li><p><strong>Information criteria</strong>: AIC, BIC</p>
+</li>
+<li><p><strong>Oracle knowledge</strong>: If you know the true sparsity level</p>
+</li>
+<li><p><strong>Learnable methods</strong>: Deep unfolding/algorithm unrolling &#40;discussed below&#41;</p>
+</li>
+</ul>
+<h2 id="why_is_l0_so_difficult_the_loss_landscape_perspective"><a href="#why_is_l0_so_difficult_the_loss_landscape_perspective" class="header-anchor">Why Is L0 So Difficult? The Loss Landscape Perspective</a></h2>
+<h3 id="the_fundamental_problem_np-hardness"><a href="#the_fundamental_problem_np-hardness" class="header-anchor">The Fundamental Problem: NP-Hardness</a></h3>
+<p>L0 optimization is NP-hard and computationally challenging, which means finding the globally optimal solution requires exponential time in the worst case. Here&#39;s why:</p>
+<p><strong>Combinatorial Explosion</strong>: The L0 problem is equivalent to <strong>best subset selection</strong>. With \(n\) features, you need to search through \(2^n\) possible subsets&#33; For just 50 features, that&#39;s over 1 quadrillion possibilities.</p>
+<p><strong>Key Papers on L0 Difficulty</strong>:</p>
+<ol>
+<li><p><strong>&quot;Fast Best Subset Selection&quot; &#40;Bertsimas et al., 2020&#41;</strong>  </p>
+<ul>
+<li><p>ArXiv: <a href="https://arxiv.org/abs/1803.01454">1803.01454</a></p>
+</li>
+<li><p>Shows that the L0-regularized least squares problem is central to sparse statistical learning and there is a steep computational price to pay when compared to popular sparse learning algorithms based on L1 regularization</p>
+</li>
+</ul>
+</li>
+<li><p><strong>&quot;Efficient Regularized Regression for Variable Selection with L0 Penalty&quot; &#40;2014&#41;</strong>  </p>
+<ul>
+<li><p>ArXiv: <a href="https://arxiv.org/abs/1407.7508">1407.7508</a></p>
+</li>
+<li><p>Explicitly states that L0 optimization is NP-hard</p>
+</li>
+</ul>
+</li>
+<li><p><strong>&quot;Compressed sensing with l0-norm&quot; &#40;2023&#41;</strong>  </p>
+<ul>
+<li><p>ArXiv: <a href="https://arxiv.org/abs/2304.12127">2304.12127</a></p>
+</li>
+<li><p>Analyzes L0 from a statistical physics perspective</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="the_loss_landscape_a_nightmare"><a href="#the_loss_landscape_a_nightmare" class="header-anchor">The Loss Landscape: A Nightmare</a></h3>
+<p>The loss landscape of L0-regularized problems has several nasty properties:</p>
+<p><strong>Non-Convex</strong>: The landscape is full of hills and valleys. Standard convex optimization guarantees don&#39;t apply.</p>
+<p><strong>Discontinuous</strong>: The L0 norm creates discontinuities - the loss jumps when you add or remove a feature from the active set.</p>
+<p><strong>Non-Differentiable</strong>: You can&#39;t use standard gradient descent because the gradient doesn&#39;t exist &#40;or is zero everywhere&#41;.</p>
+<p><strong>Flat Regions</strong>: Large plateaus where many solutions have the same L0 value make optimization difficult.</p>
+<p><strong>Combinatorial Structure</strong>: The combinatorial nature of this problem makes for an intractable optimization for large models. The loss landscape is inherently discrete in nature.</p>
+<h3 id="why_l1_works_as_a_surrogate"><a href="#why_l1_works_as_a_surrogate" class="header-anchor">Why L1 Works &#40;As a Surrogate&#41;</a></h3>
+<p>Because L0 is so hard, most people use <strong>L1 regularization</strong> &#40;the Lasso&#41; as a convex relaxation:</p>
+<ul>
+<li><p>L1 is convex &#40;one global minimum&#41;</p>
+</li>
+<li><p>L1 is differentiable almost everywhere</p>
+</li>
+<li><p>L1 still promotes sparsity &#40;soft thresholding&#41;</p>
+</li>
+<li><p>Efficient algorithms exist &#40;coordinate descent, proximal gradient&#41;</p>
+</li>
+</ul>
+<p>But L1 isn&#39;t perfect - it tends to produce less sparse solutions and can be biased.</p>
+<h2 id="learning_λ_deep_unfoldingalgorithm_unrolling"><a href="#learning_λ_deep_unfoldingalgorithm_unrolling" class="header-anchor">Learning λ: Deep Unfolding/Algorithm Unrolling</a></h2>
+<p>You&#39;re absolutely right that choosing λ is difficult&#33; Recent work on <strong>algorithm unfolding</strong> &#40;also called unrolling&#41; tries to learn λ &#40;and other parameters&#41; from data. This is inspired by the success of deep learning.</p>
+<h3 id="the_unfolding_idea"><a href="#the_unfolding_idea" class="header-anchor">The Unfolding Idea</a></h3>
+<p><strong>Basic concept</strong>: Take an iterative optimization algorithm &#40;like ISTA for L1 or IHT for L0&#41; and:</p>
+<ol>
+<li><p>Unroll K iterations into a K-layer neural network</p>
+</li>
+<li><p>Make parameters &#40;like λ, step sizes, even the dictionary&#41; <strong>learnable</strong></p>
+</li>
+<li><p>Train end-to-end on data using backpropagation</p>
+</li>
+</ol>
+<h3 id="example_lista_learned_ista"><a href="#example_lista_learned_ista" class="header-anchor">Example: LISTA &#40;Learned ISTA&#41;</a></h3>
+<p>LISTA takes the Iterative Soft Thresholding Algorithm and makes it a neural network:</p>
+<pre><code class="language-julia">Traditional ISTA:
+x^&#40;k&#43;1&#41; &#61; SoftThresh&#40;x^k &#43; A^T&#40;y - Ax^k&#41;, λ&#41;
+
+LISTA Layer k:
+x^&#40;k&#43;1&#41; &#61; SoftThresh&#40;W1 * y &#43; W2 * x^k, θ_k&#41;</code></pre>
+<p>Where \(W_1, W_2, \theta_k\) are all learned&#33; Each layer can have its own threshold parameter.</p>
+<h3 id="why_is_learning_λ_still_difficult"><a href="#why_is_learning_λ_still_difficult" class="header-anchor">Why Is Learning λ Still Difficult?</a></h3>
+<p>Even with unfolding, learning optimal regularization is challenging:</p>
+<p><strong>1. Data Dependency</strong>: The optimal λ depends heavily on:</p>
+<ul>
+<li><p>Noise level in your data</p>
+</li>
+<li><p>Sparsity level of the true signal  </p>
+</li>
+<li><p>Problem conditioning</p>
+</li>
+<li><p>Sample size</p>
+</li>
+</ul>
+<p><strong>2. Generalization</strong>: A λ learned on one dataset may not transfer to another</p>
+<p><strong>3. Multiple Local Minima</strong>: Designing the learnable parameters of the unfolded network is crucial to obtain good recovery performance. The training landscape itself can be non-convex&#33;</p>
+<p><strong>4. Computational Cost</strong>: Training unfolded networks requires many forward/backward passes</p>
+<p><strong>5. Limited Layers</strong>: You can only unroll a finite number of iterations &#40;typically 10-30&#41;, so the algorithm may not fully converge</p>
+<p><strong>6. L0 Specificity</strong>: Most unfolding work focuses on L1 &#40;LISTA, ISTA&#41; because it&#39;s differentiable. L0 unfolding is much harder because of the discrete, non-differentiable nature.</p>
+<h3 id="recent_work_on_learnable_regularization"><a href="#recent_work_on_learnable_regularization" class="header-anchor">Recent Work on Learnable Regularization</a></h3>
+<p>Some recent papers exploring this:</p>
+<ol>
+<li><p><strong>&quot;Learning Regularization Parameter-Maps&quot; &#40;SIAM, 2024&#41;</strong>  </p>
+<ul>
+<li><p>Introduces a method for fast estimation of data-adapted, spatially and temporally dependent regularization parameter-maps using algorithm unrolling and deep neural networks</p>
+</li>
+</ul>
+</li>
+<li><p><strong>&quot;Tuning-Free Structured Sparse PCA via Deep Unfolding Networks&quot; &#40;2025&#41;</strong>  </p>
+<ul>
+<li><p>Can not only learn the regularization parameters of the model, but also learn the penalty parameters in ADMM, thus providing a tuning-free algorithm</p>
+</li>
+</ul>
+</li>
+<li><p><strong>&quot;SALSA-Net: Explainable Deep Unrolling Networks&quot; &#40;2023&#41;</strong>  </p>
+<ul>
+<li><p>All parameters including shrinkage threshold and gradient steps are learned end-to-end, resulting in faster convergence and accurate recovery</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="the_bottom_line_on_learnable_methods"><a href="#the_bottom_line_on_learnable_methods" class="header-anchor">The Bottom Line on Learnable Methods</a></h3>
+<p>Yes, you&#39;re right - <strong>even with unfolding, it&#39;s difficult&#33;</strong> The challenges are:</p>
+<ul>
+<li><p>Training data requirements</p>
+</li>
+<li><p>Computational cost</p>
+</li>
+<li><p>Transferability/generalization</p>
+</li>
+<li><p>L0 is particularly hard due to its discrete nature</p>
+</li>
+<li><p>Most successful unfolding work uses L1, not L0</p>
+</li>
+</ul>
+<p>The field is still actively researching how to make these methods more robust and practical.</p>
+<h2 id="summary"><a href="#summary" class="header-anchor">Summary</a></h2>
+<p>The L0 norm and its proximal operator give us:</p>
+<ol>
+<li><p><strong>Sparsity</strong>: Count non-zero entries</p>
+</li>
+<li><p><strong>Hard thresholding</strong>: Keep or kill decision at threshold \(\sqrt{2\lambda}\)</p>
+</li>
+<li><p><strong>Parameter λ</strong>: Direct control over sparsity level</p>
+</li>
+<li><p><strong>Efficient computation</strong>: Element-wise operation in O&#40;n&#41; time</p>
+</li>
+<li><p><strong>Foundation for algorithms</strong>: Powers methods like IHT</p>
+</li>
+<li><p><strong>Computational challenges</strong>: NP-hard optimization with difficult loss landscapes</p>
+</li>
+<li><p><strong>Modern approaches</strong>: Algorithm unfolding can learn parameters, but remains challenging</p>
+</li>
+</ol>
+<p>The magic is that λ lets you <strong>dial in</strong> exactly how sparse you want your solution to be - but choosing the right λ remains one of the hardest problems in sparse optimization, even with modern deep learning approaches&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 11, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
