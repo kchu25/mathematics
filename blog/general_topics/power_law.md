@@ -77,21 +77,24 @@ The Pareto principle (80% of effects come from 20% of causes) is a power law in 
 > **Side Note: The Math Behind 80-20**
 > 
 > Going back to our basic power law formula: $y = kx^\alpha$
+
 > 
 > For wealth distribution (the classic Pareto example):
-> - **x** = wealth threshold, ranging from some minimum $x_{min}$ (say, $1,000) to infinity
+> - **x** = wealth threshold, ranging from some minimum $x_{min}$ (say, usd 1,000) to infinity
 > - **y** = number of people with wealth ≥ x (frequency)
 > - **k** = a constant determined by the total population and $x_{min}$. Often written as $k = N \cdot x_{min}^\alpha$ where N is total population
 > - **α** = the exponent (typically negative, around -1.161 for 80-20)
 > 
-> So if $\alpha \approx -1.161$, the relationship is: $y = k \cdot x^{-1.161}$
+> So if $\alpha \approx -1.161$, the relationship is: $y = k \, x^{-1.161}$
 > 
 > **Concrete example**: If you have 1 million people and set $x_{min} = \$10,000$:
-> - At x = $10,000: many people have at least this much
-> - At x = $100,000: fewer people (about 100,000 people if α = -1.161)
-> - At x = $1,000,000: very few people (about 10,000 people)
+> - At x = \$10,000: many people have at least this much
+> - At x = \$100,000: fewer people (about 100,000 people if α = -1.161)
+> - At x = \$1,000,000: very few people (about 10,000 people)
 > 
 > The magic of α ≈ -1.161 is that it makes the top 20% of people hold exactly 80% of the total wealth.
+
+
 > 
 > **Visualization:**
 > 
@@ -109,7 +112,7 @@ The Pareto principle (80% of effects come from 20% of causes) is a power law in 
 >    |                  ●●●
 >    +------------------------
 >     10k  50k 100k    500k 1M
->           Wealth ($)
+>           Wealth (\$)
 > 
 > (Log-log scale - notice the straight line!)
 > ```
@@ -136,6 +139,8 @@ The Pareto principle (80% of effects come from 20% of causes) is a power law in 
 > - More negative (like -2) → extreme inequality (90-10, 95-5)
 > 
 > So "80-20" is just one specific instance in a family of power law distributions!
+
+
 
 ## Why Do Power Laws Happen?
 

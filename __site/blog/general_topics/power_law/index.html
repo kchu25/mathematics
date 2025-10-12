@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Power Laws: A Conversational Guide</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="power_laws_a_conversational_guide"><a href="#power_laws_a_conversational_guide" class="header-anchor">Power Laws: A Conversational Guide</a></h1>
+<h2 id="the_one-sentence_summary"><a href="#the_one-sentence_summary" class="header-anchor">The One-Sentence Summary</a></h2>
+<p><strong>Technical version:</strong> A power law describes relationships where one quantity varies as a power of another, making extreme values way more common than you&#39;d expect in a normal distribution.</p>
+<p><strong>Conversational version &#40;80-20 style&#41;:</strong> Power laws explain why a small number of things &#40;the top 20&#37;&#41; often account for most of the impact &#40;80&#37; of the effect&#41; - whether that&#39;s wealth, website traffic, or city populations.</p>
+<h2 id="what_are_power_laws"><a href="#what_are_power_laws" class="header-anchor">What Are Power Laws?</a></h2>
+<p>Power laws are mathematical relationships that appear throughout nature and society. The basic pattern is simple: small things are extremely common, and big things are rare—but not <em>as</em> rare as you might think.</p>
+<h3 id="the_mathematical_form"><a href="#the_mathematical_form" class="header-anchor">The Mathematical Form</a></h3>
+\(y = kx^\alpha\)
+<p>Where:</p>
+<ul>
+<li><p>\(k\) is a constant</p>
+</li>
+<li><p>\(\alpha\) &#40;alpha&#41; is the exponent, usually negative</p>
+</li>
+<li><p>This creates a characteristic straight line on a log-log plot</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Key Intuition: What does &quot;X follows a power law&quot; actually mean?</strong></p>
+<p>When we say &quot;something follows a power law,&quot; we&#39;re describing the <em>distribution</em> or <em>frequency</em> of that thing:</p>
+<ul>
+<li><p><strong>The &quot;something&quot;</strong> &#61; what you&#39;re measuring &#40;wealth, city size, connections&#41;</p>
+</li>
+<li><p><strong>x</strong> &#61; the size/magnitude/value of that thing</p>
+</li>
+<li><p><strong>y</strong> &#61; frequency/count - how many instances exist at that level</p>
+</li>
+</ul>
+<p><strong>Examples to clarify:</strong></p>
+<p>&quot;City populations follow a power law&quot;:</p>
+<ul>
+<li><p>x &#61; city size &#40;10,000 people, 100,000 people, 1 million people...&#41;</p>
+</li>
+<li><p>y &#61; number of cities of that size</p>
+</li>
+<li><p>Relationship: Many small cities, progressively fewer medium cities, very few megacities</p>
+</li>
+</ul>
+<p>&quot;Word frequency follows a power law&quot; &#40;Zipf&#39;s law&#41;:</p>
+<ul>
+<li><p>x &#61; word rank &#40;1st most common word, 2nd, 3rd, 100th...&#41;</p>
+</li>
+<li><p>y &#61; how often that word appears in text</p>
+</li>
+<li><p>Relationship: The #1 word &#40;&quot;the&quot;&#41; appears WAY more than #100, following \(y = kx^{-1}\)</p>
+</li>
+</ul>
+<p>&quot;Protein interactions follow a power law&quot;:</p>
+<ul>
+<li><p>x &#61; number of interaction partners a protein has</p>
+</li>
+<li><p>y &#61; how many proteins have that many partners</p>
+</li>
+<li><p>Relationship: Most proteins are specialists &#40;few partners&#41;, a few &quot;hub&quot; proteins interact with many others &#40;like chaperones, signaling molecules&#41;. These hubs are often MORE generalist, while specialized proteins have fewer connections. This creates network resilience&#33;</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="real-world_examples"><a href="#real-world_examples" class="header-anchor">Real-World Examples</a></h2>
+<p><strong>City Populations</strong>: A few massive megacities, many medium-sized cities, and countless small towns follow a power law distribution.</p>
+<p><strong>Wealth Distribution</strong>: The concentration of wealth among the top percentages follows a power law—this is related to the famous Pareto principle.</p>
+<p><strong>Earthquake Magnitudes</strong>: Small earthquakes happen constantly, large ones are rare, but major quakes occur more frequently than a normal distribution would predict.</p>
+<p><strong>Word Frequency</strong>: Common words like &quot;the&quot; appear constantly, while unusual words like &quot;serendipity&quot; rarely show up. This follows Zipf&#39;s law, a type of power law.</p>
+<p><strong>Internet Links</strong>: A few websites get millions of links, most get very few—the web&#39;s structure is a power law network.</p>
+<h2 id="key_characteristics"><a href="#key_characteristics" class="header-anchor">Key Characteristics</a></h2>
+<h3 id="scale-free_nature"><a href="#scale-free_nature" class="header-anchor">Scale-Free Nature</a></h3>
+<p>Power laws are <strong>scale-free</strong>, meaning they look the same at different scales. Zoom in or out, and the pattern persists. This is fundamentally different from normal distributions.</p>
+<h3 id="heavy_tails"><a href="#heavy_tails" class="header-anchor">Heavy Tails</a></h3>
+<p>Unlike bell curves where extreme values are exponentially rare, power laws have &quot;heavy tails&quot;—extremes happen more often than you&#39;d expect.</p>
+<h3 id="the_80-20_rule"><a href="#the_80-20_rule" class="header-anchor">The 80-20 Rule</a></h3>
+<p>The Pareto principle &#40;80&#37; of effects come from 20&#37; of causes&#41; is a power law in action. It shows up in business, productivity, and countless other domains.</p>
+<blockquote>
+<p><strong>Side Note: The Math Behind 80-20</strong></p>
+<p>Going back to our basic power law formula: \(y = kx^\alpha\)</p>
+</blockquote>
+<blockquote>
+<p>For wealth distribution &#40;the classic Pareto example&#41;:</p>
+<ul>
+<li><p><strong>x</strong> &#61; wealth threshold, ranging from some minimum \(x_{min}\) &#40;say, usd 1,000&#41; to infinity</p>
+</li>
+<li><p><strong>y</strong> &#61; number of people with wealth ≥ x &#40;frequency&#41;</p>
+</li>
+<li><p><strong>k</strong> &#61; a constant determined by the total population and \(x_{min}\). Often written as \(k = N \cdot x_{min}^\alpha\) where N is total population</p>
+</li>
+<li><p><strong>α</strong> &#61; the exponent &#40;typically negative, around -1.161 for 80-20&#41;</p>
+</li>
+</ul>
+<p>So if \(\alpha \approx -1.161\), the relationship is: \(y = k \, x^{-1.161}\)</p>
+<p><strong>Concrete example</strong>: If you have 1 million people and set \(x_{min} = \$10,000\):</p>
+<ul>
+<li><p>At x &#61; &#36;10,000: many people have at least this much</p>
+</li>
+<li><p>At x &#61; &#36;100,000: fewer people &#40;about 100,000 people if α &#61; -1.161&#41;</p>
+</li>
+<li><p>At x &#61; &#36;1,000,000: very few people &#40;about 10,000 people&#41;</p>
+</li>
+</ul>
+<p>The magic of α ≈ -1.161 is that it makes the top 20&#37; of people hold exactly 80&#37; of the total wealth.</p>
+</blockquote>
+<blockquote>
+<p><strong>Visualization:</strong></p>
+</blockquote>
+<pre><code class="language-julia">&gt; Number of People &#40;y&#41; vs Wealth Threshold &#40;x&#41;
+&gt; 
+&gt; 1M |●
+&gt;    |
+&gt;    |  ●
+&gt;100k|    ●
+&gt;    |      ●
+&gt; 10k|         ●
+&gt;    |            ●
+&gt;  1k|               ●
+&gt;    |                  ●●●
+&gt;    &#43;------------------------
+&gt;     10k  50k 100k    500k 1M
+&gt;           Wealth &#40;\&#36;&#41;
+&gt; 
+&gt; &#40;Log-log scale - notice the straight line&#33;&#41;
+&gt;</code></pre>
+<blockquote>
+<blockquote>
+<p><strong>Side-side note: What&#39;s a log-log scale?</strong></p>
+<p><strong>Why &quot;log-log&quot;?</strong> Because we apply logarithms to <strong>BOTH</strong> the x-axis and y-axis&#33;</p>
+<ul>
+<li><p><strong>Regular plot</strong>: Both axes linear &#40;0, 1, 2, 3, 4...&#41;</p>
+</li>
+<li><p><strong>Log scale</strong> &#40;semi-log&#41;: Only ONE axis is logarithmic &#40;good for exponentials like \(y = e^x\)&#41;</p>
+</li>
+<li><p><strong>Log-log scale</strong>: BOTH axes are logarithmic &#40;1, 10, 100, 1000...&#41;</p>
+</li>
+</ul>
+<p>Each tick represents multiplication, not addition. This is perfect for power laws because:</p>
+<ul>
+<li><p>Power law: \(y = kx^\alpha\)</p>
+</li>
+<li><p>Take log of BOTH sides: \(\log(y) = \log(k) + \alpha \log(x)\)</p>
+</li>
+<li><p>Notice: log appears on both y &#40;left side&#41; and x &#40;right side&#41;&#33;</p>
+</li>
+<li><p>This becomes a straight line: \(Y = b + \alpha X\) where \(Y = \log(y)\) and \(X = \log(x)\)</p>
+</li>
+</ul>
+<p>So on a log-log plot, power laws become straight lines. The slope of that line is your exponent α&#33;</p>
+</blockquote>
+<p>The exponent \(\alpha\) determines how unequal the distribution is:</p>
+<ul>
+<li><p>\(\alpha \approx -1.161\) → 80-20 rule</p>
+</li>
+<li><p>Less negative &#40;closer to 0&#41; → more equality</p>
+</li>
+<li><p>More negative &#40;like -2&#41; → extreme inequality &#40;90-10, 95-5&#41;</p>
+</li>
+</ul>
+<p>So &quot;80-20&quot; is just one specific instance in a family of power law distributions&#33;</p>
+</blockquote>
+<h2 id="why_do_power_laws_happen"><a href="#why_do_power_laws_happen" class="header-anchor">Why Do Power Laws Happen?</a></h2>
+<p>Power laws emerge in systems with:</p>
+<ul>
+<li><p><strong>Preferential attachment</strong>: &quot;Rich get richer&quot; dynamics</p>
+</li>
+<li><p><strong>Multiplicative processes</strong>: Growth that compounds</p>
+</li>
+<li><p><strong>Network effects</strong>: Interactions that create feedback loops</p>
+</li>
+<li><p><strong>Self-organized criticality</strong>: Systems naturally evolving to critical states</p>
+</li>
+</ul>
+<h2 id="how_to_test_for_power_laws_important"><a href="#how_to_test_for_power_laws_important" class="header-anchor">How to Test for Power Laws &#40;Important&#33;&#41;</a></h2>
+<p><strong>Critical warning:</strong> Just because data looks linear on a log-log plot doesn&#39;t mean it&#39;s a power law&#33; Many distributions can fool the eye.</p>
+<h3 id="dont_do_this"><a href="#dont_do_this" class="header-anchor">Don&#39;t Do This:</a></h3>
+<ul>
+<li><p>❌ Fit a polynomial &#40;y &#61; ax² &#43; bx &#43; c&#41; - power laws are NOT polynomials&#33;</p>
+</li>
+<li><p>❌ Just eyeball a log-log plot - not rigorous enough</p>
+</li>
+<li><p>❌ Use ordinary least squares regression on log-transformed data - gives biased estimates</p>
+</li>
+</ul>
+<h3 id="do_this_instead"><a href="#do_this_instead" class="header-anchor">Do This Instead:</a></h3>
+<p><strong>Step 1: Maximum Likelihood Estimation &#40;MLE&#41;</strong></p>
+<ul>
+<li><p>Fit a <strong>Pareto distribution</strong> &#40;the continuous power law&#41;: \(p(x) = \frac{\alpha - 1}{x_{min}} \left(\frac{x}{x_{min}}\right)^{-\alpha}\) for \(x \geq x_{min}\)</p>
+</li>
+<li><p>Or a <strong>Zeta/Zipf distribution</strong> &#40;discrete power law&#41;: \(p(x) = \frac{x^{-\alpha}}{\zeta(\alpha)}\) for discrete data</p>
+</li>
+<li><p>MLE formula for continuous case: \(\hat{\alpha} = 1 + n\left[\sum_{i=1}^{n} \ln\frac{x_i}{x_{min}}\right]^{-1}\)</p>
+</li>
+<li><p>This gives you an unbiased estimate of α &#40;unlike linear regression on logs&#33;&#41;</p>
+</li>
+</ul>
+<p><strong>Step 2: Find x_min</strong></p>
+<ul>
+<li><p>Power laws often only hold in the tail &#40;above some threshold&#41;</p>
+</li>
+<li><p>Test multiple values of x_min and choose the one that makes the power law fit best</p>
+</li>
+<li><p>Use Kolmogorov-Smirnov statistic to find optimal x_min</p>
+</li>
+</ul>
+<p><strong>Step 3: Goodness-of-fit test &#40;Kolmogorov-Smirnov&#41;</strong></p>
+<ul>
+<li><p><strong>Procedure with sample data:</strong></p>
+<ol>
+<li><p>Fit power law to your data using MLE &#40;get α estimate&#41;</p>
+</li>
+<li><p>Generate synthetic datasets from this fitted power law</p>
+</li>
+<li><p>Calculate KS statistic: \(D = \max|CDF_{data}(x) - CDF_{model}(x)|\) &#40;maximum distance between empirical and theoretical CDFs&#41;</p>
+</li>
+<li><p>Calculate KS statistic for each synthetic dataset</p>
+</li>
+<li><p>p-value &#61; fraction of synthetic datasets with KS statistic ≥ your data&#39;s KS statistic</p>
+</li>
+<li><p>If p-value &gt; 0.1, power law is plausible; if p &lt; 0.1, reject power law</p>
+</li>
+</ol>
+</li>
+<li><p>This is a <strong>semi-parametric bootstrap</strong> approach</p>
+</li>
+</ul>
+<p><strong>Step 4: Compare alternative models &#40;Likelihood Ratio Test&#41;</strong></p>
+<ul>
+<li><p>Compare power law vs. exponential, log-normal, stretched exponential</p>
+</li>
+<li><p>Calculate log-likelihood ratio: \(\mathcal{R} = \ln\frac{\mathcal{L}_{powerlaw}}{\mathcal{L}_{alternative}}\)</p>
+</li>
+<li><p>Use Vuong&#39;s test to determine if difference is statistically significant</p>
+</li>
+<li><p>Positive R favors power law, negative R favors alternative</p>
+</li>
+</ul>
+<p><strong>Key insight from Clauset, Shalizi &amp; Newman &#40;2009&#41;:</strong> Many claimed power laws in scientific literature failed rigorous testing&#33; Always be skeptical and test properly.</p>
+<h3 id="the_practical_reality_check"><a href="#the_practical_reality_check" class="header-anchor">The Practical Reality Check</a></h3>
+<p><strong>Honest truth:</strong> Distinguishing power laws from similar distributions &#40;especially log-normal&#41; is HARD, and many claims are questionable.</p>
+<p><strong>Simple robust approach:</strong></p>
+<ol>
+<li><p><strong>Log-log plot first</strong> - Not roughly linear? Stop. It&#39;s not a power law.</p>
+</li>
+<li><p><strong>Check the range</strong> - Does your &quot;power law&quot; only fit 10&#37; of the data &#40;after finding x_min&#41;? Then you don&#39;t really have a power law, just a heavy tail.</p>
+</li>
+<li><p><strong>Compare to log-normal</strong> - Many apparent power laws are actually log-normal distributions. If you can&#39;t distinguish them with your sample size, be honest about it.</p>
+</li>
+<li><p><strong>Order of magnitude test</strong> - Real power laws hold over 2-3&#43; orders of magnitude. If your fit only works from 100 to 500, that&#39;s not convincing.</p>
+</li>
+</ol>
+<p><strong>Best practice:</strong></p>
+<ul>
+<li><p><strong>Python</strong>: Use the <code>powerlaw</code> package &#40;implements all methods correctly&#41;</p>
+</li>
+<li><p>Report the actual range &#40;x<em>min to x</em>max&#41; where the fit works</p>
+</li>
+<li><p>Say &quot;consistent with a power law&quot; rather than &quot;IS a power law&quot;</p>
+</li>
+<li><p>Show your data against multiple candidate distributions</p>
+</li>
+</ul>
+<p><strong>Red flags:</strong></p>
+<ul>
+<li><p>Power law fits with p-value barely &gt; 0.1</p>
+</li>
+<li><p>x_min excludes most of your data</p>
+</li>
+<li><p>Only spans 1-2 orders of magnitude</p>
+</li>
+<li><p>Sample size &lt; 100 data points</p>
+</li>
+</ul>
+<p>Tools available: The <code>powerlaw</code> Python package implements these methods correctly.</p>
+<h2 id="power_laws_vs_normal_distributions"><a href="#power_laws_vs_normal_distributions" class="header-anchor">Power Laws vs. Normal Distributions</a></h2>
+<p>Power laws are themselves a family of probability distributions &#40;like the Pareto, Zipf, or Lévy distributions&#41;, just as the normal distribution is a specific type of probability distribution. The key differences:</p>
+<table><tr><th align="right">Feature</th><th align="right">Normal Distribution</th><th align="right">Power Law Distribution</th></tr><tr><td align="right">Shape</td><td align="right">Bell curve</td><td align="right">Long tail</td></tr><tr><td align="right">Extremes</td><td align="right">Very rare</td><td align="right">Relatively common</td></tr><tr><td align="right">Average</td><td align="right">Meaningful</td><td align="right">Often misleading</td></tr><tr><td align="right">Scale</td><td align="right">Characteristic scale</td><td align="right">Scale-free</td></tr><tr><td align="right">Examples</td><td align="right">Height, test scores</td><td align="right">Wealth, city sizes, web links</td></tr></table>
+<h2 id="where_youll_find_them"><a href="#where_youll_find_them" class="header-anchor">Where You&#39;ll Find Them</a></h2>
+<p>Power laws appear in:</p>
+<ul>
+<li><p><strong>Social networks</strong> &#40;follower counts, connections&#41; - a few mega-influencers, mostly regular users</p>
+</li>
+<li><p><strong>Network science &amp; graphs</strong> - This is huge&#33; Many real-world networks are &quot;scale-free,&quot; meaning connection patterns follow power laws. A few hub nodes connect to tons of others &#40;think Google, Wikipedia&#41;, while most nodes have few connections. This emerges naturally from preferential attachment: new nodes connect to already-popular nodes, creating the &quot;rich get richer&quot; dynamic.</p>
+</li>
+<li><p><strong>Biology</strong> &#40;species sizes, metabolic rates&#41;</p>
+</li>
+<li><p><strong>Finance</strong> &#40;market returns, company sizes&#41;</p>
+</li>
+<li><p><strong>Linguistics</strong> &#40;word usage, language distribution&#41;</p>
+</li>
+<li><p><strong>Physics</strong> &#40;phase transitions, avalanches&#41;</p>
+</li>
+<li><p><strong>Technology</strong> &#40;file sizes, web traffic&#41;</p>
+</li>
+</ul>
+<h2 id="the_bottom_line"><a href="#the_bottom_line" class="header-anchor">The Bottom Line</a></h2>
+<p>Power laws reveal that the world isn&#39;t as &quot;average&quot; as we might assume. Outliers and extremes aren&#39;t anomalies—they&#39;re built into the fabric of complex systems. Understanding power laws helps us recognize that in many domains, the exceptional is more common than we think, and the world operates on principles very different from the familiar bell curve.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
