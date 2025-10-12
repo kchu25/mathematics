@@ -1,5 +1,5 @@
 @def title = "Power Laws: A Conversational Guide"
-@def published = "11 October 2025"
+@def published = "12 October 2025"
 @def tags = ["general-topics"]
 
 # Power Laws: A Conversational Guide
