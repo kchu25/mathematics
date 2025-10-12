@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title> Time Series Analysis: Intuition and Implementation</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="time_series_analysis_intuition_and_implementation"><a href="#time_series_analysis_intuition_and_implementation" class="header-anchor">Time Series Analysis: Intuition and Implementation</a></h1>
+<h2 id="the_big_picture"><a href="#the_big_picture" class="header-anchor">The Big Picture</a></h2>
+<p>Time series is fundamentally about <strong>patterns in time</strong>. When you look at stock prices or daily temperatures, there&#39;s structure hidden in the chaos. Some of it repeats &#40;like seasons&#41;, some of it drifts &#40;like climate change&#41;, and some of it is just noise. Our job is to separate signal from noise and use the signal to predict what comes next.</p>
+<p>The key insight that makes time series different: <strong>today depends on yesterday</strong>. In regular statistics, rows are independent—you can shuffle them without losing information. In time series, shuffle the data and you destroy the very thing you&#39;re trying to study. The temporal dependency <em>is</em> the data.</p>
+<h2 id="decomposing_reality"><a href="#decomposing_reality" class="header-anchor">Decomposing Reality</a></h2>
+<p>Think of any time series as having multiple voices singing at once. There&#39;s the slow, deep bass of the long-term trend. There&#39;s the predictable rhythm of seasonality. There might be irregular cycles. And there&#39;s always noise—the random static in the background.</p>
+<p>Mathematically, we write this as either a sum or a product:</p>
+<ul>
+<li><p>Additive: \(Y_t = T_t + S_t + C_t + R_t\)</p>
+</li>
+<li><p>Multiplicative: \(Y_t = T_t \times S_t \times C_t \times R_t\)</p>
+</li>
+</ul>
+<p>The additive model says &quot;seasonality adds the same amount regardless of the trend level.&quot; Think: daily temperature swings are roughly the same in winter and summer. The multiplicative model says &quot;seasonality scales with the trend.&quot; Think: retail sales where holiday bumps get bigger as the company grows.</p>
+<p>Let&#39;s extract the trend using a moving average—essentially smoothing out the bumps by averaging over a window:</p>
+\(\text{MA}_t = \frac{1}{k}\sum_{i=0}^{k-1} y_{t-i}\)
+<p>where \(k\) is the window size.</p>
+<pre><code class="language-julia">function moving_average&#40;data, window&#41;
+    n &#61; length&#40;data&#41;
+    trend &#61; fill&#40;NaN, n&#41;
+    for i in window:n
+        trend&#91;i&#93; &#61; mean&#40;data&#91;i-window&#43;1:i&#93;&#41;
+    end
+    return trend
+end</code></pre>
+<p>This is conceptually simple: to see the forest, blur the trees. The larger your window, the smoother your trend, but the more you lag behind changes.</p>
+<h2 id="stationarity_the_foundation"><a href="#stationarity_the_foundation" class="header-anchor">Stationarity: The Foundation</a></h2>
+<p>Here&#39;s the most important concept in time series: <strong>stationarity</strong>. A stationary series has no trend, no seasonality that changes over time, and constant variance. Its statistical properties don&#39;t depend on <em>when</em> you look at it.</p>
+<p>Why does this matter? Because almost every time series model assumes stationarity. Think about it: if the mean keeps drifting upward, how can you estimate &quot;the&quot; mean? If variance explodes over time, how can you quantify uncertainty? You can&#39;t build a stable model on shifting sand.</p>
+<p>The good news: we can often <em>transform</em> non-stationary data into stationary data. The most common trick is differencing:</p>
+\(\nabla y_t = y_t - y_{t-1}\)
+<p>This removes linear trends. If that&#39;s not enough, difference again &#40;second-order differencing removes quadratic trends&#41;. For multiplicative growth, take logs first.</p>
+<pre><code class="language-julia">function difference&#40;data, order&#61;1&#41;
+    result &#61; copy&#40;data&#41;
+    for _ in 1:order
+        result &#61; diff&#40;result&#41;  # Applies ∇ operator
+    end
+    return result
+end</code></pre>
+<p>When you plot your differenced series, you should see it hovering around a constant mean with roughly constant variance. That&#39;s your signal that you&#39;ve achieved stationarity.</p>
+<blockquote>
+<p><strong>Important caveat:</strong> Yes, you analyze and model the differenced data, but interpretation changes completely. A model on differenced data predicts <em>changes</em>, not levels. If you fit ARIMA&#40;1,1,0&#41;, the &quot;1,1,0&quot; means you differenced once, so your model forecasts tomorrow&#39;s <em>change</em> from today. To get actual predictions, you must <strong>integrate back</strong>—accumulate those predicted changes starting from your last observed value. This is why ARIMA has that &quot;I&quot; &#40;Integrated&#41;: it automatically handles the integration step when forecasting. The danger: if you forget to integrate back, you&#39;re making predictions on the wrong scale. The upside: modeling changes is often easier and more stable than modeling levels, especially when the level is trending or exploding.</p>
+</blockquote>
+<h2 id="autocorrelation_measuring_memory"><a href="#autocorrelation_measuring_memory" class="header-anchor">Autocorrelation: Measuring Memory</a></h2>
+<p>Once your data is stationary, the next question is: how much memory does this process have? Does today strongly depend on yesterday? Or does the influence fade quickly?</p>
+<p>The <strong>autocorrelation function</strong> &#40;ACF&#41; measures this. The ACF at lag \(k\) tells you the correlation between \(y_t\) and \(y_{t-k}\):</p>
+\(\rho_k = \frac{\sum_{t=k+1}^{n}(y_t - \bar{y})(y_{t-k} - \bar{y})}{\sum_{t=1}^{n}(y_t - \bar{y})^2} = \frac{\text{Cov}(y_t, y_{t-k})}{\text{Var}(y_t)}\)
+<pre><code class="language-julia">function acf&#40;data, lag&#41;
+    n &#61; length&#40;data&#41;
+    μ &#61; mean&#40;data&#41;
+    
+    # Covariance at lag k
+    numerator &#61; sum&#40;&#40;data&#91;i&#93; - μ&#41; * &#40;data&#91;i-lag&#93; - μ&#41; for i in lag&#43;1:n&#41;
+    # Variance
+    denominator &#61; sum&#40;&#40;x - μ&#41;^2 for x in data&#41;
+    
+    return numerator / denominator
+end</code></pre>
+<p>When you plot ACF against lag, you see how the memory decays. Does it cut off sharply after a few lags? Does it decay slowly? This pattern is diagnostic—it tells you what kind of model will work.</p>
+<p>The <strong>partial autocorrelation function</strong> &#40;PACF&#41; is subtler. It measures the correlation between \(y_t\) and \(y_{t-k}\) after removing the influence of all the lags in between. If ACF tells you about total dependence, PACF tells you about direct dependence.</p>
+<h2 id="building_models_the_autoregressive_approach"><a href="#building_models_the_autoregressive_approach" class="header-anchor">Building Models: The Autoregressive Approach</a></h2>
+<p>The simplest time series model says: today is a weighted average of the past few days, plus some noise. This is the <strong>autoregressive</strong> &#40;AR&#41; model:</p>
+\[y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \cdots + \phi_p y_{t-p} + \varepsilon_t\]
+<p>The AR&#40;1&#41; case is particularly intuitive. If \(\phi_1 = 0.8\), then today is 80&#37; of yesterday &#40;plus some baseline and noise&#41;. The closer \(\phi_1\) is to 1, the more persistent the process—shocks take longer to fade. If \(\phi_1 > 1\), the process explodes &#40;non-stationary&#41;. If \(\phi_1 < 0\), you get oscillation.</p>
+<p>Fitting an AR&#40;1&#41; is just linear regression:</p>
+\(\begin{align}
+\phi &= \frac{\sum_i (y_{t-1,i} - \bar{y}_{t-1})(y_{t,i} - \bar{y}_t)}{\sum_i (y_{t-1,i} - \bar{y}_{t-1})^2} \\
+c &= \bar{y}_t - \phi \bar{y}_{t-1}
+\end{align}\)
+<pre><code class="language-julia">function fit_ar1&#40;data&#41;
+    y &#61; data&#91;2:end&#93;
+    y_lag &#61; data&#91;1:end-1&#93;
+    
+    μ_y &#61; mean&#40;y&#41;
+    μ_lag &#61; mean&#40;y_lag&#41;
+    
+    # Estimate slope φ
+    φ &#61; sum&#40;&#40;y_lag&#91;i&#93; - μ_lag&#41; * &#40;y&#91;i&#93; - μ_y&#41; for i in 1:length&#40;y&#41;&#41; / 
+        sum&#40;&#40;x - μ_lag&#41;^2 for x in y_lag&#41;
+    
+    # Estimate intercept c
+    c &#61; μ_y - φ * μ_lag
+    
+    return c, φ
+end</code></pre>
+<p>To forecast, you just iterate the model forward. One-step-ahead is easy: \(\hat{y}_{t+1} = c + \phi y_t\). For two steps ahead, plug in your forecast: \(\hat{y}_{t+2} = c + \phi \hat{y}_{t+1}\). Notice how uncertainty grows as you forecast further out.</p>
+\(\hat{y}_{t+h} = c + \phi \hat{y}_{t+h-1} \quad \text{for } h = 1, 2, \ldots\)
+<pre><code class="language-julia">function predict_ar1&#40;data, c, φ, steps&#61;1&#41;
+    predictions &#61; Float64&#91;&#93;
+    last_val &#61; data&#91;end&#93;
+    
+    for _ in 1:steps
+        next_val &#61; c &#43; φ * last_val  # Iterative forecast
+        push&#33;&#40;predictions, next_val&#41;
+        last_val &#61; next_val
+    end
+    
+    return predictions
+end</code></pre>
+<h2 id="the_moving_average_perspective"><a href="#the_moving_average_perspective" class="header-anchor">The Moving Average Perspective</a></h2>
+<p>AR models say &quot;today depends on past values.&quot; But there&#39;s another equally valid perspective: &quot;today depends on past forecast errors.&quot; This is the <strong>moving average</strong> &#40;MA&#41; model:</p>
+\[y_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \cdots + \theta_q \varepsilon_{t-q}\]
+<p>This might seem weird at first. How can today depend on yesterday&#39;s error if we don&#39;t know yesterday&#39;s error until after it happens? The key is that once we&#39;ve observed \(y_{t-1}\), we can compute the error \(\varepsilon_{t-1} = y_{t-1} - \hat{y}_{t-1}\). The MA model says these errors have momentum—if you over-predicted yesterday, you might over-predict today too.</p>
+<p>MA models are trickier to fit because the errors aren&#39;t directly observed. But there&#39;s a neat relationship: for MA&#40;1&#41;, the ACF at lag 1 is \(\rho_1 = \theta/(1+\theta^2)\), and it&#39;s zero for all higher lags. This gives us a way to estimate \(\theta\):</p>
+<p>Solving \(\rho_1 = \frac{\theta}{1+\theta^2}\) for \(\theta\) gives: \(\theta = \frac{1 - \sqrt{1-4\rho_1^2}}{2\rho_1}\)</p>
+<pre><code class="language-julia">function fit_ma1&#40;data&#41;
+    μ &#61; mean&#40;data&#41;
+    ρ₁ &#61; acf&#40;data, 1&#41;
+    
+    # Solve: ρ₁ &#61; θ/&#40;1 &#43; θ²&#41;
+    discriminant &#61; 1 - 4ρ₁^2
+    θ &#61; discriminant ≥ 0 ? &#40;1 - sqrt&#40;discriminant&#41;&#41; / &#40;2ρ₁&#41; : 0.5
+    
+    return μ, θ
+end</code></pre>
+<h2 id="combining_perspectives_arma_and_arima"><a href="#combining_perspectives_arma_and_arima" class="header-anchor">Combining Perspectives: ARMA and ARIMA</a></h2>
+<p>Why choose between AR and MA when you can have both? The <strong>ARMA</strong> model combines them:</p>
+\[y_t = c + \phi_1 y_{t-1} + \cdots + \phi_p y_{t-p} + \theta_1 \varepsilon_{t-1} + \cdots + \theta_q \varepsilon_{t-q} + \varepsilon_t\]
+<p>This is more flexible—it can capture complex dependencies that pure AR or pure MA miss. The art is choosing \(p\) and \(q\) &#40;the AR and MA orders&#41;. This is where ACF and PACF plots become diagnostic tools:</p>
+<ul>
+<li><p>If ACF cuts off sharply but PACF decays gradually, you&#39;ve got an MA process</p>
+</li>
+<li><p>If PACF cuts off sharply but ACF decays gradually, you&#39;ve got an AR process  </p>
+</li>
+<li><p>If both decay gradually, you need ARMA</p>
+</li>
+</ul>
+<p>But what if your data isn&#39;t stationary? That&#39;s where <strong>ARIMA</strong> comes in—it&#39;s just ARMA with differencing built in. ARIMA&#40;\(p\), \(d\), \(q\)&#41; means: difference \(d\) times to achieve stationarity, then fit ARMA&#40;\(p\), \(q\)&#41;.</p>
+<p>The process: \(y_t \xrightarrow{\nabla^d} w_t \xrightarrow{\text{ARMA}(p,q)} \hat{w}_t \xrightarrow{\text{integrate}} \hat{y}_t\)</p>
+<pre><code class="language-julia">function arima_forecast&#40;data, p, d, q, steps&#61;1&#41;
+    # Step 1: Difference d times &#40;∇^d operator&#41;
+    differenced &#61; data
+    for _ in 1:d
+        differenced &#61; diff&#40;differenced&#41;
+    end
+    
+    # Step 2: Fit ARMA &#40;simplified to AR&#40;1&#41; here&#41;
+    c, φ &#61; fit_ar1&#40;differenced&#41;
+    
+    # Step 3: Forecast the differenced series
+    diff_preds &#61; predict_ar1&#40;differenced, c, φ, steps&#41;
+    
+    # Step 4: Integrate back &#40;reverse ∇ operator&#41;
+    predictions &#61; Float64&#91;&#93;
+    last_val &#61; data&#91;end&#93;
+    for dp in diff_preds
+        next_val &#61; last_val &#43; dp  # Integration: inverse of differencing
+        push&#33;&#40;predictions, next_val&#41;
+        last_val &#61; next_val
+    end
+    
+    return predictions
+end</code></pre>
+<p>The integration step is crucial. After differencing, your model predicts <em>changes</em>, not levels. To get back to the original scale, you accumulate those changes starting from your last observed value.</p>
+<h2 id="model_selection_finding_the_right_fit"><a href="#model_selection_finding_the_right_fit" class="header-anchor">Model Selection: Finding the Right Fit</a></h2>
+<p>How do you choose between AR&#40;1&#41;, AR&#40;2&#41;, ARMA&#40;1,1&#41;, etc.? You need a criterion that balances fit quality against complexity. The <strong>Akaike Information Criterion</strong> &#40;AIC&#41; does exactly this:</p>
+\[\text{AIC} = n \ln\left(\frac{\text{SSE}}{n}\right) + 2k\]
+<p>where \(k\) is the number of parameters. Lower AIC is better. The first term rewards good fit &#40;low sum of squared errors&#41;, but the second term penalizes complexity. It&#39;s Occam&#39;s razor in equation form.</p>
+<pre><code class="language-julia">function aic&#40;residuals, num_params&#41;
+    n &#61; length&#40;residuals&#41;
+    sse &#61; sum&#40;r^2 for r in residuals&#41;
+    return n * log&#40;sse / n&#41; &#43; 2num_params
+end</code></pre>
+<p>Fit several models, compute AIC for each, and pick the lowest. But don&#39;t stop there—always check the residuals.</p>
+<h2 id="exponential_smoothing_a_different_philosophy"><a href="#exponential_smoothing_a_different_philosophy" class="header-anchor">Exponential Smoothing: A Different Philosophy</a></h2>
+<p>ARIMA models are theoretically elegant, but there&#39;s another approach that&#39;s incredibly practical: <strong>exponential smoothing</strong>. The idea is beautifully simple: recent observations matter more than old ones, and the importance decays exponentially.</p>
+<p>Simple exponential smoothing gives you a running weighted average:</p>
+\(s_t = \alpha y_t + (1-\alpha) s_{t-1}\)
+<p>The parameter \(\alpha\) controls the memory. High \(\alpha\) &#40;close to 1&#41; means &quot;forget the past quickly, track recent changes.&quot; Low \(\alpha\) means &quot;smooth out noise, change slowly.&quot;</p>
+<pre><code class="language-julia">function simple_exp_smooth&#40;data, α&#41;
+    n &#61; length&#40;data&#41;
+    smoothed &#61; zeros&#40;n&#41;
+    smoothed&#91;1&#93; &#61; data&#91;1&#93;
+    
+    for i in 2:n
+        smoothed&#91;i&#93; &#61; α * data&#91;i&#93; &#43; &#40;1 - α&#41; * smoothed&#91;i-1&#93;  # Weighted average
+    end
+    
+    return smoothed
+end</code></pre>
+<p>You can expand this to handle trends. <strong>Holt&#39;s method</strong> tracks both level and trend with separate smoothing equations:</p>
+\(\begin{align}
+\ell_t &= \alpha y_t + (1-\alpha)(\ell_{t-1} + b_{t-1}) \\
+b_t &= \beta(\ell_t - \ell_{t-1}) + (1-\beta) b_{t-1}
+\end{align}\)
+<p>The level equation says &quot;today&#39;s level is a blend of today&#39;s observation and yesterday&#39;s level&#43;trend.&quot; The trend equation says &quot;today&#39;s trend is a blend of today&#39;s level change and yesterday&#39;s trend.&quot;</p>
+<pre><code class="language-julia">function holt_linear&#40;data, α, β&#41;
+    n &#61; length&#40;data&#41;
+    level &#61; zeros&#40;n&#41;
+    trend &#61; zeros&#40;n&#41;
+    
+    level&#91;1&#93; &#61; data&#91;1&#93;
+    trend&#91;1&#93; &#61; data&#91;2&#93; - data&#91;1&#93;
+    
+    for i in 2:n
+        # Update level: blend observation with prediction
+        level&#91;i&#93; &#61; α * data&#91;i&#93; &#43; &#40;1 - α&#41; * &#40;level&#91;i-1&#93; &#43; trend&#91;i-1&#93;&#41;
+        # Update trend: blend current change with past trend
+        trend&#91;i&#93; &#61; β * &#40;level&#91;i&#93; - level&#91;i-1&#93;&#41; &#43; &#40;1 - β&#41; * trend&#91;i-1&#93;
+    end
+    
+    return level, trend
+end</code></pre>
+<p>Forecasting with Holt is just extrapolating the latest level and trend linearly. It&#39;s simple, interpretable, and often works surprisingly well.</p>
+\(\hat{y}_{t+h} = \ell_t + h \cdot b_t\)
+<pre><code class="language-julia">function forecast_holt&#40;data, α, β, steps&#41;
+    level, trend &#61; holt_linear&#40;data, α, β&#41;
+    return &#91;level&#91;end&#93; &#43; h * trend&#91;end&#93; for h in 1:steps&#93;  # Linear extrapolation
+end</code></pre>
+<h2 id="validation_trust_but_verify"><a href="#validation_trust_but_verify" class="header-anchor">Validation: Trust but Verify</a></h2>
+<p>You&#39;ve fit a model—great&#33; But is it any good? The first check is always the residuals. If your model is capturing all the structure, what&#39;s left should be white noise: random, zero mean, constant variance, no autocorrelation.</p>
+\(\varepsilon_t = y_t - \hat{y}_t \quad \text{should be} \sim \mathcal{N}(0, \sigma^2) \text{ i.i.d.}\)
+<pre><code class="language-julia">function check_residuals&#40;residuals&#41;
+    μ &#61; mean&#40;residuals&#41;
+    σ² &#61; var&#40;residuals&#41;
+    
+    # Mean should be near zero: |μ| &lt;&lt; σ
+    mean_ok &#61; abs&#40;μ&#41; &lt; 0.1 * sqrt&#40;σ²&#41;
+    
+    # No autocorrelation: ρ₁ ≈ 0
+    acf1 &#61; acf&#40;residuals, 1&#41;
+    acf_ok &#61; abs&#40;acf1&#41; &lt; 0.2
+    
+    return &#40;mean&#61;μ, variance&#61;σ², mean_ok&#61;mean_ok, 
+            acf1&#61;acf1, acf_ok&#61;acf_ok&#41;
+end</code></pre>
+<p>If residuals show patterns, your model missed something. Maybe you need a higher order AR term, or seasonal adjustment, or a transformation.</p>
+<p>For out-of-sample validation, you can&#39;t use random train/test splits—you&#39;d be cheating by using future information. Instead, use rolling windows: train on days 1-100, test on 101-110. Then train on 11-110, test on 111-120. And so on.</p>
+<p><strong>Rolling window CV:</strong> Train on \([t, t+n]\), test on \([t+n+1, t+n+m]\), slide forward.</p>
+<pre><code class="language-julia">function time_series_cv&#40;data, train_size, test_size&#41;
+    folds &#61; &#91;&#93;
+    for i in 1:&#40;length&#40;data&#41; - train_size - test_size &#43; 1&#41;
+        train &#61; data&#91;i:i&#43;train_size-1&#93;
+        test &#61; data&#91;i&#43;train_size:i&#43;train_size&#43;test_size-1&#93;
+        push&#33;&#40;folds, &#40;train, test&#41;&#41;
+    end
+    return folds
+end</code></pre>
+<h2 id="measuring_forecast_quality"><a href="#measuring_forecast_quality" class="header-anchor">Measuring Forecast Quality</a></h2>
+<p>Once you have predictions and actuals, how do you score them? Three common metrics:</p>
+<p><strong>MAE</strong> &#40;Mean Absolute Error&#41; is intuitive—average size of your mistakes:</p>
+\[\text{MAE} = \frac{1}{n}\sum_{i=1}^{n}|y_i - \hat{y}_i|\]
+<p><strong>RMSE</strong> &#40;Root Mean Squared Error&#41; penalizes big errors more:</p>
+\[\text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}\]
+<p><strong>MAPE</strong> &#40;Mean Absolute Percentage Error&#41; is scale-free, good for comparing across series:</p>
+\[\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n}\left|\frac{y_i - \hat{y}_i}{y_i}\right|\]
+<pre><code class="language-julia">mae&#40;actual, predicted&#41; &#61; mean&#40;abs.&#40;actual .- predicted&#41;&#41;
+rmse&#40;actual, predicted&#41; &#61; sqrt&#40;mean&#40;&#40;actual .- predicted&#41;.^2&#41;&#41;
+mape&#40;actual, predicted&#41; &#61; 100 * mean&#40;abs.&#40;&#40;actual .- predicted&#41; ./ actual&#41;&#41;</code></pre>
+<p>Each has strengths and weaknesses. MAE is robust to outliers. RMSE is differentiable &#40;nice for optimization&#41;. MAPE fails when actuals are near zero. Use multiple metrics to get a complete picture.</p>
+<h2 id="practical_wisdom"><a href="#practical_wisdom" class="header-anchor">Practical Wisdom</a></h2>
+<p>The workflow is rarely linear. You plot, notice non-stationarity, difference, replot, fit a model, check residuals, realize you have seasonality you missed, go back and deseasonalize, refit, check again. It&#39;s iterative.</p>
+<p>Start simple. A moving average baseline often performs surprisingly well. Only add complexity when simple models fail. An ARIMA&#40;5,2,4&#41; that barely beats ARIMA&#40;1,1,1&#41; probably isn&#39;t worth the extra parameters—you&#39;re fitting noise.</p>
+<p>Domain knowledge matters enormously. No amount of statistical sophistication will save you if you don&#39;t understand what you&#39;re modeling. Why would sales spike in Q4? Is this sensor data affected by temperature? Are there known policy changes? Let context guide your model choices.</p>
+<p>And remember: all forecasts are wrong, but some are useful. The goal isn&#39;t perfection—it&#39;s capturing enough structure to make better decisions than you would without the model. Quantify uncertainty, communicate clearly, and update as new data arrives.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
