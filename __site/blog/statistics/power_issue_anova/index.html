@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Principled Approaches to Handle Sample Size and Power Issues in ANOVA</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="principled_approaches_to_handle_sample_size_power_issues_in_anova"><a href="#principled_approaches_to_handle_sample_size_power_issues_in_anova" class="header-anchor">Principled Approaches to Handle Sample Size &amp; Power Issues in ANOVA</a></h1>
+<h2 id="overview_the_core_problem"><a href="#overview_the_core_problem" class="header-anchor">Overview: The Core Problem</a></h2>
+<p>ANOVA&#39;s reliability depends on having adequate statistical power, but real-world data often presents challenges:</p>
+<ul>
+<li><p>Unequal group sizes</p>
+</li>
+<li><p>Small sample sizes</p>
+</li>
+<li><p>Uncertain effect sizes</p>
+</li>
+<li><p>Violated assumptions</p>
+</li>
+</ul>
+<p>Here are principled ways to handle these issues, both <strong>prospectively</strong> &#40;during planning&#41; and <strong>retrospectively</strong> &#40;with existing data&#41;.</p>
+<hr />
+<h2 id="part_1_prospective_solutions_study_design_phase"><a href="#part_1_prospective_solutions_study_design_phase" class="header-anchor">Part 1: Prospective Solutions &#40;Study Design Phase&#41;</a></h2>
+<h3 id="11_power_analysis_sample_size_planning"><a href="#11_power_analysis_sample_size_planning" class="header-anchor">1.1 Power Analysis &amp; Sample Size Planning</a></h3>
+<p><strong>The Gold Standard:</strong> Calculate required sample size <em>before</em> data collection.</p>
+<h4 id="for_equal_group_sizes"><a href="#for_equal_group_sizes" class="header-anchor">For Equal Group Sizes</a></h4>
+<p>Required sample size per group for ANOVA:</p>
+\[n = \frac{k \cdot (Z_{\alpha} + Z_{\beta})^2}{f^2}\]
+<p>where:</p>
+<ul>
+<li><p>\(k\) &#61; number of groups</p>
+</li>
+<li><p>\(Z_{\alpha}\) &#61; 1.96 for \(\alpha = 0.05\) &#40;two-tailed&#41;</p>
+</li>
+<li><p>\(Z_{\beta}\) &#61; 0.84 for 80&#37; power, 1.28 for 90&#37; power</p>
+</li>
+<li><p>\(f\) &#61; Cohen&#39;s f &#40;effect size&#41;</p>
+</li>
+</ul>
+<p><strong>For α &#61; 0.05, 80&#37; power:</strong></p>
+\[n \approx \frac{7.85k}{f^2}\]
+<p><strong>Example:</strong> 4 groups, medium effect &#40;f &#61; 0.25&#41;</p>
+\[n = \frac{7.85 \times 4}{0.25^2} = \frac{31.4}{0.0625} \approx 502 \text{ total (126 per group)}\]
+<h4 id="for_unequal_group_sizes_fixed_ratio"><a href="#for_unequal_group_sizes_fixed_ratio" class="header-anchor">For Unequal Group Sizes &#40;Fixed Ratio&#41;</a></h4>
+<p>If you must use unequal groups &#40;e.g., due to natural group proportions&#41;:</p>
+<ol>
+<li><p>Calculate required \(n_{eff}\) using the formula above</p>
+</li>
+<li><p>Solve for individual group sizes maintaining your ratio</p>
+</li>
+</ol>
+<p><strong>Example:</strong> Need \(n_{eff} = 100\), ratio 2:1:1 &#40;4 groups&#41;</p>
+\[n_{eff} = \frac{k}{\sum_{i=1}^{k} \frac{1}{n_i}} = 100\]
+<p>If \(n_1 = 2x\), \(n_2 = n_3 = n_4 = x\):</p>
+\[100 = \frac{4}{\frac{1}{2x} + \frac{1}{x} + \frac{1}{x} + \frac{1}{x}} = \frac{4}{\frac{1}{2x} + \frac{3}{x}} = \frac{4x \cdot 2}{1 + 6} = \frac{8x}{7}\]
+\[x = \frac{700}{8} = 87.5 \approx 88\]
+<p><strong>Result:</strong> \(n_1 = 176\), \(n_2 = n_3 = n_4 = 88\) &#40;total N &#61; 440&#41;</p>
+<p><strong>Cost of imbalance:</strong> Compared to balanced design &#40;n &#61; 110 × 4 &#61; 440&#41;, we need same total N but with less efficient allocation.</p>
+<h4 id="software_tools_for_power_analysis"><a href="#software_tools_for_power_analysis" class="header-anchor">Software Tools for Power Analysis</a></h4>
+<ul>
+<li><p><strong>R:</strong> <code>pwr.anova.test&#40;&#41;</code> from <code>pwr</code> package</p>
+</li>
+<li><p><strong>Python:</strong> <code>statsmodels.stats.power</code> module</p>
+</li>
+<li><p><strong>G*Power:</strong> Free standalone software</p>
+</li>
+<li><p><strong>Online calculators:</strong> e.g., Sample Size Calculators</p>
+</li>
+</ul>
+<hr />
+<h3 id="12_optimal_allocation_strategies"><a href="#12_optimal_allocation_strategies" class="header-anchor">1.2 Optimal Allocation Strategies</a></h3>
+<h4 id="strategy_a_equal_allocation_default_choice"><a href="#strategy_a_equal_allocation_default_choice" class="header-anchor">Strategy A: Equal Allocation &#40;Default Choice&#41;</a></h4>
+<p><strong>When to use:</strong> Unless you have strong reasons otherwise</p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Maximizes statistical power for fixed total N</p>
+</li>
+<li><p>Most robust to assumption violations</p>
+</li>
+<li><p>Simplest to analyze and interpret</p>
+</li>
+</ul>
+<p><strong>Rule:</strong> Always prefer equal n when possible</p>
+<h4 id="strategy_b_proportional_allocation"><a href="#strategy_b_proportional_allocation" class="header-anchor">Strategy B: Proportional Allocation</a></h4>
+<p><strong>When to use:</strong> When groups represent natural population proportions</p>
+<p><strong>Example:</strong> Disease subtypes where Type A is 50&#37;, Type B is 30&#37;, Type C is 20&#37;</p>
+<p>If total budget N &#61; 300:</p>
+<ul>
+<li><p>Type A: 150 samples</p>
+</li>
+<li><p>Type B: 90 samples  </p>
+</li>
+<li><p>Type C: 60 samples</p>
+</li>
+</ul>
+<p><strong>Trade-off:</strong> Better population representation, but lower power than equal allocation</p>
+<p><strong>Calculate effective sample size:</strong></p>
+\[n_{eff} = \frac{3}{\frac{1}{150} + \frac{1}{90} + \frac{1}{60}} = 90\]
+<p>Compare to equal allocation &#40;n &#61; 100 each → \(n_{eff} = 100\)&#41;. You lose 10&#37; power.</p>
+<h4 id="strategy_c_optimal_allocation_with_unequal_variances"><a href="#strategy_c_optimal_allocation_with_unequal_variances" class="header-anchor">Strategy C: Optimal Allocation with Unequal Variances</a></h4>
+<p><strong>When to use:</strong> When you know groups have different variances</p>
+<p><strong>Neyman allocation:</strong> Allocate more samples to higher-variance groups</p>
+\[n_i \propto \sigma_i\]
+<p>Specifically:</p>
+\[n_i = N \cdot \frac{\sigma_i}{\sum_{j=1}^{k} \sigma_j}\]
+<p><strong>Example:</strong> 3 groups, N &#61; 300, \(\sigma_1 = 10\), \(\sigma_2 = 15\), \(\sigma_3 = 20\)</p>
+<p>Total: \(10 + 15 + 20 = 45\)</p>
+<ul>
+<li><p>\(n_1 = 300 \times \frac{10}{45} = 67\)</p>
+</li>
+<li><p>\(n_2 = 300 \times \frac{15}{45} = 100\)</p>
+</li>
+<li><p>\(n_3 = 300 \times \frac{20}{45} = 133\)</p>
+</li>
+</ul>
+<p><strong>Advantage:</strong> Minimizes total variance of effect estimates</p>
+<p><strong>Disadvantage:</strong> Requires prior knowledge of variances</p>
+<hr />
+<h3 id="13_handling_budget_constraints"><a href="#13_handling_budget_constraints" class="header-anchor">1.3 Handling Budget Constraints</a></h3>
+<h4 id="the_trade-off_matrix"><a href="#the_trade-off_matrix" class="header-anchor">The Trade-off Matrix</a></h4>
+<table><tr><th align="right">Scenario</th><th align="right">Solution</th><th align="right">Trade-off</th></tr><tr><td align="right">Limited total budget</td><td align="right">Use equal allocation</td><td align="right">Maximize power per dollar</td></tr><tr><td align="right">One group is expensive</td><td align="right">Allocate fewer to expensive group</td><td align="right">Accept lower power</td></tr><tr><td align="right">Need minimum per group</td><td align="right">Set floor &#40;e.g., n ≥ 30&#41;, distribute rest</td><td align="right">Ensure basic validity</td></tr><tr><td align="right">Pilot study</td><td align="right">Use n &#61; 20-30 per group</td><td align="right">Exploratory only; plan follow-up</td></tr></table>
+<h4 id="minimum_sample_size_floors"><a href="#minimum_sample_size_floors" class="header-anchor">Minimum Sample Size Floors</a></h4>
+<p><strong>Recommended minimums:</strong></p>
+<ul>
+<li><p><strong>Absolute floor:</strong> n ≥ 20 per group &#40;for CLT to apply reasonably&#41;</p>
+</li>
+<li><p><strong>Conservative floor:</strong> n ≥ 30 per group &#40;standard recommendation&#41;</p>
+</li>
+<li><p><strong>For small effects:</strong> n ≥ 85 per group &#40;to detect f &#61; 0.10&#41;</p>
+</li>
+</ul>
+<p><strong>If you can&#39;t meet minimums:</strong></p>
+<ol>
+<li><p>Reduce number of groups &#40;combine categories if scientifically justified&#41;</p>
+</li>
+<li><p>Focus on larger effect sizes only</p>
+</li>
+<li><p>Use Bayesian methods or non-parametric alternatives</p>
+</li>
+<li><p>Conduct pilot study and plan larger follow-up</p>
+</li>
+</ol>
+<hr />
+<h2 id="part_2_retrospective_solutions_existing_data"><a href="#part_2_retrospective_solutions_existing_data" class="header-anchor">Part 2: Retrospective Solutions &#40;Existing Data&#41;</a></h2>
+<h3 id="21_calculate_achieved_power"><a href="#21_calculate_achieved_power" class="header-anchor">2.1 Calculate Achieved Power</a></h3>
+<p>When you already have data, compute what you <em>can</em> detect:</p>
+<h4 id="step-by-step_workflow"><a href="#step-by-step_workflow" class="header-anchor">Step-by-step workflow:</a></h4>
+<p><strong>1. Calculate effective sample size:</strong></p>
+\[n_{eff} = \frac{k}{\sum_{i=1}^{k} \frac{1}{n_i}}\]
+<p><strong>2. Calculate pooled variance:</strong></p>
+\[\sigma_{pooled}^2 = \frac{\sum_{i=1}^{k}(n_i - 1)s_i^2}{\sum_{i=1}^{k}(n_i - 1)}\]
+<p><strong>3. Estimate effect size from your data:</strong></p>
+\[f = \sqrt{\frac{\sum_{i=1}^{k} n_i(\bar{y}_i - \bar{y}_{..})^2}{(k-1) \sigma_{pooled}^2}}\]
+<p>Or use <strong>eta-squared:</strong> \(\eta^2 = \frac{SSB}{SST}\), then \(f = \sqrt{\frac{\eta^2}{1-\eta^2}}\)</p>
+<p><strong>4. Calculate minimum detectable effect:</strong></p>
+\[f_{min} = \frac{2.8}{\sqrt{n_{eff}}} \quad \text{(for 80% power, α = 0.05)}\]
+<p><strong>5. Compare:</strong></p>
+<ul>
+<li><p>If \(f > f_{min}\): You have adequate power ✓</p>
+</li>
+<li><p>If \(f \approx f_{min}\): Borderline power &#40;~80&#37;&#41; ⚠️</p>
+</li>
+<li><p>If \(f < f_{min}\): Underpowered ✗</p>
+</li>
+</ul>
+<h4 id="interpretation_guidelines"><a href="#interpretation_guidelines" class="header-anchor">Interpretation Guidelines</a></h4>
+<table><tr><th align="right">Achieved Power</th><th align="right">Interpretation</th><th align="right">Action</th></tr><tr><td align="right">&gt; 80&#37;</td><td align="right">Adequate</td><td align="right">Report results with confidence</td></tr><tr><td align="right">60-80&#37;</td><td align="right">Moderate</td><td align="right">Report with caveats about power</td></tr><tr><td align="right">40-60&#37;</td><td align="right">Low</td><td align="right">Treat as exploratory</td></tr><tr><td align="right">&lt; 40&#37;</td><td align="right">Very low</td><td align="right">Results unreliable; need more data</td></tr></table>
+<hr />
+<h3 id="22_dealing_with_small_or_unequal_sample_sizes"><a href="#22_dealing_with_small_or_unequal_sample_sizes" class="header-anchor">2.2 Dealing with Small or Unequal Sample Sizes</a></h3>
+<h4 id="option_1_use_welchs_anova"><a href="#option_1_use_welchs_anova" class="header-anchor">Option 1: Use Welch&#39;s ANOVA</a></h4>
+<p><strong>When to use:</strong> Unequal variances across groups &#40;Levene&#39;s test p &lt; 0.05&#41;</p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Does not assume equal variances &#40;relaxes homogeneity assumption&#41;</p>
+</li>
+<li><p>More robust with unequal sample sizes</p>
+</li>
+<li><p>Similar interpretation to regular ANOVA</p>
+</li>
+</ul>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><p><strong>R:</strong> <code>oneway.test&#40;y ~ group, data, var.equal &#61; FALSE&#41;</code></p>
+</li>
+<li><p><strong>Python:</strong> <code>scipy.stats.f_oneway&#40;&#41;</code> followed by Games-Howell post-hoc</p>
+</li>
+</ul>
+<p><strong>Trade-off:</strong> Slightly less power if variances truly are equal, but more robust overall</p>
+<hr />
+<h4 id="option_2_use_non-parametric_alternative"><a href="#option_2_use_non-parametric_alternative" class="header-anchor">Option 2: Use Non-parametric Alternative</a></h4>
+<p><strong>Kruskal-Wallis Test:</strong> Rank-based alternative to ANOVA</p>
+<p><strong>When to use:</strong></p>
+<ul>
+<li><p>Small sample sizes &#40;n &lt; 20 per group&#41;</p>
+</li>
+<li><p>Non-normal distributions</p>
+</li>
+<li><p>Ordinal data or severe outliers</p>
+</li>
+</ul>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>No normality assumption</p>
+</li>
+<li><p>Robust to outliers</p>
+</li>
+<li><p>Can handle very small samples &#40;n ≥ 5 per group&#41;</p>
+</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li><p>Tests medians, not means</p>
+</li>
+<li><p>Slightly less powerful if data truly normal</p>
+</li>
+<li><p>More difficult to interpret effect sizes</p>
+</li>
+</ul>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><p><strong>R:</strong> <code>kruskal.test&#40;y ~ group, data&#41;</code></p>
+</li>
+<li><p><strong>Python:</strong> <code>scipy.stats.kruskal&#40;group1, group2, group3, ...&#41;</code></p>
+</li>
+</ul>
+<p><strong>Post-hoc:</strong> Dunn&#39;s test with Bonferroni correction</p>
+<hr />
+<h4 id="option_3_bootstrap_methods"><a href="#option_3_bootstrap_methods" class="header-anchor">Option 3: Bootstrap Methods</a></h4>
+<p><strong>When to use:</strong> Uncertain about distributional assumptions</p>
+<p><strong>Approach:</strong></p>
+<ol>
+<li><p>Resample with replacement within each group</p>
+</li>
+<li><p>Calculate F-statistic on bootstrap sample</p>
+</li>
+<li><p>Repeat 10,000 times</p>
+</li>
+<li><p>Build empirical distribution of F under null</p>
+</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Makes minimal distributional assumptions</p>
+</li>
+<li><p>Works with small, unequal samples</p>
+</li>
+<li><p>Provides accurate p-values even with violated assumptions</p>
+</li>
+</ul>
+<p><strong>Implementation &#40;R example&#41;:</strong></p>
+<pre><code class="language-r">library&#40;boot&#41;
+# Define statistic function
+f_stat &lt;- function&#40;data, indices&#41; &#123;
+  d &lt;- data&#91;indices, &#93;
+  fit &lt;- aov&#40;value ~ group, data &#61; d&#41;
+  summary&#40;fit&#41;&#91;&#91;1&#93;&#93;&#36;&#96;F value&#96;&#91;1&#93;
+&#125;
+
+# Bootstrap
+boot_results &lt;- boot&#40;data, f_stat, R &#61; 10000&#41;</code></pre>
+<hr />
+<h4 id="option_4_bayesian_anova"><a href="#option_4_bayesian_anova" class="header-anchor">Option 4: Bayesian ANOVA</a></h4>
+<p><strong>When to use:</strong></p>
+<ul>
+<li><p>Small sample sizes where frequentist inference is questionable</p>
+</li>
+<li><p>Want to incorporate prior information</p>
+</li>
+<li><p>Need probabilistic statements about effects</p>
+</li>
+</ul>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Naturally handles uncertainty in small samples</p>
+</li>
+<li><p>Can incorporate expert knowledge via priors</p>
+</li>
+<li><p>Provides credible intervals for effects</p>
+</li>
+<li><p>No p-value interpretation issues</p>
+</li>
+</ul>
+<p><strong>Key output:</strong> Posterior probability that group means differ</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li><p><strong>R:</strong> <code>BayesFactor</code> package, <code>anovaBF&#40;&#41;</code> function</p>
+</li>
+<li><p><strong>Python:</strong> <code>PyMC</code> or <code>Stan</code> for custom models</p>
+</li>
+</ul>
+<p><strong>Example interpretation:</strong></p>
+<ul>
+<li><p>Bayes Factor BF₁₀ &#61; 10: Data are 10× more likely under H₁ than H₀</p>
+</li>
+<li><p>BF₁₀ &gt; 3: Moderate evidence for difference</p>
+</li>
+<li><p>BF₁₀ &gt; 10: Strong evidence for difference</p>
+</li>
+</ul>
+<hr />
+<h3 id="23_combining_small_groups"><a href="#23_combining_small_groups" class="header-anchor">2.3 Combining Small Groups</a></h3>
+<p><strong>When scientifically justified</strong>, consider collapsing groups:</p>
+<h4 id="decision_tree"><a href="#decision_tree" class="header-anchor">Decision Tree:</a></h4>
+<pre><code class="language-julia">Are some groups similar a priori?
+├─ YES: Consider combining if:
+│  ├─ Preliminary test shows no difference &#40;p &gt; 0.25&#41;
+│  ├─ Scientific theory suggests equivalence
+│  └─ Effect sizes are small &#40;d &lt; 0.2 between them&#41;
+└─ NO: Keep separate but report power limitations</code></pre>
+<p><strong>Example:</strong> Drug doses</p>
+<ul>
+<li><p>Original: Placebo, Low &#40;10mg&#41;, Medium &#40;20mg&#41;, High &#40;30mg&#41;</p>
+</li>
+<li><p>If Low ≈ Medium in pilot data: Combine into &quot;Active Treatment&quot; vs Placebo</p>
+</li>
+</ul>
+<p><strong>⚠️ Warning:</strong> Never combine groups based solely on non-significance in your main study &#40;this is p-hacking&#41;</p>
+<hr />
+<h3 id="24_reporting_practices_for_underpowered_studies"><a href="#24_reporting_practices_for_underpowered_studies" class="header-anchor">2.4 Reporting Practices for Underpowered Studies</a></h3>
+<p>If you can&#39;t increase sample size, at least report transparently:</p>
+<h4 id="essential_elements_to_report"><a href="#essential_elements_to_report" class="header-anchor">Essential elements to report:</a></h4>
+<ol>
+<li><p><strong>Actual sample sizes per group:</strong> Be explicit about imbalance</p>
+</li>
+<li><p><strong>Achieved power calculation:</strong> </p>
+<ul>
+<li><p>&quot;Our design had 65&#37; power to detect a medium effect &#40;f &#61; 0.25&#41;&quot;</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Minimum detectable effect size:</strong></p>
+<ul>
+<li><p>&quot;We could reliably detect effects of f ≥ 0.35 &#40;large effects only&#41;&quot;</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Confidence intervals:</strong> </p>
+<ul>
+<li><p>Always report CIs for effect estimates, not just p-values</p>
+</li>
+<li><p>Wide CIs reveal uncertainty in underpowered studies</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Effect size estimates:</strong></p>
+<ul>
+<li><p>Report Cohen&#39;s f or η² even if p &gt; 0.05</p>
+</li>
+<li><p>A non-significant result could be d &#61; 0.4 &#40;medium effect&#41; with wide CI</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Interpretation caveats:</strong></p>
+<ul>
+<li><p>&quot;Non-significant results should be interpreted cautiously given modest power&quot;</p>
+</li>
+<li><p>&quot;Our study was adequately powered only for large effects&quot;</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="example_results_section"><a href="#example_results_section" class="header-anchor">Example Results Section:</a></h4>
+<blockquote>
+<p><em>&quot;We conducted a one-way ANOVA with four groups &#40;n₁ &#61; 25, n₂ &#61; 30, n₃ &#61; 35, n₄ &#61; 40; nₑff &#61; 31.7&#41;. Post-hoc power analysis indicated 70&#37; power to detect medium effects &#40;f &#61; 0.25&#41;. The omnibus test was not significant, F&#40;3, 126&#41; &#61; 2.1, p &#61; .10, η² &#61; 0.05 &#91;90&#37; CI: 0.00, 0.11&#93;. Given our modest sample size, we cannot rule out small-to-medium effects and recommend these findings be considered preliminary.&quot;</em></p>
+</blockquote>
+<hr />
+<h2 id="part_3_advanced_considerations"><a href="#part_3_advanced_considerations" class="header-anchor">Part 3: Advanced Considerations</a></h2>
+<h3 id="31_sequential_analysis_adaptive_designs"><a href="#31_sequential_analysis_adaptive_designs" class="header-anchor">3.1 Sequential Analysis &amp; Adaptive Designs</a></h3>
+<p>Instead of fixed sample sizes, consider <strong>sequential testing</strong>:</p>
+<h4 id="group_sequential_design"><a href="#group_sequential_design" class="header-anchor">Group Sequential Design:</a></h4>
+<ol>
+<li><p>Plan multiple interim analyses &#40;e.g., at 50&#37;, 75&#37;, 100&#37; of target n&#41;</p>
+</li>
+<li><p>Use adjusted alpha at each stage &#40;e.g., O&#39;Brien-Fleming boundaries&#41;</p>
+</li>
+<li><p>Stop early if strong effect detected</p>
+</li>
+<li><p>Stop for futility if no effect likely</p>
+</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Can stop early if effect is clear &#40;save resources&#41;</p>
+</li>
+<li><p>Can stop if effect unlikely &#40;avoid wasting time&#41;</p>
+</li>
+<li><p>Maintains Type I error control</p>
+</li>
+</ul>
+<p><strong>Software:</strong> <code>gsDesign</code> package in R</p>
+<hr />
+<h3 id="32_equivalence_testing"><a href="#32_equivalence_testing" class="header-anchor">3.2 Equivalence Testing</a></h3>
+<p>If your goal is to show groups are <strong>similar</strong>, use equivalence tests instead of ANOVA:</p>
+<p><strong>Framework:</strong> Show that any difference is smaller than a practically meaningful threshold Δ</p>
+<p><strong>TOST &#40;Two One-Sided Tests&#41;:</strong></p>
+<ul>
+<li><p>Test both: μᵢ - μⱼ &gt; -Δ AND μᵢ - μⱼ &lt; Δ</p>
+</li>
+<li><p>If both reject, conclude equivalence</p>
+</li>
+</ul>
+<p><strong>Requires:</strong> Larger samples than standard ANOVA &#40;equivalence is harder to prove than difference&#41;</p>
+<hr />
+<h3 id="33_meta-analytic_thinking"><a href="#33_meta-analytic_thinking" class="header-anchor">3.3 Meta-Analytic Thinking</a></h3>
+<p>If you have multiple small studies rather than one adequately powered study:</p>
+<p><strong>Option:</strong> Meta-analyze across studies</p>
+<ul>
+<li><p>Pool effect sizes using random-effects model</p>
+</li>
+<li><p>Provides more precise estimate than individual studies</p>
+</li>
+<li><p>Assess heterogeneity &#40;I²&#41;</p>
+</li>
+</ul>
+<p><strong>Caveat:</strong> Only valid if studies are methodologically similar</p>
+<hr />
+<h2 id="part_4_decision_framework"><a href="#part_4_decision_framework" class="header-anchor">Part 4: Decision Framework</a></h2>
+<h3 id="should_you_proceed_with_your_current_data"><a href="#should_you_proceed_with_your_current_data" class="header-anchor">Should you proceed with your current data?</a></h3>
+<pre><code class="language-julia">START: You have collected data with sample sizes n₁, n₂, ..., nₖ
+
+↓
+Calculate nₑff and achieved power
+↓
+                        ┌─────────────────────┐
+                        │  Power ≥ 80&#37;?       │
+                        └─────────────────────┘
+                         /                     \
+                      YES                      NO
+                       ↓                        ↓
+            ┌─────────────────────┐   ┌──────────────────┐
+            │ Assumptions met?    │   │ Can collect more │
+            │ &#40;Levene&#39;s p &gt; .05&#41;  │   │    data?         │
+            └─────────────────────┘   └──────────────────┘
+             /              \            /              \
+           YES              NO         YES              NO
+            ↓                ↓           ↓                ↓
+    ┌──────────────┐ ┌──────────┐ ┌─────────┐ ┌──────────────────┐
+    │ Standard     │ │ Use      │ │ Collect │ │ Use robust       │
+    │ ANOVA        │ │ Welch&#39;s  │ │ more    │ │ methods:         │
+    │ Report with  │ │ ANOVA    │ │ samples │ │ - Welch&#39;s ANOVA  │
+    │ confidence   │ │          │ │         │ │ - Bootstrap      │
+    └──────────────┘ └──────────┘ └─────────┘ │ - Bayesian       │
+                                                │ - Non-parametric │
+                                                │ Report power     │
+                                                │ limitations      │
+                                                └──────────────────┘</code></pre>
+<hr />
+<h2 id="summary_practical_recommendations"><a href="#summary_practical_recommendations" class="header-anchor">Summary: Practical Recommendations</a></h2>
+<h3 id="planning_phase_best_practice"><a href="#planning_phase_best_practice" class="header-anchor">Planning Phase &#40;Best Practice&#41;:</a></h3>
+<ol>
+<li><p>✓ Conduct formal power analysis</p>
+</li>
+<li><p>✓ Aim for equal group sizes whenever possible</p>
+</li>
+<li><p>✓ Target 80-90&#37; power for expected effect size</p>
+</li>
+<li><p>✓ Set minimum floor of n ≥ 30 per group</p>
+</li>
+<li><p>✓ Plan for 20-30&#37; attrition/missing data</p>
+</li>
+</ol>
+<h3 id="analysis_phase_with_existing_data"><a href="#analysis_phase_with_existing_data" class="header-anchor">Analysis Phase with Existing Data:</a></h3>
+<ol>
+<li><p>✓ Calculate and report achieved power</p>
+</li>
+<li><p>✓ Check assumptions; use robust methods if violated</p>
+</li>
+<li><p>✓ Report effect sizes and confidence intervals</p>
+</li>
+<li><p>✓ Be transparent about limitations</p>
+</li>
+<li><p>✓ Consider Bayesian or bootstrap methods for small n</p>
+</li>
+</ol>
+<h3 id="never_do"><a href="#never_do" class="header-anchor">Never Do:</a></h3>
+<ul>
+<li><p>✗ Combine groups based on non-significance in your data</p>
+</li>
+<li><p>✗ Ignore power issues and report only p-values</p>
+</li>
+<li><p>✗ Claim &quot;no effect&quot; from underpowered non-significant result</p>
+</li>
+<li><p>✗ Collect more data after seeing results &#40;without sequential design&#41;</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 14, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

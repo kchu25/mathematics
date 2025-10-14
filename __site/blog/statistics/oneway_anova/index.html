@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>One-Way ANOVA: Mathematical Framework & Workflow</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="one-way_anova_mathematical_framework_workflow"><a href="#one-way_anova_mathematical_framework_workflow" class="header-anchor">One-Way ANOVA: Mathematical Framework &amp; Workflow</a></h1>
+<h2 id="setup_and_notation"><a href="#setup_and_notation" class="header-anchor">Setup and Notation</a></h2>
+<p>We have <strong>k groups</strong> &#40;treatments&#41; with potentially different sample sizes:</p>
+<ul>
+<li><p>Group 1: \(n_1\) observations</p>
+</li>
+<li><p>Group 2: \(n_2\) observations</p>
+</li>
+<li><p>...</p>
+</li>
+<li><p>Group k: \(n_k\) observations</p>
+</li>
+</ul>
+<p><strong>Total sample size:</strong> \(N = n_1 + n_2 + ... + n_k\)</p>
+<p><strong>Data structure:</strong></p>
+<ul>
+<li><p>\(y_{ij}\) &#61; the \(j\)-th observation in the \(i\)-th group</p>
+</li>
+<li><p>\(i = 1, 2, ..., k\) &#40;group index&#41;</p>
+</li>
+<li><p>\(j = 1, 2, ..., n_i\) &#40;observation index within group \(i\)&#41;</p>
+</li>
+</ul>
+<h2 id="the_anova_model"><a href="#the_anova_model" class="header-anchor">The ANOVA Model</a></h2>
+\[y_{ij} = \mu_i + \epsilon_{ij}\]
+<p>where:</p>
+<ul>
+<li><p>\(\mu_i\) &#61; true mean of group \(i\)</p>
+</li>
+<li><p>\(\epsilon_{ij} \sim N(0, \sigma^2)\) &#61; random error &#40;assumed independent, normally distributed with common variance&#41;</p>
+</li>
+</ul>
+<h2 id="hypotheses"><a href="#hypotheses" class="header-anchor">Hypotheses</a></h2>
+<p><strong>Null hypothesis:</strong> \(H_0: \mu_1 = \mu_2 = ... = \mu_k\) &#40;all group means are equal&#41;</p>
+<p><strong>Alternative hypothesis:</strong> \(H_a:\) at least one \(\mu_i\) differs from the others</p>
+<h2 id="step-by-step_calculation_workflow"><a href="#step-by-step_calculation_workflow" class="header-anchor">Step-by-Step Calculation Workflow</a></h2>
+<h3 id="step_1_calculate_group_means"><a href="#step_1_calculate_group_means" class="header-anchor">Step 1: Calculate Group Means</a></h3>
+<p>For each group \(i\):</p>
+\[\bar{y}_i = \frac{1}{n_i}\sum_{j=1}^{n_i} y_{ij}\]
+<h3 id="step_2_calculate_grand_mean"><a href="#step_2_calculate_grand_mean" class="header-anchor">Step 2: Calculate Grand Mean</a></h3>
+\[\bar{y}_{..} = \frac{1}{N}\sum_{i=1}^{k}\sum_{j=1}^{n_i} y_{ij} = \frac{1}{N}\sum_{i=1}^{k} n_i\bar{y}_i\]
+<h3 id="step_3_calculate_sum_of_squares"><a href="#step_3_calculate_sum_of_squares" class="header-anchor">Step 3: Calculate Sum of Squares</a></h3>
+<p><strong>Total Sum of Squares &#40;SST&#41;:</strong> Measures total variation in the data</p>
+\[SST = \sum_{i=1}^{k}\sum_{j=1}^{n_i} (y_{ij} - \bar{y}_{..})^2\]
+<p><strong>Between-Groups Sum of Squares &#40;SSB&#41;:</strong> Measures variation <em>between</em> group means</p>
+\[SSB = \sum_{i=1}^{k} n_i(\bar{y}_i - \bar{y}_{..})^2\]
+<p><strong>Within-Groups Sum of Squares &#40;SSW&#41;:</strong> Measures variation <em>within</em> groups</p>
+\[SSW = \sum_{i=1}^{k}\sum_{j=1}^{n_i} (y_{ij} - \bar{y}_i)^2\]
+<p><strong>Key relationship:</strong></p>
+\[SST = SSB + SSW\]
+<h3 id="step_4_calculate_degrees_of_freedom"><a href="#step_4_calculate_degrees_of_freedom" class="header-anchor">Step 4: Calculate Degrees of Freedom</a></h3>
+<ul>
+<li><p>Between groups: \(df_B = k - 1\)</p>
+</li>
+<li><p>Within groups: \(df_W = N - k\)</p>
+</li>
+<li><p>Total: \(df_T = N - 1\)</p>
+</li>
+</ul>
+<p>Note: \(df_T = df_B + df_W\)</p>
+<h3 id="step_5_calculate_mean_squares"><a href="#step_5_calculate_mean_squares" class="header-anchor">Step 5: Calculate Mean Squares</a></h3>
+<p><strong>Mean Square Between &#40;MSB&#41;:</strong></p>
+\[MSB = \frac{SSB}{df_B} = \frac{SSB}{k-1}\]
+<p><strong>Mean Square Within &#40;MSW&#41;:</strong></p>
+\[MSW = \frac{SSW}{df_W} = \frac{SSW}{N-k}\]
+<p>Note: MSW is the <strong>pooled variance estimate</strong> across all groups.</p>
+<h3 id="step_6_calculate_f-statistic"><a href="#step_6_calculate_f-statistic" class="header-anchor">Step 6: Calculate F-Statistic</a></h3>
+\[F = \frac{MSB}{MSW}\]
+<p>Under \(H_0\), this follows an F-distribution with \((k-1, N-k)\) degrees of freedom.</p>
+<p><strong>Intuition:</strong> </p>
+<ul>
+<li><p>If \(H_0\) is true, both MSB and MSW estimate \(\sigma^2\), so F ≈ 1</p>
+</li>
+<li><p>If \(H_0\) is false, MSB will be larger than MSW, so F &gt; 1</p>
+</li>
+</ul>
+<h3 id="step_7_determine_p-value"><a href="#step_7_determine_p-value" class="header-anchor">Step 7: Determine P-value</a></h3>
+\[p\text{-value} = P(F_{k-1, N-k} \geq F_{observed})\]
+<p><strong>Decision rule:</strong></p>
+<ul>
+<li><p>If p-value &lt; \(\alpha\) &#40;typically 0.05&#41;: Reject \(H_0\) → At least one group mean differs</p>
+</li>
+<li><p>If p-value ≥ \(\alpha\): Fail to reject \(H_0\) → No significant difference detected</p>
+</li>
+</ul>
+<h2 id="anova_table_summary"><a href="#anova_table_summary" class="header-anchor">ANOVA Table Summary</a></h2>
+<table><tr><th align="right">Source</th><th align="right">Sum of Squares</th><th align="right">df</th><th align="right">Mean Square</th><th align="right">F-statistic</th><th align="right">p-value</th></tr><tr><td align="right">Between Groups</td><td align="right">SSB</td><td align="right">\(k-1\)</td><td align="right">\(MSB = \frac{SSB}{k-1}\)</td><td align="right">\(F = \frac{MSB}{MSW}\)</td><td align="right">\(P(F_{k-1,N-k} \geq F)\)</td></tr><tr><td align="right">Within Groups</td><td align="right">SSW</td><td align="right">\(N-k\)</td><td align="right">\(MSW = \frac{SSW}{N-k}\)</td><td align="right"></td><td align="right"></td></tr><tr><td align="right">Total</td><td align="right">SST</td><td align="right">\(N-1\)</td><td align="right"></td><td align="right"></td><td align="right"></td></tr></table>
+<h2 id="worked_example"><a href="#worked_example" class="header-anchor">Worked Example</a></h2>
+<p><strong>Data:</strong> Three teaching methods with different sample sizes</p>
+<ul>
+<li><p>Method A: &#91;85, 88, 90, 87&#93; → \(n_1 = 4\)</p>
+</li>
+<li><p>Method B: &#91;78, 82, 80&#93; → \(n_2 = 3\)</p>
+</li>
+<li><p>Method C: &#91;92, 95, 93, 91, 94&#93; → \(n_3 = 5\)</p>
+</li>
+</ul>
+<p>Total: \(N = 12\), \(k = 3\)</p>
+<h3 id="calculations"><a href="#calculations" class="header-anchor">Calculations:</a></h3>
+<p><strong>Group means:</strong></p>
+<ul>
+<li><p>\(\bar{y}_1 = \frac{85+88+90+87}{4} = 87.5\)</p>
+</li>
+<li><p>\(\bar{y}_2 = \frac{78+82+80}{3} = 80\)</p>
+</li>
+<li><p>\(\bar{y}_3 = \frac{92+95+93+91+94}{5} = 93\)</p>
+</li>
+</ul>
+<p><strong>Grand mean:</strong></p>
+\[\bar{y}_{..} = \frac{4(87.5) + 3(80) + 5(93)}{12} = \frac{350 + 240 + 465}{12} = \frac{1055}{12} = 87.92\]
+<p><strong>SSB:</strong></p>
+\[SSB = 4(87.5-87.92)^2 + 3(80-87.92)^2 + 5(93-87.92)^2\]
+\[= 4(0.1764) + 3(62.7264) + 5(25.8064) = 0.71 + 188.18 + 129.03 = 317.92\]
+<p><strong>SSW:</strong> &#40;calculation for each observation&#41;</p>
+\[SSW = [(85-87.5)^2 + (88-87.5)^2 + ... + (94-93)^2] = 70.5\]
+<p><strong>SST:</strong></p>
+\[SST = SSB + SSW = 317.92 + 70.5 = 388.42\]
+<p><strong>Degrees of freedom:</strong></p>
+<ul>
+<li><p>\(df_B = 3 - 1 = 2\)</p>
+</li>
+<li><p>\(df_W = 12 - 3 = 9\)</p>
+</li>
+</ul>
+<p><strong>Mean squares:</strong></p>
+<ul>
+<li><p>\(MSB = \frac{317.92}{2} = 158.96\)</p>
+</li>
+<li><p>\(MSW = \frac{70.5}{9} = 7.83\)</p>
+</li>
+</ul>
+<p><strong>F-statistic:</strong></p>
+\[F = \frac{158.96}{7.83} = 20.30\]
+<p><strong>Conclusion:</strong> With \(F(2,9) = 20.30\), we get \(p < 0.001\), strongly rejecting \(H_0\). At least one teaching method produces significantly different results.</p>
+<h2 id="assumptions_to_check"><a href="#assumptions_to_check" class="header-anchor">Assumptions to Check</a></h2>
+<ol>
+<li><p><strong>Independence:</strong> Observations are independent within and across groups</p>
+</li>
+<li><p><strong>Normality:</strong> Data within each group are approximately normally distributed &#40;can check with Q-Q plots or Shapiro-Wilk test&#41;</p>
+</li>
+<li><p><strong>Homogeneity of variance:</strong> All groups have equal variance &#40;check with Levene&#39;s test or examine ratio of largest to smallest variance &lt; 3:1&#41;</p>
+</li>
+</ol>
+<h2 id="effect_size_eta-squared_eta2"><a href="#effect_size_eta-squared_eta2" class="header-anchor">Effect Size: Eta-Squared &#40;\(\eta^2\)&#41;</a></h2>
+<p>Measures the proportion of total variance explained by group membership:</p>
+\[\eta^2 = \frac{SSB}{SST}\]
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p>0.01 &#61; small effect</p>
+</li>
+<li><p>0.06 &#61; medium effect</p>
+</li>
+<li><p>0.14 &#61; large effect</p>
+</li>
+</ul>
+<p>In our example: \(\eta^2 = \frac{317.92}{388.42} = 0.82\) &#40;very large effect&#41;</p>
+<h2 id="post-hoc_tests_if_anova_is_significant"><a href="#post-hoc_tests_if_anova_is_significant" class="header-anchor">Post-Hoc Tests &#40;If ANOVA is Significant&#41;</a></h2>
+<p>Common methods to identify which specific groups differ:</p>
+<ul>
+<li><p><strong>Tukey&#39;s HSD:</strong> Controls family-wise error rate, good for all pairwise comparisons</p>
+</li>
+<li><p><strong>Bonferroni:</strong> Conservative, divides \(\alpha\) by number of comparisons</p>
+</li>
+<li><p><strong>Scheffé:</strong> Most conservative, good for complex comparisons</p>
+</li>
+</ul>
+<p>These tests compare: \(|\bar{y}_i - \bar{y}_j|\) against a critical value adjusted for multiple comparisons.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 14, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
