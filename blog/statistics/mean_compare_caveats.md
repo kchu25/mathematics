@@ -1,7 +1,6 @@
 @def title = "Sample Size for Comparing Population Means"
 @def published = "14 October 2025"
 @def tags = ["statistics"]
-
 # Sample Size for Comparing Population Means
 
 ## Key Question
@@ -12,6 +11,29 @@
 - Within-group variability
 - Significance level (α)
 - Desired statistical power (1−β)
+
+> **📋 What Statistical Tests Does This Apply To?**
+> 
+> **YES - These calculations apply to:**
+> - **Independent samples t-test** (two groups, different subjects) ✓
+> - **Paired t-test** (two measurements, same subjects) - but more powerful (see note below)
+> - **One-way ANOVA** (multiple groups) - with modifications for multiple comparisons
+> - **Z-test** (when population variance is known)
+> - **Mann-Whitney U test / Wilcoxon** (non-parametric alternatives) - approximately
+> 
+> **The formulas in this document are specifically derived for:**
+> - Two independent groups
+> - Normal distributions (or large enough n for Central Limit Theorem)
+> - Equal variances (pooled variance assumption)
+> - Two-sided tests
+> 
+> **Important notes:**
+> - **t-test vs z-test**: At n≥30, t-distribution ≈ normal distribution, so formulas using Z-values are accurate approximations
+> - **Paired t-test**: Much more powerful! Effective sample size increases by factor of $1/(1-\rho)$ where $\rho$ is correlation between paired measurements
+> - **Non-parametric tests**: Slightly less powerful than t-tests when data is normal; may need ~5-15% more samples
+> - **ANOVA with >2 groups**: Use similar principles but adjust for multiple comparisons (use Cohen's f instead of d)
+> 
+> **Bottom line**: These power calculations are most accurate for independent samples t-tests, but the general principles (more samples = detect smaller effects) apply to all comparison tests.
 
 ---
 

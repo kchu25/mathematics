@@ -38,6 +38,45 @@
 <li><p>Desired statistical power &#40;1−β&#41;</p>
 </li>
 </ul>
+<blockquote>
+<p><strong>📋 What Statistical Tests Does This Apply To?</strong></p>
+<p><strong>YES - These calculations apply to:</strong></p>
+<ul>
+<li><p><strong>Independent samples t-test</strong> &#40;two groups, different subjects&#41; ✓</p>
+</li>
+<li><p><strong>Paired t-test</strong> &#40;two measurements, same subjects&#41; - but more powerful &#40;see note below&#41;</p>
+</li>
+<li><p><strong>One-way ANOVA</strong> &#40;multiple groups&#41; - with modifications for multiple comparisons</p>
+</li>
+<li><p><strong>Z-test</strong> &#40;when population variance is known&#41;</p>
+</li>
+<li><p><strong>Mann-Whitney U test / Wilcoxon</strong> &#40;non-parametric alternatives&#41; - approximately</p>
+</li>
+</ul>
+<p><strong>The formulas in this document are specifically derived for:</strong></p>
+<ul>
+<li><p>Two independent groups</p>
+</li>
+<li><p>Normal distributions &#40;or large enough n for Central Limit Theorem&#41;</p>
+</li>
+<li><p>Equal variances &#40;pooled variance assumption&#41;</p>
+</li>
+<li><p>Two-sided tests</p>
+</li>
+</ul>
+<p><strong>Important notes:</strong></p>
+<ul>
+<li><p><strong>t-test vs z-test</strong>: At n≥30, t-distribution ≈ normal distribution, so formulas using Z-values are accurate approximations</p>
+</li>
+<li><p><strong>Paired t-test</strong>: Much more powerful&#33; Effective sample size increases by factor of \(1/(1-\rho)\) where \(\rho\) is correlation between paired measurements</p>
+</li>
+<li><p><strong>Non-parametric tests</strong>: Slightly less powerful than t-tests when data is normal; may need ~5-15&#37; more samples</p>
+</li>
+<li><p><strong>ANOVA with &gt;2 groups</strong>: Use similar principles but adjust for multiple comparisons &#40;use Cohen&#39;s f instead of d&#41;</p>
+</li>
+</ul>
+<p><strong>Bottom line</strong>: These power calculations are most accurate for independent samples t-tests, but the general principles &#40;more samples &#61; detect smaller effects&#41; apply to all comparison tests.</p>
+</blockquote>
 <hr />
 <h2 id="the_formula"><a href="#the_formula" class="header-anchor">The Formula</a></h2>
 <p>For <strong>two independent groups</strong> with equal sample sizes &#40;two-sided t-test&#41;:</p>
