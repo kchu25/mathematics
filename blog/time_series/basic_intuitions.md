@@ -1,4 +1,4 @@
-@def title = " Time Series Analysis: Intuition and Implementation"
+@def title = "Time Series Analysis: Intuition and Implementation"
 @def published = "12 October 2025"
 @def tags = ["time-series"]
 
