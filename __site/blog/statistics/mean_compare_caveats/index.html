@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
    <link rel="stylesheet" href="/libs/katex/katex.min.css">
      
-  
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
   <link rel="stylesheet" href="/css/franklin.css">
 <link rel="stylesheet" href="/css/hypertext.css">
 <link rel="icon" href="/assets/favicon.png">
@@ -78,7 +79,137 @@
 <p><strong>Bottom line</strong>: These power calculations are most accurate for independent samples t-tests, but the general principles &#40;more samples &#61; detect smaller effects&#41; apply to all comparison tests.</p>
 </blockquote>
 <hr />
-<h2 id="the_formula"><a href="#the_formula" class="header-anchor">The Formula</a></h2>
+<h2 id="workflow_checking_if_your_unequal_samples_are_adequate"><a href="#workflow_checking_if_your_unequal_samples_are_adequate" class="header-anchor">Workflow: Checking If Your Unequal Samples Are Adequate</a></h2>
+<h3 id="scenario_you_already_have_data"><a href="#scenario_you_already_have_data" class="header-anchor">Scenario: You Already Have Data</a></h3>
+<p><strong>You have:</strong> Group 1 with n₁ samples, Group 2 with n₂ samples</p>
+<p><strong>Question:</strong> &quot;Do I have enough samples to detect a meaningful difference?&quot;</p>
+<blockquote>
+<p><strong>⚠️ Common Confusion: Planning vs. Checking</strong></p>
+<p><strong>Two different scenarios:</strong></p>
+<p><strong>SCENARIO A - PLANNING &#40;before data collection&#41;:</strong></p>
+<ul>
+<li><p>Question: &quot;How many samples do I need to collect?&quot;</p>
+</li>
+<li><p>Use formula: \(n = 15.68/d^2\) to calculate required sample size</p>
+</li>
+<li><p>You decide δ and σ beforehand → get d → calculate n</p>
+</li>
+</ul>
+<p><strong>SCENARIO B - CHECKING &#40;after data collection&#41;:</strong></p>
+<ul>
+<li><p>Question: &quot;I already have n₁ and n₂ samples - are they enough?&quot;</p>
+</li>
+<li><p>Calculate: \(d_{\min} = 2.8/\sqrt{n_{\text{eff}}}\) to find what you CAN detect</p>
+</li>
+<li><p>Compare d_min to your expected effect size d</p>
+</li>
+<li><p><strong>This is the workflow below&#33;</strong></p>
+</li>
+</ul>
+<p><strong>Key difference:</strong> </p>
+<ul>
+<li><p>Planning: δ, σ → d → <strong>n</strong> &#40;you&#39;re solving for sample size&#41;</p>
+</li>
+<li><p>Checking: n₁, n₂ → n<em>eff → **d</em>min** &#40;you&#39;re solving for detectable effect&#41;</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="step-by-step_workflow"><a href="#step-by-step_workflow" class="header-anchor">Step-by-Step Workflow</a></h3>
+<h4 id="step_1_calculate_effective_sample_size"><a href="#step_1_calculate_effective_sample_size" class="header-anchor"><strong>Step 1: Calculate Effective Sample Size</strong></a></h4>
+\[n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}\]
+<p><strong>Example:</strong> n₁ &#61; 45, n₂ &#61; 30</p>
+\[n_{\text{eff}} = \frac{2 \times 45 \times 30}{45 + 30} = \frac{2700}{75} = 36\]
+<hr />
+<h4 id="step_2_calculate_pooled_standard_deviation"><a href="#step_2_calculate_pooled_standard_deviation" class="header-anchor"><strong>Step 2: Calculate Pooled Standard Deviation</strong></a></h4>
+<p>From your actual data, calculate the standard deviations s₁ and s₂ for each group, then:</p>
+\[\sigma_{\text{pooled}} = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}\]
+<p><strong>Example:</strong> n₁&#61;45, s₁&#61;8.5; n₂&#61;30, s₂&#61;9.2</p>
+\[\sigma_{\text{pooled}} = \sqrt{\frac{44 \times 72.25 + 29 \times 84.64}{73}} = \sqrt{\frac{5633.56}{73}} \approx 8.78\]
+<hr />
+<h4 id="step_3_decide_your_minimum_meaningful_difference_δ"><a href="#step_3_decide_your_minimum_meaningful_difference_δ" class="header-anchor"><strong>Step 3: Decide Your Minimum Meaningful Difference &#40;δ&#41;</strong></a></h4>
+<p><strong>This is subjective and domain-specific&#33;</strong></p>
+<p>Ask yourself: &quot;What&#39;s the smallest difference that would matter in practice?&quot;</p>
+<p><strong>Example:</strong> Comparing test scores</p>
+<ul>
+<li><p>If a 2-point difference doesn&#39;t matter clinically/practically → δ &#61; 2 is too small</p>
+</li>
+<li><p>If a 5-point difference is meaningful → set δ &#61; 5</p>
+</li>
+</ul>
+<hr />
+<h4 id="step_4_calculate_expected_cohens_d"><a href="#step_4_calculate_expected_cohens_d" class="header-anchor"><strong>Step 4: Calculate Expected Cohen&#39;s d</strong></a></h4>
+\[d = \frac{\delta}{\sigma_{\text{pooled}}}\]
+<p><strong>Example:</strong> δ &#61; 5, σ &#61; 8.78</p>
+\[d = \frac{5}{8.78} \approx 0.57\]
+<p>This is a medium-to-large effect.</p>
+<hr />
+<h4 id="step_5_calculate_minimum_detectable_cohens_d"><a href="#step_5_calculate_minimum_detectable_cohens_d" class="header-anchor"><strong>Step 5: Calculate Minimum Detectable Cohen&#39;s d</strong></a></h4>
+<p>This tells you what your current sample can actually detect:</p>
+\[d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}\]
+<p><strong>Example:</strong> n_eff &#61; 36</p>
+\[d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47\]
+<hr />
+<h4 id="step_6_compare_and_decide"><a href="#step_6_compare_and_decide" class="header-anchor"><strong>Step 6: Compare and Decide</strong></a></h4>
+<p><strong>Decision Rule:</strong></p>
+<table><tr><th align="right">Comparison</th><th align="right">Interpretation</th><th align="right">Action</th></tr><tr><td align="right"><strong>d &#40;expected&#41; &gt; d_min</strong></td><td align="right">✓ You have enough power</td><td align="right">Proceed with analysis</td></tr><tr><td align="right"><strong>d &#40;expected&#41; ≈ d_min</strong></td><td align="right">⚠️ Borderline power &#40;~80&#37;&#41;</td><td align="right">Proceed but note limitations</td></tr><tr><td align="right"><strong>d &#40;expected&#41; &lt; d_min</strong></td><td align="right">✗ Underpowered</td><td align="right">Results unreliable; need more data</td></tr></table>
+<p><strong>In our example:</strong></p>
+<ul>
+<li><p>Expected d &#61; 0.57</p>
+</li>
+<li><p>Minimum detectable d_min &#61; 0.47</p>
+</li>
+<li><p><strong>0.57 &gt; 0.47</strong> → ✓ <strong>You have adequate power&#33;</strong></p>
+</li>
+</ul>
+<hr />
+<h3 id="alternative_if_you_dont_know_δ_yet"><a href="#alternative_if_you_dont_know_δ_yet" class="header-anchor">Alternative: If You Don&#39;t Know δ Yet</a></h3>
+<p><strong>If you haven&#39;t decided what difference matters</strong>, reverse the calculation:</p>
+<h4 id="calculate_what_difference_your_sample_can_detect"><a href="#calculate_what_difference_your_sample_can_detect" class="header-anchor">Calculate what difference your sample CAN detect:</a></h4>
+\[\delta_{\min} = d_{\min} \times \sigma_{\text{pooled}} = \frac{2.8}{\sqrt{n_{\text{eff}}}} \times \sigma_{\text{pooled}}\]
+<p><strong>Example:</strong> n_eff &#61; 36, σ &#61; 8.78</p>
+\[\delta_{\min} = 0.47 \times 8.78 \approx 4.1\]
+<p><strong>Interpretation:</strong> &quot;With my current sample sizes, I can detect differences of 4.1 points or larger with 80&#37; power.&quot;</p>
+<p><strong>Then ask:</strong> &quot;Is a 4.1-point difference meaningful in my field?&quot;</p>
+<ul>
+<li><p>If YES → proceed</p>
+</li>
+<li><p>If NO &#40;you need to detect smaller differences&#41; → need more samples</p>
+</li>
+</ul>
+<hr />
+<h3 id="quick_reference_workflow_chart"><a href="#quick_reference_workflow_chart" class="header-anchor">Quick Reference Workflow Chart</a></h3>
+<pre><code class="language-julia">START: You have n₁ and n₂ samples
+    ↓
+&#91;1&#93; Calculate n_eff &#61; 2n₁n₂/&#40;n₁&#43;n₂&#41;
+    ↓
+&#91;2&#93; Calculate σ_pooled from your data
+    ↓
+&#91;3&#93; Decide: What&#39;s the minimum meaningful difference &#40;δ&#41;?
+    ↓
+&#91;4&#93; Calculate expected d &#61; δ/σ_pooled
+    ↓
+&#91;5&#93; Calculate d_min &#61; 2.8/√n_eff
+    ↓
+&#91;6&#93; Compare: Is d &gt; d_min?
+    ↓
+YES: ✓ Adequate power → Run your t-test
+NO: ✗ Underpowered → Collect more data or reconsider</code></pre>
+<hr />
+<h3 id="common_mistakes_to_avoid"><a href="#common_mistakes_to_avoid" class="header-anchor">Common Mistakes to Avoid</a></h3>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll calculate n_eff and use the formula n &#61; 15.68/d²&quot;</p>
+<ul>
+<li><p>That formula is for <strong>planning</strong> sample size, not checking existing samples</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Use d<em>min &#61; 2.8/√n</em>eff to find what you <strong>can</strong> detect, then compare to what you <strong>want</strong> to detect</p>
+<p>❌ <strong>WRONG:</strong> Setting δ based on what you observe in your data</p>
+<ul>
+<li><p>This is circular reasoning and invalidates your test</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Set δ based on prior knowledge, clinical significance, or practical importance <strong>before</strong> looking at your results</p>
+<hr />
+<h2 id="the_formula_for_planning_sample_size"><a href="#the_formula_for_planning_sample_size" class="header-anchor">The Formula &#40;For Planning Sample Size&#41;</a></h2>
 <p>For <strong>two independent groups</strong> with equal sample sizes &#40;two-sided t-test&#41;:</p>
 \[n = 2\left(\frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\delta/\sigma}\right)^2\]
 <p>Where:</p>
@@ -274,7 +405,7 @@
 \[d_{\min} = \frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\sqrt{n_{\text{eff}}/2}}\]
 <p>where \(n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}\) &#40;harmonic mean&#41;</p>
 <p>For α&#61;0.05, 80&#37; power:</p>
-\(d_{\min} \approx \frac{2.8}{\sqrt{n_{\text{eff}}}}\)
+\[d_{\min} \approx \frac{2.8}{\sqrt{n_{\text{eff}}}}\]
 <p><strong>What this means:</strong> </p>
 <ul>
 <li><p>\(d_{\min}\) is the <strong>minimum detectable effect size</strong> with 80&#37; power</p>
@@ -501,6 +632,10 @@
 <script>renderMathInElement(document.body)</script>
 
     
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
     
   </body>
 </html>

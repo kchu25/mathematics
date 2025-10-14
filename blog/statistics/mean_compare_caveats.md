@@ -37,7 +37,163 @@
 
 ---
 
-## The Formula
+## Workflow: Checking If Your Unequal Samples Are Adequate
+
+### Scenario: You Already Have Data
+
+**You have:** Group 1 with n₁ samples, Group 2 with n₂ samples
+
+**Question:** "Do I have enough samples to detect a meaningful difference?"
+
+> **⚠️ Common Confusion: Planning vs. Checking**
+> 
+> **Two different scenarios:**
+> 
+> **SCENARIO A - PLANNING (before data collection):**
+> - Question: "How many samples do I need to collect?"
+> - Use formula: $n = 15.68/d^2$ to calculate required sample size
+> - You decide δ and σ beforehand → get d → calculate n
+> 
+> **SCENARIO B - CHECKING (after data collection):**
+> - Question: "I already have n₁ and n₂ samples - are they enough?"
+> - Calculate: $d_{\min} = 2.8/\sqrt{n_{\text{eff}}}$ to find what you CAN detect
+> - Compare d_min to your expected effect size d
+> - **This is the workflow below!**
+> 
+> **Key difference:** 
+> - Planning: δ, σ → d → **n** (you're solving for sample size)
+> - Checking: n₁, n₂ → n_eff → **d_min** (you're solving for detectable effect)
+
+### Step-by-Step Workflow
+
+#### **Step 1: Calculate Effective Sample Size**
+
+$$n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}$$
+
+**Example:** n₁ = 45, n₂ = 30
+$$n_{\text{eff}} = \frac{2 \times 45 \times 30}{45 + 30} = \frac{2700}{75} = 36$$
+
+---
+
+#### **Step 2: Calculate Pooled Standard Deviation**
+
+From your actual data, calculate the standard deviations s₁ and s₂ for each group, then:
+
+$$\sigma_{\text{pooled}} = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}$$
+
+**Example:** n₁=45, s₁=8.5; n₂=30, s₂=9.2
+$$\sigma_{\text{pooled}} = \sqrt{\frac{44 \times 72.25 + 29 \times 84.64}{73}} = \sqrt{\frac{5633.56}{73}} \approx 8.78$$
+
+---
+
+#### **Step 3: Decide Your Minimum Meaningful Difference (δ)**
+
+**This is subjective and domain-specific!**
+
+Ask yourself: "What's the smallest difference that would matter in practice?"
+
+**Example:** Comparing test scores
+- If a 2-point difference doesn't matter clinically/practically → δ = 2 is too small
+- If a 5-point difference is meaningful → set δ = 5
+
+---
+
+#### **Step 4: Calculate Expected Cohen's d**
+
+$$d = \frac{\delta}{\sigma_{\text{pooled}}}$$
+
+**Example:** δ = 5, σ = 8.78
+$$d = \frac{5}{8.78} \approx 0.57$$
+
+This is a medium-to-large effect.
+
+---
+
+#### **Step 5: Calculate Minimum Detectable Cohen's d**
+
+This tells you what your current sample can actually detect:
+
+$$d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}$$
+
+**Example:** n_eff = 36
+$$d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47$$
+
+---
+
+#### **Step 6: Compare and Decide**
+
+**Decision Rule:**
+
+| Comparison | Interpretation | Action |
+|------------|----------------|--------|
+| **d (expected) > d_min** | ✓ You have enough power | Proceed with analysis |
+| **d (expected) ≈ d_min** | ⚠️ Borderline power (~80%) | Proceed but note limitations |
+| **d (expected) < d_min** | ✗ Underpowered | Results unreliable; need more data |
+
+**In our example:**
+- Expected d = 0.57
+- Minimum detectable d_min = 0.47
+- **0.57 > 0.47** → ✓ **You have adequate power!**
+
+---
+
+### Alternative: If You Don't Know δ Yet
+
+**If you haven't decided what difference matters**, reverse the calculation:
+
+#### Calculate what difference your sample CAN detect:
+
+$$\delta_{\min} = d_{\min} \times \sigma_{\text{pooled}} = \frac{2.8}{\sqrt{n_{\text{eff}}}} \times \sigma_{\text{pooled}}$$
+
+**Example:** n_eff = 36, σ = 8.78
+$$\delta_{\min} = 0.47 \times 8.78 \approx 4.1$$
+
+**Interpretation:** "With my current sample sizes, I can detect differences of 4.1 points or larger with 80% power."
+
+**Then ask:** "Is a 4.1-point difference meaningful in my field?"
+- If YES → proceed
+- If NO (you need to detect smaller differences) → need more samples
+
+---
+
+### Quick Reference Workflow Chart
+
+```
+START: You have n₁ and n₂ samples
+    ↓
+[1] Calculate n_eff = 2n₁n₂/(n₁+n₂)
+    ↓
+[2] Calculate σ_pooled from your data
+    ↓
+[3] Decide: What's the minimum meaningful difference (δ)?
+    ↓
+[4] Calculate expected d = δ/σ_pooled
+    ↓
+[5] Calculate d_min = 2.8/√n_eff
+    ↓
+[6] Compare: Is d > d_min?
+    ↓
+YES: ✓ Adequate power → Run your t-test
+NO: ✗ Underpowered → Collect more data or reconsider
+```
+
+---
+
+### Common Mistakes to Avoid
+
+❌ **WRONG:** "I'll calculate n_eff and use the formula n = 15.68/d²"
+- That formula is for **planning** sample size, not checking existing samples
+
+✓ **CORRECT:** Use d_min = 2.8/√n_eff to find what you **can** detect, then compare to what you **want** to detect
+
+❌ **WRONG:** Setting δ based on what you observe in your data
+- This is circular reasoning and invalidates your test
+
+✓ **CORRECT:** Set δ based on prior knowledge, clinical significance, or practical importance **before** looking at your results
+
+---
+
+## The Formula (For Planning Sample Size)
 
 For **two independent groups** with equal sample sizes (two-sided t-test):
 
@@ -190,7 +346,7 @@ where $n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}$ (harmonic mean)
 
 For α=0.05, 80% power:
 
-$d_{\min} \approx \frac{2.8}{\sqrt{n_{\text{eff}}}}$
+$$d_{\min} \approx \frac{2.8}{\sqrt{n_{\text{eff}}}}$$
 
 **What this means:** 
 - $d_{\min}$ is the **minimum detectable effect size** with 80% power
