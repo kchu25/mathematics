@@ -113,10 +113,70 @@ This is a medium-to-large effect.
 
 This tells you what your current sample can actually detect:
 
-$$d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}$$
+$d_{\min} = \frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\sqrt{n_{\text{eff}}/2}}$
 
-**Example:** n_eff = 36
-$$d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47$$
+For α=0.05, 80% power, this simplifies to:
+
+$d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}$
+
+> **📊 Where Does the 2.8 Come From?**
+> 
+> The coefficient 2.8 comes from:
+> $Z_{1-\alpha/2} + Z_{1-\beta} = 1.96 + 0.84 = 2.80$
+> 
+> **Assumptions built into this coefficient:**
+> - **α = 0.05** (two-sided test, 5% significance level)
+> - **Power = 80%** (β = 0.20, so 20% chance of Type II error)
+> 
+> **For different assumptions, use different coefficients:**
+> 
+> | α (two-sided) | Power | $Z_{1-\alpha/2}$ | $Z_{1-\beta}$ | Coefficient |
+> |---------------|-------|------------------|---------------|-------------|
+> | 0.10 | 70% | 1.645 | 0.524 | **2.17** |
+> | 0.05 | 70% | 1.960 | 0.524 | **2.48** |
+> | **0.05** | **80%** | **1.960** | **0.842** | **2.80** |
+> | 0.05 | 90% | 1.960 | 1.282 | **3.24** |
+> | 0.05 | 95% | 1.960 | 1.645 | **3.61** |
+> | 0.01 | 80% | 2.576 | 0.842 | **3.42** |
+> | 0.01 | 90% | 2.576 | 1.282 | **3.86** |
+> 
+> **Example:** For 90% power with α=0.05:
+> $d_{\min} = \frac{3.24}{\sqrt{n_{\text{eff}}}}$
+> 
+> **Key insight:** Higher power or lower α → larger coefficient → larger d_min → need more samples to achieve that power/significance level.
+
+**Example:** n_eff = 36, using standard assumptions (α=0.05, 80% power)
+$d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47$
+
+---
+
+#### **Reference Table: Minimum Detectable d for Common Sample Sizes**
+
+Using standard assumptions (α=0.05, 80% power, two-sided):
+
+| n_eff | d_min | Interpretation |
+|-------|-------|----------------|
+| 10 | 0.89 | Very large effects only |
+| 15 | 0.72 | Large effects only |
+| 20 | 0.63 | Large effects |
+| 25 | 0.56 | Medium-large effects |
+| 30 | 0.51 | Medium effects |
+| 40 | 0.44 | Medium effects |
+| 50 | 0.40 | Small-medium effects |
+| 64 | 0.35 | Small-medium effects |
+| 80 | 0.31 | Small-medium effects |
+| 100 | 0.28 | Small effects |
+| 150 | 0.23 | Small effects |
+| 200 | 0.20 | Small effects |
+| 300 | 0.16 | Very small effects |
+| 400 | 0.14 | Very small effects |
+
+**How to use this table:**
+1. Calculate your n_eff from your actual sample sizes
+2. Find the closest n_eff in the table
+3. Check if d_min is reasonable for your expected effect
+4. If your expected d > d_min → you're good!
+5. If your expected d < d_min → underpowered
 
 ---
 
