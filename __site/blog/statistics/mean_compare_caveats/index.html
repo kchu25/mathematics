@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Sample Size for Comparing Population Means</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="sample_size_for_comparing_population_means"><a href="#sample_size_for_comparing_population_means" class="header-anchor">Sample Size for Comparing Population Means</a></h1>
+<h2 id="key_question"><a href="#key_question" class="header-anchor">Key Question</a></h2>
+<p><strong>How many samples do I need per group to meaningfully compare population means?</strong></p>
+<p><strong>Answer:</strong> No fixed minimum—it depends on:</p>
+<ul>
+<li><p>Effect size you want to detect</p>
+</li>
+<li><p>Within-group variability</p>
+</li>
+<li><p>Significance level &#40;α&#41;</p>
+</li>
+<li><p>Desired statistical power &#40;1−β&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="the_formula"><a href="#the_formula" class="header-anchor">The Formula</a></h2>
+<p>For <strong>two independent groups</strong> with equal sample sizes &#40;two-sided t-test&#41;:</p>
+\[n = 2\left(\frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\delta/\sigma}\right)^2\]
+<p>Where:</p>
+<ul>
+<li><p>\(n\) &#61; sample size per group</p>
+</li>
+<li><p>\(Z_{1-\alpha/2}\) &#61; critical value for significance &#40;1.96 for α&#61;0.05&#41;</p>
+</li>
+<li><p>\(Z_{1-\beta}\) &#61; critical value for power &#40;0.84 for 80&#37; power&#41;</p>
+</li>
+<li><p>\(\delta\) &#61; minimum detectable difference between means</p>
+</li>
+<li><p>\(\sigma\) &#61; pooled standard deviation</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>📏 What is δ &#40;delta&#41; - Minimum Detectable Difference?</strong></p>
+<p><strong>δ</strong> is the smallest difference between group means that you care about detecting.</p>
+<p><strong>Example</strong>: You&#39;re comparing blood pressure between two treatments.</p>
+<ul>
+<li><p>Group 1 mean: 120 mmHg</p>
+</li>
+<li><p>Group 2 mean: 115 mmHg</p>
+</li>
+<li><p>Difference: δ &#61; 5 mmHg</p>
+</li>
+</ul>
+<p><strong>You decide</strong>: &quot;I only care if the difference is at least 5 mmHg. Smaller differences aren&#39;t clinically meaningful to me.&quot;</p>
+<p>So δ &#61; 5 mmHg is your <strong>minimum detectable difference</strong>. Your sample size calculation ensures you have enough power to detect differences of this size &#40;or larger&#41;.</p>
+<p><strong>Key point</strong>: You choose δ based on what matters in your field, not statistics&#33;</p>
+</blockquote>
+<blockquote>
+<p><strong>📐 What is σ &#40;sigma&#41; - Pooled Standard Deviation?</strong></p>
+<p><strong>σ</strong> measures how spread out &#40;variable&#41; your data is within each group.</p>
+<p><strong>For equal sample sizes</strong> &#40;n₁ &#61; n₂ &#61; n&#41;:</p>
+</blockquote>
+\[\sigma = \sqrt{\frac{s_1^2 + s_2^2}{2}}\]
+<blockquote>
+<p><strong>For unequal sample sizes</strong>:</p>
+</blockquote>
+\[\sigma = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}\]
+<blockquote>
+<p>where \(s_1\) and \(s_2\) are the standard deviations of each group.</p>
+<p><strong>Example</strong>: </p>
+<ul>
+<li><p>Group 1: SD &#61; 10 mmHg, n₁ &#61; 30</p>
+</li>
+<li><p>Group 2: SD &#61; 12 mmHg, n₂ &#61; 50</p>
+</li>
+<li><p>Pooled: \(\sigma = \sqrt{\frac{29 \times 100 + 49 \times 144}{78}} = \sqrt{\frac{9956}{78}} \approx 11.3\) mmHg</p>
+</li>
+</ul>
+<p><strong>Why &quot;pooled&quot;?</strong> We&#39;re assuming both groups have similar variability, so we combine them into one estimate.</p>
+</blockquote>
+<blockquote>
+<p><strong>📊 What is Statistical Power?</strong></p>
+<p><strong>Power &#40;1−β&#41;</strong> is the probability of detecting a real effect when it actually exists. In other words, it&#39;s your chance of avoiding a &quot;false negative.&quot;</p>
+<p><strong>The Four Possible Outcomes:</strong></p>
+<ul>
+<li><p><strong>True Positive</strong> &#40;Power&#41;: Real effect exists → Test detects it ✓</p>
+</li>
+<li><p><strong>False Negative</strong> &#40;Type II error, β&#41;: Real effect exists → Test misses it ✗</p>
+</li>
+<li><p><strong>True Negative</strong>: No effect exists → Test finds nothing ✓</p>
+</li>
+<li><p><strong>False Positive</strong> &#40;Type I error, α&#41;: No effect exists → Test claims one ✗</p>
+</li>
+</ul>
+<p><strong>Power &#61; 80&#37;</strong> means: &quot;If there really is a difference of size δ between the groups, my test has an 80&#37; chance of finding it statistically significant.&quot;</p>
+<p><strong>Why 80&#37;?</strong> Convention. Higher power &#40;90&#37;, 95&#37;&#41; is better but requires larger samples. Below 80&#37; is considered underpowered—you&#39;re likely to miss real effects.</p>
+<p><strong>Analogy</strong>: Think of power as the sensitivity of a metal detector. High power &#40;big sample&#41; &#61; detects small coins. Low power &#40;small sample&#41; &#61; only detects large objects.</p>
+</blockquote>
+<h3 id="simplified_formula_α005_80_power"><a href="#simplified_formula_α005_80_power" class="header-anchor">Simplified Formula &#40;α&#61;0.05, 80&#37; power&#41;</a></h3>
+\[n \approx 15.68\left(\frac{\sigma}{\delta}\right)^2\]
+<p>Or equivalently, using Cohen&#39;s \(d = \delta/\sigma\):</p>
+\[n \approx \frac{15.68}{d^2}\]
+<blockquote>
+<p><strong>🎯 What is Cohen&#39;s d - Standardized Effect Size?</strong></p>
+<p><strong>Cohen&#39;s d</strong> is just the difference between means &#40;δ&#41; divided by the standard deviation &#40;σ&#41;:</p>
+</blockquote>
+\[d = \frac{\delta}{\sigma} = \frac{\text{difference in means}}{\text{standard deviation}}\]
+<blockquote>
+<p><strong>Why use it?</strong> It&#39;s a &quot;standardized&quot; measure—tells you how big the effect is relative to the variability.</p>
+<p><strong>Example</strong>:</p>
+<ul>
+<li><p>Blood pressure: δ &#61; 5 mmHg, σ &#61; 10 mmHg → d &#61; 0.5 &#40;medium effect&#41;</p>
+</li>
+<li><p>Height: δ &#61; 5 cm, σ &#61; 10 cm → d &#61; 0.5 &#40;also medium effect&#33;&#41;</p>
+</li>
+</ul>
+<p>Even though 5 mmHg ≠ 5 cm, both have d &#61; 0.5, so they&#39;re equally &quot;detectable&quot; statistically.</p>
+<p><strong>Cohen&#39;s Guidelines:</strong></p>
+<ul>
+<li><p><strong>Small effect</strong>: d &#61; 0.2 &#40;difference is 20&#37; of one SD&#41;</p>
+</li>
+<li><p><strong>Medium effect</strong>: d &#61; 0.5 &#40;difference is 50&#37; of one SD&#41;</p>
+</li>
+<li><p><strong>Large effect</strong>: d &#61; 0.8 &#40;difference is 80&#37; of one SD&#41;</p>
+</li>
+</ul>
+<p><strong>Intuition</strong>: </p>
+<ul>
+<li><p>d &#61; 1.0 means the two groups&#39; means are separated by one full standard deviation</p>
+</li>
+<li><p>Larger d &#61; easier to detect &#61; need fewer samples</p>
+</li>
+<li><p>Smaller d &#61; harder to detect &#61; need more samples</p>
+</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="worked_examples_α005_80_power"><a href="#worked_examples_α005_80_power" class="header-anchor">Worked Examples &#40;α&#61;0.05, 80&#37; power&#41;</a></h2>
+<table><tr><th align="right">Effect Size</th><th align="right">Cohen&#39;s d</th><th align="right">\(\delta/\sigma\)</th><th align="right">n per group</th></tr><tr><td align="right"><strong>Large</strong></td><td align="right">0.8</td><td align="right">δ &#61; 0.8σ</td><td align="right"><strong>~25</strong></td></tr><tr><td align="right"><strong>Medium</strong></td><td align="right">0.5</td><td align="right">δ &#61; 0.5σ</td><td align="right"><strong>~63</strong></td></tr><tr><td align="right"><strong>Small</strong></td><td align="right">0.2</td><td align="right">δ &#61; 0.2σ</td><td align="right"><strong>~392</strong></td></tr></table>
+<h3 id="interpretation"><a href="#interpretation" class="header-anchor">Interpretation</a></h3>
+<ul>
+<li><p><strong>Large effect</strong> &#40;difference equals 80&#37; of SD&#41;: Need ~25 samples per group</p>
+</li>
+<li><p><strong>Medium effect</strong> &#40;difference is 50&#37; of SD&#41;: Need ~63 samples per group  </p>
+</li>
+<li><p><strong>Small effect</strong> &#40;difference is 20&#37; of SD&#41;: Need ~392 samples per group</p>
+</li>
+</ul>
+<hr />
+<h2 id="important_considerations"><a href="#important_considerations" class="header-anchor">Important Considerations</a></h2>
+<h3 id="paired_vs_independent_designs"><a href="#paired_vs_independent_designs" class="header-anchor"><ol>
+<li><p><strong>Paired vs. Independent Designs</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p><strong>Paired &#40;within-subject&#41;</strong>: Much more powerful; required \(n\) reduces by factor \((1-\rho)\) where \(\rho\) is the correlation between paired measurements</p>
+</li>
+<li><p>Use when measuring the same subjects under different conditions</p>
+</li>
+</ul>
+<h3 id="ol_start2_multiple_groups_anova"><a href="#ol_start2_multiple_groups_anova" class="header-anchor"><ol start="2">
+<li><p><strong>Multiple Groups &#40;ANOVA&#41;</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Formula changes for &gt;2 groups</p>
+</li>
+<li><p>Use Cohen&#39;s \(f\) instead of Cohen&#39;s \(d\)</p>
+</li>
+<li><p>Requires ANOVA power calculator</p>
+</li>
+</ul>
+<h3 id="ol_start3_multiple_comparisons"><a href="#ol_start3_multiple_comparisons" class="header-anchor"><ol start="3">
+<li><p><strong>Multiple Comparisons</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Adjust α &#40;e.g., Bonferroni correction&#41;</p>
+</li>
+<li><p>Adjustment increases required sample size</p>
+</li>
+<li><p>Example: 5 comparisons → α &#61; 0.05/5 &#61; 0.01 per test</p>
+</li>
+</ul>
+<h3 id="ol_start4_unequal_group_sizes_or_variances"><a href="#ol_start4_unequal_group_sizes_or_variances" class="header-anchor"><ol start="4">
+<li><p><strong>Unequal Group Sizes or Variances</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Formula adjustments needed</p>
+</li>
+<li><p>Power decreases with imbalanced groups</p>
+</li>
+<li><p>Use effective sample size &#40;harmonic mean&#41;</p>
+</li>
+<li><p>See detailed section below</p>
+</li>
+</ul>
+<h3 id="ol_start5_unknown_variance"><a href="#ol_start5_unknown_variance" class="header-anchor"><ol start="5">
+<li><p><strong>Unknown Variance</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Estimate \(\sigma\) from pilot data or literature</p>
+</li>
+<li><p>Or specify effect size directly as Cohen&#39;s \(d\)</p>
+</li>
+</ul>
+<hr />
+<h2 id="if_your_sample_sizes_are_already_fixed"><a href="#if_your_sample_sizes_are_already_fixed" class="header-anchor">If Your Sample Sizes Are Already Fixed</a></h2>
+<h3 id="question_i_have_n_and_n_samples_-_is_this_enough"><a href="#question_i_have_n_and_n_samples_-_is_this_enough" class="header-anchor">Question: &quot;I have n₁ and n₂ samples - is this enough?&quot;</a></h3>
+<p>When sample sizes are fixed, you need to know: <strong>&quot;What size difference can my test reliably detect?&quot;</strong></p>
+<h4 id="step_1_calculate_minimum_detectable_effect_size"><a href="#step_1_calculate_minimum_detectable_effect_size" class="header-anchor">Step 1: Calculate Minimum Detectable Effect Size</a></h4>
+\[d_{\min} = \frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\sqrt{n_{\text{eff}}/2}}\]
+<p>where \(n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}\) &#40;harmonic mean&#41;</p>
+<p>For α&#61;0.05, 80&#37; power:</p>
+\(d_{\min} \approx \frac{2.8}{\sqrt{n_{\text{eff}}}}\)
+<p><strong>What this means:</strong> </p>
+<ul>
+<li><p>\(d_{\min}\) is the <strong>minimum detectable effect size</strong> with 80&#37; power</p>
+</li>
+<li><p>Any effect size <strong>larger</strong> than \(d_{\min}\) will be <strong>even easier to detect</strong> &#40;higher power&#41;</p>
+</li>
+<li><p>Any effect size <strong>smaller</strong> than \(d_{\min}\) will have <strong>lower power</strong> &#40;more likely to miss it&#41;</p>
+</li>
+</ul>
+<p><strong>In practice:</strong></p>
+<ul>
+<li><p>If your expected effect is \(d = 0.6\) and \(d_{\min} = 0.4\), you&#39;re good&#33; &#40;Your effect is larger → easier to detect&#41;</p>
+</li>
+<li><p>If your expected effect is \(d = 0.3\) and \(d_{\min} = 0.4\), you&#39;re underpowered &#40;Your effect is smaller → likely to miss it&#41;</p>
+</li>
+</ul>
+<h4 id="step_2_compare_to_your_expected_effect"><a href="#step_2_compare_to_your_expected_effect" class="header-anchor">Step 2: Compare to Your Expected Effect</a></h4>
+<table><tr><th align="right">Your Sample Sizes</th><th align="right">\(n_{\text{eff}}\)</th><th align="right">Min Detectable d</th><th align="right">Can Detect</th></tr><tr><td align="right">n₁&#61;30, n₂&#61;30</td><td align="right">30</td><td align="right">0.51</td><td align="right">Medium&#43; effects</td></tr><tr><td align="right">n₁&#61;50, n₂&#61;50</td><td align="right">50</td><td align="right">0.40</td><td align="right">Small-medium effects</td></tr><tr><td align="right">n₁&#61;100, n₂&#61;50</td><td align="right">67</td><td align="right">0.34</td><td align="right">Small-medium effects</td></tr><tr><td align="right">n₁&#61;100, n₂&#61;20</td><td align="right">33</td><td align="right">0.49</td><td align="right">Medium effects only</td></tr><tr><td align="right">n₁&#61;200, n₂&#61;200</td><td align="right">200</td><td align="right">0.20</td><td align="right">Small effects</td></tr></table>
+<h3 id="what_this_actually_means"><a href="#what_this_actually_means" class="header-anchor">What This Actually Means</a></h3>
+<p><strong>The problem</strong>: Even if a real difference exists, your test might say &quot;not significant&quot; if you don&#39;t have enough samples. This is called being &quot;underpowered.&quot;</p>
+<p><strong>Think of it this way</strong>: </p>
+<ul>
+<li><p>You&#39;re comparing two groups</p>
+</li>
+<li><p>There IS a real difference between them</p>
+</li>
+<li><p>But your sample is too small, so the test says &quot;no significant difference&quot;</p>
+</li>
+<li><p>You conclude nothing is happening, but you&#39;re WRONG</p>
+</li>
+</ul>
+<p><strong>How many samples do you need to avoid this?</strong></p>
+<p>It depends on <strong>how big the real difference is</strong> &#40;relative to variability&#41;:</p>
+<table><tr><th align="right">Your Sample Size</th><th align="right">Real difference you&#39;ll reliably detect</th></tr><tr><td align="right"><strong>10-15 per group</strong></td><td align="right">Only HUGE differences &#40;group means differ by ≥80&#37; of one SD&#41;</td></tr><tr><td align="right"><strong>30 per group</strong></td><td align="right">Large differences &#40;group means differ by ≥50&#37; of one SD&#41;</td></tr><tr><td align="right"><strong>50 per group</strong></td><td align="right">Medium differences &#40;group means differ by ≥40&#37; of one SD&#41;</td></tr><tr><td align="right"><strong>100&#43; per group</strong></td><td align="right">Small differences &#40;group means differ by ≥30&#37; of one SD&#41;</td></tr></table>
+<p><strong>Example to make this concrete:</strong></p>
+<p>Say you&#39;re comparing test scores &#40;SD &#61; 10 points&#41;:</p>
+<ul>
+<li><p><strong>10 per group</strong>: You&#39;ll only detect if groups differ by ≥8 points</p>
+</li>
+<li><p><strong>30 per group</strong>: You&#39;ll detect if groups differ by ≥5 points</p>
+</li>
+<li><p><strong>50 per group</strong>: You&#39;ll detect if groups differ by ≥4 points</p>
+</li>
+<li><p><strong>100 per group</strong>: You&#39;ll detect if groups differ by ≥3 points</p>
+</li>
+</ul>
+<p><strong>If the real difference is smaller than what your sample can detect, the test will likely say &quot;not significant&quot; even though a difference EXISTS.</strong></p>
+<p>⚠️ <strong>Below 10 per group</strong>: You can only detect enormous differences. Small/medium differences will be missed, and your test is basically useless.</p>
+<h3 id="quick_check_is_my_test_meaningful"><a href="#quick_check_is_my_test_meaningful" class="header-anchor">Quick Check: &quot;Is My Test Meaningful?&quot;</a></h3>
+<p><strong>The real question is: &quot;Will my test be able to detect the difference if it exists?&quot;</strong></p>
+<p><strong>YES - Your test is meaningful if:</strong></p>
+<ul>
+<li><p>You expect a LARGE difference &#40;groups differ by ≥50&#37; of SD&#41; AND you have ≥30 per group</p>
+</li>
+<li><p>You expect a MEDIUM difference &#40;groups differ by ≥40&#37; of SD&#41; AND you have ≥50 per group  </p>
+</li>
+<li><p>You expect a SMALL difference &#40;groups differ by ≥30&#37; of SD&#41; AND you have ≥100 per group</p>
+</li>
+</ul>
+<p><strong>RISKY - You might miss real differences:</strong></p>
+<ul>
+<li><p>Your sample sizes are between these thresholds</p>
+</li>
+<li><p>Consider your results exploratory, not definitive</p>
+</li>
+</ul>
+<p><strong>NO - Your test is likely useless:</strong></p>
+<ul>
+<li><p>You have &lt;10 per group &#40;unless you expect enormous differences&#41;</p>
+</li>
+<li><p>You expect a small difference but have &lt;100 per group</p>
+</li>
+</ul>
+<p><strong>Bottom line</strong>: More samples &#61; able to detect smaller differences. Fewer samples &#61; can only detect big, obvious differences.</p>
+<hr />
+<h2 id="unequal_sample_sizes_details"><a href="#unequal_sample_sizes_details" class="header-anchor">Unequal Sample Sizes &#40;Details&#41;</a></h2>
+<h3 id="understanding_effective_sample_size"><a href="#understanding_effective_sample_size" class="header-anchor">Understanding Effective Sample Size</a></h3>
+<p>When group sizes differ, statistical power depends on the <strong>harmonic mean</strong>:</p>
+\[n_{\text{eff}} = \frac{2n_1 n_2}{n_1 + n_2}\]
+<p>This represents the &quot;equivalent balanced sample size&quot; in terms of statistical power.</p>
+<h3 id="important_implications"><a href="#important_implications" class="header-anchor">Important Implications</a></h3>
+<ol>
+<li><p><strong>Power loss with imbalance</strong>: The effective sample size is always ≤ the average of \(n_1\) and \(n_2\)</p>
+</li>
+<li><p><strong>Extreme example</strong>: </p>
+<ul>
+<li><p>Balanced: \(n_1 = n_2 = 50\) → \(n_{\text{eff}} = 50\)</p>
+</li>
+<li><p>Imbalanced: \(n_1 = 80, n_2 = 20\) → \(n_{\text{eff}} = 32\) &#40;36&#37; power loss&#33;&#41;</p>
+</li>
+<li><p>Imbalanced: \(n_1 = 90, n_2 = 10\) → \(n_{\text{eff}} = 18\) &#40;64&#37; power loss&#33;&#41;</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Rule</strong>: To maximize power with fixed total N, use <strong>equal group sizes</strong></p>
+</li>
+</ol>
+<h3 id="practical_example"><a href="#practical_example" class="header-anchor">Practical Example</a></h3>
+<p>Suppose you want 80&#37; power to detect \(d = 0.5\) &#40;medium effect&#41; with α&#61;0.05:</p>
+<ul>
+<li><p><strong>Balanced design</strong>: \(n_1 = n_2 = 63\) &#40;Total N &#61; 126&#41;</p>
+</li>
+<li><p><strong>Imbalanced 2:1</strong>: \(n_1 = 84, n_2 = 42\) &#40;Total N &#61; 126, but \(n_{\text{eff}} = 56\), underpowered&#33;&#41;</p>
+</li>
+<li><p><strong>To achieve same power with 2:1 ratio</strong>: Need \(n_1 = 95, n_2 = 47\) &#40;Total N &#61; 142&#41;</p>
+</li>
+</ul>
+<h3 id="computing_required_unequal_sample_sizes"><a href="#computing_required_unequal_sample_sizes" class="header-anchor">Computing Required Unequal Sample Sizes</a></h3>
+<p>If you must use a specific ratio \(r = n_1/n_2\), and you need effective sample size \(n_{\text{eff}}\):</p>
+\[n_2 = n_{\text{eff}} \cdot \frac{r+1}{2r}\]
+\[n_1 = r \cdot n_2\]
+<p><strong>Example with 3:1 ratio and medium effect:</strong></p>
+<ul>
+<li><p>Need \(n_{\text{eff}} \approx 63\) for 80&#37; power</p>
+</li>
+<li><p>With \(r = 3\): \(n_2 = 63 \times \frac{4}{6} = 42\), \(n_1 = 126\)</p>
+</li>
+<li><p>Total N &#61; 168 vs. 126 for balanced design &#40;33&#37; more participants needed&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="rule_of_thumb"><a href="#rule_of_thumb" class="header-anchor">Rule of Thumb</a></h2>
+<p><strong>If you have no prior information:</strong></p>
+<ul>
+<li><p>Aim for <strong>minimum 30 per group</strong> to rely on Central Limit Theorem</p>
+</li>
+<li><p>⚠️ Warning: 30 may be too small to detect small-to-medium effects</p>
+</li>
+</ul>
+<p><strong>Should you exclude samples with &lt;30 data points?</strong></p>
+<p><strong>It depends on your goal:</strong></p>
+<p><strong>YES, exclude if:</strong></p>
+<ul>
+<li><p>You&#39;re doing a <strong>rigorous confirmatory study</strong> where you need reliable statistical inference</p>
+</li>
+<li><p>You need to detect <strong>medium or smaller effects</strong> &#40;30 is borderline at best&#41;</p>
+</li>
+<li><p>You have <strong>multiple groups</strong> to compare and can&#39;t afford underpowered comparisons</p>
+</li>
+<li><p>The cost of false negatives &#40;missing real effects&#41; is high</p>
+</li>
+</ul>
+<p><strong>NO, keep if:</strong></p>
+<ul>
+<li><p>You&#39;re doing <strong>exploratory analysis</strong> and just want to see patterns</p>
+</li>
+<li><p>You expect <strong>very large effects</strong> &#40;d &gt; 0.8&#41; - small samples can still detect these</p>
+</li>
+<li><p>It&#39;s a <strong>pilot study</strong> or preliminary investigation</p>
+</li>
+<li><p>You&#39;re willing to interpret results cautiously and follow up with larger samples</p>
+</li>
+<li><p>Excluding the group would create bias &#40;e.g., always excluding rare conditions&#41;</p>
+</li>
+</ul>
+<p><strong>Better approach than hard cutoffs:</strong></p>
+<ol>
+<li><p>Calculate \(n_{\text{eff}}\) and \(d_{\min}\) for each comparison</p>
+</li>
+<li><p>Keep groups where \(d_{\min}\) is reasonable for your expected effect size</p>
+</li>
+<li><p>Report power calculations alongside results</p>
+</li>
+<li><p>Be transparent about which comparisons are underpowered</p>
+</li>
+</ol>
+<p><strong>Example:</strong> If you have groups with n&#61;25, n&#61;35, n&#61;50, n&#61;100:</p>
+<ul>
+<li><p>Don&#39;t automatically exclude n&#61;25</p>
+</li>
+<li><p>Instead: Note that n&#61;25 can only detect d≥0.56, n&#61;35 can detect d≥0.47, etc.</p>
+</li>
+<li><p>Decide based on whether these thresholds match your expected effects</p>
+</li>
+</ul>
+<hr />
+<h2 id="what_you_need_to_calculate_sample_size"><a href="#what_you_need_to_calculate_sample_size" class="header-anchor">What You Need to Calculate Sample Size</a></h2>
+<p>Provide <strong>either</strong>:</p>
+<p><strong>Option A:</strong> Raw parameters</p>
+<ul>
+<li><p>Estimated standard deviation &#40;\(\sigma\)&#41;</p>
+</li>
+<li><p>Minimum detectable difference &#40;\(\delta\)&#41;</p>
+</li>
+</ul>
+<p><strong>Option B:</strong> Effect size</p>
+<ul>
+<li><p>Cohen&#39;s \(d = \delta/\sigma\) you want to detect</p>
+<ul>
+<li><p>Small: \(d = 0.2\)</p>
+</li>
+<li><p>Medium: \(d = 0.5\)</p>
+</li>
+<li><p>Large: \(d = 0.8\)</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Plus:</strong></p>
+<ul>
+<li><p>Desired significance level &#40;α, typically 0.05&#41;</p>
+</li>
+<li><p>Desired power &#40;1−β, typically 0.80 or 0.90&#41;</p>
+</li>
+<li><p>Study design &#40;paired vs. independent&#41;</p>
+</li>
+<li><p>Number of groups/comparisons</p>
+</li>
+</ul>
+<hr />
+<h2 id="quick_reference_table"><a href="#quick_reference_table" class="header-anchor">Quick Reference Table</a></h2>
+<table><tr><th align="right">Desired Power</th><th align="right">α &#61; 0.05</th><th align="right">Cohen&#39;s d &#61; 0.5</th><th align="right">n per group</th></tr><tr><td align="right">70&#37;</td><td align="right">Two-sided</td><td align="right">Medium effect</td><td align="right">~52</td></tr><tr><td align="right"><strong>80&#37;</strong></td><td align="right"><strong>Two-sided</strong></td><td align="right"><strong>Medium effect</strong></td><td align="right"><strong>~63</strong></td></tr><tr><td align="right">90&#37;</td><td align="right">Two-sided</td><td align="right">Medium effect</td><td align="right">~85</td></tr><tr><td align="right">95&#37;</td><td align="right">Two-sided</td><td align="right">Medium effect</td><td align="right">~105</td></tr></table>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 14, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

@@ -11,4 +11,5 @@
 - [convex-optimization](tag/convex-optimization)
 - [general-topics](tag/general-topics)
 - [times-series](tag/time-series)
+- [statistics](tag/statistics)
 
