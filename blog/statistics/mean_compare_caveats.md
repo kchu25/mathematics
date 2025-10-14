@@ -195,6 +195,39 @@ Using standard assumptions (α=0.05, 80% power, two-sided):
 - Minimum detectable d_min = 0.47
 - **0.57 > 0.47** → ✓ **You have adequate power!**
 
+> **✍️ How to Report Your Power Analysis**
+> 
+> **After confirming adequate power, you should report this in your analysis. Here are standard ways to phrase it:**
+> 
+> **Option 1 - Simple statement:**
+> "The sample means were compared using an independent samples t-test with 80% power to detect a medium effect size (d = 0.5) at α = 0.05."
+> 
+> **Option 2 - More detailed:**
+> "Given sample sizes of n₁ = 45 and n₂ = 30 (effective n = 36), this study had 80% power to detect an effect size of d ≥ 0.47 at the α = 0.05 significance level."
+> 
+> **Option 3 - Full reporting (recommended for publications):**
+> "A post-hoc power analysis indicated that with n₁ = 45 and n₂ = 30, the study achieved 80% power (1-β = 0.80) to detect a minimum effect size of Cohen's d = 0.47 at α = 0.05 (two-tailed). The expected effect size based on prior literature was d = 0.57, confirming adequate statistical power."
+> 
+> **What NOT to say:**
+> ❌ "The test was significant with p < 0.05" (this doesn't mention power)
+> ❌ "We had enough samples" (too vague)
+> ❌ "Post-hoc power was 95%" after seeing significant results (this is circular reasoning - see note below)
+> 
+> **Important considerations:**
+> 
+> **1. A priori vs. post-hoc power:**
+> - **A priori (before seeing results)**: Calculate power based on expected effect → GOOD
+> - **Post-hoc using observed effect**: Calculate power after seeing your result → PROBLEMATIC (gives inflated sense of confidence)
+> - **Post-hoc using n_eff and d_min**: Calculate what you COULD detect with your samples → GOOD (this is what we did above)
+> 
+> **2. If you find "not significant":**
+> - Report power analysis to show whether you had adequate power to detect effects
+> - Example: "No significant difference was found (p = 0.12). However, with n_eff = 36, the study only had 80% power to detect effects of d ≥ 0.47. Smaller effects may exist but were not detectable with this sample size."
+> 
+> **3. If you're underpowered:**
+> - Be honest about limitations
+> - Example: "The sample sizes (n₁ = 15, n₂ = 12, n_eff = 13) provided only 80% power to detect very large effects (d ≥ 0.77). Results should be interpreted cautiously as smaller but meaningful effects may have been missed."
+
 ---
 
 ### Alternative: If You Don't Know δ Yet
