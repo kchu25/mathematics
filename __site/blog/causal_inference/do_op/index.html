@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Understanding the Do Operator in Causal Inference</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="understanding_the_do_operator_in_causal_inference"><a href="#understanding_the_do_operator_in_causal_inference" class="header-anchor">Understanding the Do Operator in Causal Inference</a></h1>
+<p>A conversational yet rigorous guide to the do operator, covering its foundations, mechanics, and key distinctions.</p>
+<hr />
+<h2 id="prerequisites"><a href="#prerequisites" class="header-anchor">Prerequisites</a></h2>
+<p>Before diving into the do operator, we need to establish a few foundational concepts:</p>
+<h3 id="conditional_probability_vs_intervention"><a href="#conditional_probability_vs_intervention" class="header-anchor"><ol>
+<li><p>Conditional Probability vs. Intervention</p>
+</li>
+</ol>
+</a></h3>
+<p>The crucial distinction: <strong>observing that X happened naturally is fundamentally different from forcing X to happen.</strong></p>
+<p>Consider: P&#40;cholesterol is low | person takes statins&#41; includes people who were already healthier and more likely to take statins. But if we <em>force</em> someone to take statins &#40;randomize them in a trial&#41;, we break that selection bias.</p>
+<h3 id="ol_start2_causal_graphs_dags"><a href="#ol_start2_causal_graphs_dags" class="header-anchor"><ol start="2">
+<li><p>Causal Graphs &#40;DAGs&#41;</p>
+</li>
+</ol>
+</a></h3>
+<p>We represent causal relationships using Directed Acyclic Graphs &#40;DAGs&#41;:</p>
+<ul>
+<li><p>Nodes represent variables</p>
+</li>
+<li><p>Directed edges show direct causal influence</p>
+</li>
+<li><p>Example: Smoking → Lung Cancer ← Genetics</p>
+</li>
+</ul>
+<p>These arrows claim actual causal mechanisms, not just correlation.</p>
+<h3 id="ol_start3_structural_causal_models_scms"><a href="#ol_start3_structural_causal_models_scms" class="header-anchor"><ol start="3">
+<li><p>Structural Causal Models &#40;SCMs&#41;</p>
+</li>
+</ol>
+</a></h3>
+<p>SCMs formalize the idea that each variable is determined by its parents in the graph plus some randomness:</p>
+<pre><code class="language-julia">X &#61; f_X&#40;U_X&#41;
+Y &#61; f_Y&#40;X, U_Y&#41;</code></pre>
+<p>where U&#39;s are exogenous noise terms, and the functions encode causal mechanisms.</p>
+<hr />
+<h2 id="what_is_the_do_operator"><a href="#what_is_the_do_operator" class="header-anchor">What IS the Do Operator?</a></h2>
+<p>The <strong>do operator</strong>, written as <strong>do&#40;X &#61; x&#41;</strong> or just <strong>do&#40;x&#41;</strong>, is <strong>an operator that modifies probability distributions</strong>.</p>
+<p>It is neither a set nor a function in the traditional sense. Think of it as an instruction to modify the causal model itself.</p>
+<p>When you write P&#40;Y | do&#40;X &#61; x&#41;&#41;, you&#39;re asking:</p>
+<blockquote>
+<p>&quot;What&#39;s the probability distribution of Y if we <em>surgically intervene</em> to set X to value x?&quot;</p>
+</blockquote>
+<h3 id="the_mechanics"><a href="#the_mechanics" class="header-anchor">The Mechanics</a></h3>
+<p>Here&#39;s what happens when you apply do&#40;X &#61; x&#41;:</p>
+<ol>
+<li><p><strong>Graph surgery</strong>: Remove all incoming edges to X in your causal graph</p>
+</li>
+<li><p><strong>Fix X</strong>: Set X &#61; x deterministically, ignoring its usual causes</p>
+</li>
+<li><p><strong>Propagate</strong>: Let the causal effects flow forward through the remaining edges</p>
+</li>
+<li><p><strong>Observe</strong>: Read off the distribution of Y</p>
+</li>
+</ol>
+<p>This is called &quot;graph mutilation&quot; - you&#39;re literally cutting X off from its causes and forcing it to a value.</p>
+<h3 id="the_key_distinction"><a href="#the_key_distinction" class="header-anchor">The Key Distinction</a></h3>
+<ul>
+<li><p><strong>P&#40;Y | X &#61; x&#41;</strong>: &quot;Among cases where X naturally equals x, what&#39;s the distribution of Y?&quot;</p>
+</li>
+<li><p><strong>P&#40;Y | do&#40;X &#61; x&#41;&#41;</strong>: &quot;If we force X to equal x, what&#39;s the distribution of Y?&quot;</p>
+</li>
+</ul>
+<p><strong>These can be wildly different&#33;</strong></p>
+<p>Classic example: P&#40;tar on fingers | lung cancer&#41; is high, but P&#40;lung cancer | do&#40;tar on fingers &#61; high&#41;&#41; might be zero - painting tar on your fingers doesn&#39;t cause cancer, even though cancer patients often have tar-stained fingers from smoking.</p>
+<h3 id="mathematical_formalization"><a href="#mathematical_formalization" class="header-anchor">Mathematical Formalization</a></h3>
+<p>In terms of SCMs, doing do&#40;X &#61; x&#41; means replacing the structural equation for X with the constant equation X :&#61; x, then computing probabilities in this mutilated model.</p>
+<p>For observable Y and intervention X &#61; x:</p>
+<pre><code class="language-julia">P&#40;Y &#61; y | do&#40;X &#61; x&#41;&#41; &#61; P^&#123;do&#40;x&#41;&#125;&#40;Y &#61; y&#41;</code></pre>
+<p>This is the probability Y takes value y in the intervened world.</p>
+<hr />
+<h2 id="deep_dive_conditioning_vs_intervention"><a href="#deep_dive_conditioning_vs_intervention" class="header-anchor">Deep Dive: Conditioning vs. Intervention</a></h2>
+<p>This distinction is really the heart of why we need causal inference at all.</p>
+<h3 id="the_fundamental_problem"><a href="#the_fundamental_problem" class="header-anchor">The Fundamental Problem</a></h3>
+<ul>
+<li><p><strong>Conditioning</strong> &#61; selecting a subset of the natural world</p>
+</li>
+<li><p><strong>Intervening</strong> &#61; creating a new world that might never naturally occur</p>
+</li>
+</ul>
+<h3 id="concrete_example_ice_cream_and_drowning"><a href="#concrete_example_ice_cream_and_drowning" class="header-anchor">Concrete Example: Ice Cream and Drowning</a></h3>
+<p>Suppose we observe: P&#40;drowning | ice cream sales are high&#41; is elevated&#33;</p>
+<p>Should we ban ice cream? Of course not. Both ice cream sales and drowning have a common cause: hot weather.</p>
+<p><strong>Causal graph:</strong></p>
+<pre><code class="language-julia">Temperature → Ice Cream Sales
+     ↓
+  Drowning</code></pre>
+<p><strong>Conditioning &#40;observation&#41;:</strong></p>
+<p>P&#40;drowning | ice cream sales &#61; high&#41; asks: &quot;In the subset of days where ice cream sales happen to be high, what&#39;s the drowning rate?&quot;</p>
+<p>Those are mostly hot days&#33; So you&#39;re inadvertently also conditioning on high temperature, which genuinely increases drowning risk. You&#39;re NOT breaking the causal link between temperature and drowning.</p>
+<p><strong>Intervening:</strong></p>
+<p>P&#40;drowning | do&#40;ice cream sales &#61; high&#41;&#41; asks: &quot;If we <em>force</em> ice cream sales to be high &#40;through subsidies&#41;, what happens to drowning?&quot;</p>
+<p>When you do&#40;ice cream &#61; high&#41;:</p>
+<ol>
+<li><p>Cut the arrow Temperature → Ice Cream Sales</p>
+</li>
+<li><p>Fix ice cream sales to high regardless of temperature</p>
+</li>
+<li><p>Let effects propagate forward</p>
+</li>
+</ol>
+<p>But there&#39;s no arrow from ice cream to drowning&#33; So P&#40;drowning | do&#40;ice cream &#61; high&#41;&#41; ≈ P&#40;drowning&#41;. The intervention has no effect.</p>
+<h3 id="why_conditioning_sees_spurious_relationships"><a href="#why_conditioning_sees_spurious_relationships" class="header-anchor">Why Conditioning &quot;Sees&quot; Spurious Relationships</a></h3>
+<p>When you condition on X &#61; x, you&#39;re restricting attention to cases where X &#61; x naturally occurred. But X &#61; x occurring naturally might have happened <em>because of</em> certain values of X&#39;s parents, which might <em>also</em> influence Y through other paths.</p>
+<p><strong>Mathematical intuition:</strong></p>
+<p>By Bayes&#39; rule:</p>
+<pre><code class="language-julia">P&#40;Y | X &#61; x&#41; &#61; P&#40;Y, X &#61; x&#41; / P&#40;X &#61; x&#41;</code></pre>
+<p>This depends on the joint distribution P&#40;Y, X&#41;, which encodes all associations, causal or not.</p>
+<p>But P&#40;Y | do&#40;X &#61; x&#41;&#41; is computed in a <strong>different model</strong> where X is exogenous. It only depends on the causal path from X to Y.</p>
+<h3 id="selection_bias_perspective"><a href="#selection_bias_perspective" class="header-anchor">Selection Bias Perspective</a></h3>
+<p>Example: Education → Income, and Ability → both Education and Income.</p>
+<pre><code class="language-julia">Ability
+    ↙   ↘
+Education → Income</code></pre>
+<p><strong>If you compute P&#40;income | education &#61; college&#41;:</strong></p>
+<ul>
+<li><p>You&#39;re looking at people who went to college</p>
+</li>
+<li><p>But who goes to college? Partially determined by ability&#33;</p>
+</li>
+<li><p>So you&#39;re inadvertently selecting for higher ability</p>
+</li>
+<li><p>Higher ability independently boosts income</p>
+</li>
+<li><p>You <strong>overestimate</strong> education&#39;s causal effect</p>
+</li>
+</ul>
+<p><strong>But P&#40;income | do&#40;education &#61; college&#41;&#41;:</strong></p>
+<ul>
+<li><p>We randomly assign people to college &#40;breaking Ability → Education&#41;</p>
+</li>
+<li><p>Ability is distributed the same in both groups</p>
+</li>
+<li><p>We isolate education&#39;s true causal effect</p>
+</li>
+</ul>
+<h3 id="the_randomized_trial_connection"><a href="#the_randomized_trial_connection" class="header-anchor">The Randomized Trial Connection</a></h3>
+<p>This is why <strong>randomized controlled trials are the gold standard</strong>. When you randomize treatment:</p>
+<ul>
+<li><p>You literally implement do&#40;Treatment &#61; x&#41;</p>
+</li>
+<li><p>You break all arrows into Treatment</p>
+</li>
+<li><p>Treatment becomes independent of all its would-be causes</p>
+</li>
+<li><p>So P&#40;Outcome | Treatment &#61; x in RCT&#41; &#61; P&#40;Outcome | do&#40;Treatment &#61; x&#41;&#41;</p>
+</li>
+</ul>
+<p>Observation doesn&#39;t do this. Observation respects the natural causal structure, warts and all.</p>
+<hr />
+<h2 id="graph_surgery_what_gets_cut"><a href="#graph_surgery_what_gets_cut" class="header-anchor">Graph Surgery: What Gets Cut?</a></h2>
+<p><strong>Critical clarification</strong>: When you apply do&#40;X &#61; x&#41;, you cut <strong>INCOMING arrows to X only</strong>, not all connections&#33;</p>
+<p>The outgoing arrows from X to its effects stay intact - that&#39;s the whole point. We want to see X&#39;s causal influence.</p>
+<h3 id="example_education_and_income"><a href="#example_education_and_income" class="header-anchor">Example: Education and Income</a></h3>
+<p><strong>Before intervention:</strong></p>
+<pre><code class="language-julia">Ability
+    ↙   ↘
+Education → Income</code></pre>
+<p><strong>After do&#40;Education &#61; college&#41;:</strong></p>
+<pre><code class="language-julia">Ability
+    ✗   ↘
+Education → Income</code></pre>
+<p>We cut:</p>
+<ul>
+<li><p>Ability → Education &#40;incoming to Education&#41;</p>
+</li>
+</ul>
+<p>We keep:</p>
+<ul>
+<li><p>Education → Income &#40;outgoing from Education&#41;</p>
+</li>
+<li><p>Ability → Income &#40;unrelated to our intervention target&#41;</p>
+</li>
+</ul>
+<h3 id="why_this_makes_sense"><a href="#why_this_makes_sense" class="header-anchor">Why This Makes Sense</a></h3>
+<ul>
+<li><p><strong>Incoming arrows</strong> represent causes of X - things that normally determine X&#39;s value. When we intervene, we override those natural causes.</p>
+</li>
+<li><p><strong>Outgoing arrows</strong> represent effects of X - causal mechanisms by which X influences other variables. We keep these because we&#39;re intervening on X precisely to see what happens downstream&#33;</p>
+</li>
+</ul>
+<h3 id="the_formal_statement"><a href="#the_formal_statement" class="header-anchor">The Formal Statement</a></h3>
+<p>When computing P&#40;Y | do&#40;X &#61; x&#41;&#41;, you modify the SCM by:</p>
+<ol>
+<li><p>Removing all equations that define X based on its parents</p>
+</li>
+<li><p>Replacing them with X :&#61; x &#40;a constant&#41;</p>
+</li>
+<li><p>Keeping all other structural equations unchanged</p>
+</li>
+</ol>
+<p>This is equivalent to:</p>
+<ul>
+<li><p>Deleting all edges Pa → X &#40;parents pointing INTO X&#41;</p>
+</li>
+<li><p>Keeping all edges X → Ch &#40;X pointing to its children&#41;</p>
+</li>
+<li><p>Keeping all other edges in the graph untouched</p>
+</li>
+</ul>
+<hr />
+<h2 id="reconciling_graph_surgery_and_averaging"><a href="#reconciling_graph_surgery_and_averaging" class="header-anchor">Reconciling Graph Surgery and Averaging</a></h2>
+<p>This seems contradictory at first: we &quot;cut&quot; parents but also &quot;average over&quot; them. How does this work?</p>
+<h3 id="two_perspectives_on_the_same_operation"><a href="#two_perspectives_on_the_same_operation" class="header-anchor">Two Perspectives on the Same Operation</a></h3>
+<p><strong>Perspective 1: Graph surgery &#40;cutting parents&#41;</strong></p>
+<ul>
+<li><p>Describes how we modify the causal model structurally</p>
+</li>
+</ul>
+<p><strong>Perspective 2: Averaging over parents</strong></p>
+<ul>
+<li><p>Describes how we compute probabilities in the modified model</p>
+</li>
+</ul>
+<h3 id="what_cutting_actually_means"><a href="#what_cutting_actually_means" class="header-anchor">What &quot;Cutting&quot; Actually Means</a></h3>
+<p>When we &quot;cut&quot; incoming edges to X:</p>
+<ul>
+<li><p>X is no longer causally determined by its parents in the model</p>
+</li>
+<li><p>X becomes exogenous &#40;externally set&#41;</p>
+</li>
+<li><p>The structural equation changes: X &#61; f<em>X&#40;Parents, U</em>X&#41; → X :&#61; x</p>
+</li>
+</ul>
+<h3 id="but_parents_still_exist"><a href="#but_parents_still_exist" class="header-anchor">But Parents Still Exist&#33;</a></h3>
+<p><strong>Key insight</strong>: Cutting the causal link doesn&#39;t make parent variables disappear&#33;</p>
+<ul>
+<li><p>They still exist in the world</p>
+</li>
+<li><p>They still have their natural distribution</p>
+</li>
+<li><p>They still influence other variables &#40;like Y&#41; through other paths</p>
+</li>
+<li><p>We just broke their influence on X specifically</p>
+</li>
+</ul>
+<h3 id="the_formula"><a href="#the_formula" class="header-anchor">The Formula</a></h3>
+<p>Suppose we have:</p>
+<pre><code class="language-julia">Z → X → Y
+  ↘___↗</code></pre>
+<p>Z is a parent of both X and Y &#40;a confounder&#41;.</p>
+<p><strong>Computing P&#40;Y | do&#40;X &#61; x&#41;&#41;:</strong></p>
+<p>Step 1: Graph surgery - cut Z → X:</p>
+<pre><code class="language-julia">Z    X → Y
+  ↘___↗</code></pre>
+<p>Step 2: Compute probability in mutilated graph:</p>
+<pre><code class="language-julia">P&#40;Y | do&#40;X &#61; x&#41;&#41; &#61; ∑_z P&#40;Y | X &#61; x, Z &#61; z&#41; · P&#40;Z &#61; z&#41;</code></pre>
+<h3 id="why_we_average_over_z"><a href="#why_we_average_over_z" class="header-anchor">Why We Average Over Z</a></h3>
+<p>Even though we cut Z → X, the variable Z:</p>
+<ul>
+<li><p>Still exists</p>
+</li>
+<li><p>Still has its natural distribution P&#40;Z&#41;</p>
+</li>
+<li><p>Still affects Y directly</p>
+</li>
+</ul>
+<p>Since Z is random in the population, we <strong>average over all possible values of Z</strong> weighted by their natural probabilities.</p>
+<h3 id="the_crucial_difference_from_conditioning"><a href="#the_crucial_difference_from_conditioning" class="header-anchor">The Crucial Difference from Conditioning</a></h3>
+<p><strong>Interventional:</strong></p>
+<pre><code class="language-julia">P&#40;Y | do&#40;X &#61; x&#41;&#41; &#61; ∑_z P&#40;Y | X &#61; x, Z &#61; z&#41; · P&#40;Z&#41;</code></pre>
+<p><strong>Observational:</strong></p>
+<pre><code class="language-julia">P&#40;Y | X &#61; x&#41; &#61; ∑_z P&#40;Y | X &#61; x, Z &#61; z&#41; · P&#40;Z | X &#61; x&#41;</code></pre>
+<p>See the difference? </p>
+<ul>
+<li><p>Interventional uses <strong>P&#40;Z&#41;</strong> - unconditional distribution</p>
+</li>
+<li><p>Observational uses <strong>P&#40;Z | X &#61; x&#41;</strong> - conditioned on X</p>
+</li>
+</ul>
+<p>The conditioning term P&#40;Z | X &#61; x&#41; encodes the fact that Z → X exists in the observational world. In the interventional world, we broke that link, so we use P&#40;Z&#41;.</p>
+<h3 id="whats_constant_vs_whats_random"><a href="#whats_constant_vs_whats_random" class="header-anchor">What&#39;s Constant vs. What&#39;s Random</a></h3>
+<p><strong>Important clarification:</strong></p>
+<p>When we do&#40;X &#61; x&#41;:</p>
+<ul>
+<li><p><strong>X is made constant</strong> &#40;fixed at value x&#41;</p>
+</li>
+<li><p><strong>Parents of X remain random</strong> &#40;still vary according to P&#40;Parents&#41;&#41;</p>
+</li>
+<li><p><strong>We average over parents because they&#39;re still random and still influence Y</strong></p>
+</li>
+</ul>
+<h3 id="concrete_picture"><a href="#concrete_picture" class="header-anchor">Concrete Picture</a></h3>
+<p>Imagine 1000 people:</p>
+<ul>
+<li><p>Natural ability Z varies: 500 high ability, 500 low ability</p>
+</li>
+<li><p><strong>Without intervention</strong>: High ability → more likely to get education</p>
+</li>
+<li><p><strong>With do&#40;Education &#61; college&#41;</strong>: Force ALL 1000 to get college</p>
+<ul>
+<li><p>Z still varies &#40;500 high, 500 low&#41;</p>
+</li>
+<li><p>But Z no longer determines education</p>
+</li>
+<li><p>Both high and low ability people get college</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>When computing P&#40;Income | do&#40;Education &#61; college&#41;&#41;:</p>
+<ul>
+<li><p>Education is constant &#40;everyone has college&#41;</p>
+</li>
+<li><p>Ability Z is NOT constant &#40;still 50/50 split&#41;</p>
+</li>
+<li><p>We average: 50&#37; of outcomes come from high-ability people, 50&#37; from low-ability</p>
+</li>
+</ul>
+<hr />
+<h2 id="causal_influence_vs_conditioning"><a href="#causal_influence_vs_conditioning" class="header-anchor">Causal Influence vs. Conditioning</a></h2>
+<p>There&#39;s a subtle connection between &quot;cutting causal influence&quot; and statistical conditioning.</p>
+<h3 id="the_distinction"><a href="#the_distinction" class="header-anchor">The Distinction</a></h3>
+<p><strong>Causal influence</strong> &#40;edges in graph&#41;: Z → X means Z causally determines X through some mechanism.</p>
+<p><strong>Statistical dependence</strong> &#40;conditioning&#41;: P&#40;X | Z&#41; ≠ P&#40;X&#41; means knowing Z tells you something about X.</p>
+<p>These often go together but are conceptually different&#33;</p>
+<h3 id="when_we_cut_causal_influence"><a href="#when_we_cut_causal_influence" class="header-anchor">When We Cut Causal Influence</a></h3>
+<p>When we cut Z → X in do&#40;X &#61; x&#41;:</p>
+<ul>
+<li><p>We remove the causal mechanism by which Z determines X</p>
+</li>
+<li><p>We make X statistically independent of Z in the new distribution</p>
+</li>
+</ul>
+<p>In the intervened distribution:</p>
+<ul>
+<li><p>X is always equal to x &#40;deterministic&#41;</p>
+</li>
+<li><p>Therefore X ⊥ Z under the intervention</p>
+</li>
+<li><p>P&#40;X | Z, do&#40;x&#41;&#41; is the same for all values of Z</p>
+</li>
+</ul>
+<h3 id="the_connection"><a href="#the_connection" class="header-anchor">The Connection</a></h3>
+<p>In the <strong>observational world</strong>, the causal arrow Z → X creates statistical dependence expressible through conditioning:</p>
+<p>P&#40;X | Z&#41; captures how Z causally influences X</p>
+<p>When we <strong>cut</strong> that arrow with do&#40;X &#61; x&#41;, we&#39;re essentially:</p>
+<ul>
+<li><p>Ignoring P&#40;X | Z&#41;</p>
+</li>
+<li><p>Replacing it with X :&#61; x</p>
+</li>
+</ul>
+<p>So cutting causal influence is like saying &quot;stop conditioning X on Z.&quot;</p>
+<h3 id="in_terms_of_scms"><a href="#in_terms_of_scms" class="header-anchor">In Terms of SCMs</a></h3>
+<p><strong>Before intervention:</strong></p>
+<pre><code class="language-julia">X &#61; f_X&#40;Z, U_X&#41;  // X depends on Z</code></pre>
+<p><strong>After do&#40;X &#61; x&#41;:</strong></p>
+<pre><code class="language-julia">X &#61; x  // X does NOT depend on Z</code></pre>
+<h3 id="in_terms_of_joint_distributions"><a href="#in_terms_of_joint_distributions" class="header-anchor">In Terms of Joint Distributions</a></h3>
+<p><strong>Observational:</strong></p>
+<pre><code class="language-julia">P&#40;Z, X, Y&#41; &#61; P&#40;Z&#41; · P&#40;X | Z&#41; · P&#40;Y | X, Z&#41;</code></pre>
+<p><strong>Interventional:</strong></p>
+<pre><code class="language-julia">P&#40;Z, X, Y | do&#40;X&#61;x&#41;&#41; &#61; P&#40;Z&#41; · δ&#40;X&#61;x&#41; · P&#40;Y | X&#61;x, Z&#41;</code></pre>
+<p>where δ&#40;X&#61;x&#41; is 1 if X&#61;x, 0 otherwise.</p>
+<p>Notice: P&#40;X | Z&#41; disappears, replaced by the intervention value.</p>
+<h3 id="but_be_careful"><a href="#but_be_careful" class="header-anchor">But Be Careful&#33;</a></h3>
+<p>While cutting causal influence removes P&#40;X | Z&#41;, we still need to <strong>condition on Z when computing P&#40;Y | ...&#41;</strong> if Z also influences Y&#33;</p>
+<p>That&#39;s why:</p>
+<pre><code class="language-julia">P&#40;Y | do&#40;X &#61; x&#41;&#41; &#61; ∑_z P&#40;Y | X &#61; x, Z &#61; z&#41; · P&#40;Z&#41;</code></pre>
+<p>We removed P&#40;X | Z&#41;, but kept P&#40;Y | X, Z&#41; because Z → Y still exists.</p>
+<hr />
+<h2 id="summary"><a href="#summary" class="header-anchor">Summary</a></h2>
+<p>The do operator is a powerful tool for reasoning about causation:</p>
+<ol>
+<li><p><strong>P&#40;Y | do&#40;X &#61; x&#41;&#41;</strong> asks what would happen if we intervened to set X &#61; x</p>
+</li>
+<li><p>This is fundamentally different from <strong>P&#40;Y | X &#61; x&#41;</strong>, which conditions on observing X &#61; x</p>
+</li>
+<li><p>The do operator performs <strong>graph surgery</strong>: cutting incoming edges to X while preserving outgoing edges</p>
+</li>
+<li><p>We still <strong>average over parent variables</strong> because they remain random and may influence Y through other paths</p>
+</li>
+<li><p>The key difference: interventional distributions use P&#40;Parents&#41;, not P&#40;Parents | X&#41;, breaking the selection bias</p>
+</li>
+<li><p>This formalizes what randomized controlled trials do: break confounding by making treatment assignment independent of confounders</p>
+</li>
+</ol>
+<p>The do operator bridges the gap between observational data and causal claims, making it possible &#40;under certain conditions&#41; to estimate causal effects from purely observational data.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 17, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

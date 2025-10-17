@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Counterfactuals in Causal Inference</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="counterfactuals_in_causal_inference"><a href="#counterfactuals_in_causal_inference" class="header-anchor">Counterfactuals in Causal Inference</a></h1>
+<h2 id="the_intuitive_idea"><a href="#the_intuitive_idea" class="header-anchor">The Intuitive Idea</a></h2>
+<p>A <strong>counterfactual</strong> asks: &quot;What would have happened if things had been different?&quot;</p>
+<p>It&#39;s the alternate reality we never observed. For example:</p>
+<ul>
+<li><p>You took medicine and recovered. The counterfactual: What would have happened if you <em>hadn&#39;t</em> taken the medicine?</p>
+</li>
+<li><p>A student studied and passed. The counterfactual: Would they have passed if they <em>hadn&#39;t</em> studied?</p>
+</li>
+</ul>
+<p>The key insight: We can only observe one reality, but causal questions require comparing what happened to what <em>would have</em> happened.</p>
+<h2 id="mathematical_framework"><a href="#mathematical_framework" class="header-anchor">Mathematical Framework</a></h2>
+<h3 id="potential_outcomes_notation"><a href="#potential_outcomes_notation" class="header-anchor">Potential Outcomes Notation</a></h3>
+<p>For each unit \(i\) and treatment \(T \in \{0, 1\}\), we define:</p>
+<ul>
+<li><p>\(Y_i(1)\) &#61; potential outcome if unit \(i\) receives treatment &#40;\(T=1\)&#41;</p>
+</li>
+<li><p>\(Y_i(0)\) &#61; potential outcome if unit \(i\) does not receive treatment &#40;\(T=0\)&#41;</p>
+</li>
+</ul>
+<p><strong>The Fundamental Problem</strong>: We observe only one of these for each unit&#33;</p>
+\(
+Y_i^{\text{obs}} = T_i \cdot Y_i(1) + (1-T_i) \cdot Y_i(0)
+\)
+<blockquote>
+<p><strong>Note</strong>: This is a <strong>switching equation</strong>, not a linear model. It simply says &quot;we observe whichever potential outcome matches our treatment status.&quot; The outcome \(Y\) can be binary, continuous, count, or any other type. \(T_i\) acts as a selector &#40;indicator function&#41;, not as a regression coefficient.</p>
+</blockquote>
+<h3 id="individual_treatment_effect_ite"><a href="#individual_treatment_effect_ite" class="header-anchor">Individual Treatment Effect &#40;ITE&#41;</a></h3>
+<p>The causal effect for individual \(i\) is:</p>
+\[
+\tau_i = Y_i(1) - Y_i(0)
+\]
+<p>This is fundamentally unobservable because we cannot observe both \(Y_i(1)\) and \(Y_i(0)\) for the same person.</p>
+<blockquote>
+<p><strong>Why is this useful if we can&#39;t observe it?</strong> The individual treatment effect \(\tau_i\) gives us the <em>conceptual framework</em> for thinking about causation. Even though we can&#39;t observe it for any single person, understanding that it exists helps us:</p>
+<ol>
+<li><p><strong>Define what we&#39;re trying to estimate</strong> &#40;average effects across people&#41;</p>
+</li>
+<li><p><strong>Identify heterogeneous treatment effects</strong> &#40;how effects vary by subgroups&#41;</p>
+</li>
+<li><p><strong>Design better interventions</strong> &#40;target treatments to those most likely to benefit&#41;</p>
+</li>
+<li><p><strong>Understand limitations</strong> &#40;recognize when personalized causal claims are unfounded&#41;</p>
+</li>
+</ol>
+<p>Think of it like quantum mechanics: we can&#39;t observe an electron&#39;s exact position and momentum simultaneously, but the framework lets us make probabilistic predictions that work in practice.</p>
+<p><strong>Can we estimate individual effects?</strong> Yes, under certain conditions:</p>
+<ul>
+<li><p><strong>Conditional Average Treatment Effects &#40;CATE&#41;</strong>: Estimate \(\mathbb{E}[\tau_i \mid X_i = x]\) for people with similar characteristics</p>
+</li>
+<li><p><strong>Machine learning methods</strong>: Random forests, causal trees, meta-learners can predict individual effects</p>
+</li>
+<li><p><strong>Strong assumptions needed</strong>: We&#39;re predicting based on observables, assuming people similar in X have similar treatment effects</p>
+</li>
+<li><p><strong>Never perfect</strong>: We get predictions of \(\hat{\tau}_i\), not the true \(\tau_i\), and prediction accuracy varies</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="average_treatment_effect_ate"><a href="#average_treatment_effect_ate" class="header-anchor">Average Treatment Effect &#40;ATE&#41;</a></h3>
+<p>Since we can&#39;t compute individual effects, we estimate average effects:</p>
+\[
+\text{ATE} = \mathbb{E}[Y_i(1) - Y_i(0)] = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)]
+\]
+<h3 id="counterfactual_example"><a href="#counterfactual_example" class="header-anchor">Counterfactual Example</a></h3>
+<p>Consider patient \(i\) who took medicine &#40;\(T_i = 1\)&#41; and recovered &#40;\(Y_i^{\text{obs}} = 1\)&#41;:</p>
+<ul>
+<li><p><strong>Factual</strong>: \(Y_i(1) = 1\) &#40;observed: took medicine, recovered&#41;</p>
+</li>
+<li><p><strong>Counterfactual</strong>: \(Y_i(0) = ?\) &#40;unobserved: would they have recovered without medicine?&#41;</p>
+</li>
+</ul>
+<p>The causal effect is \(\tau_i = Y_i(1) - Y_i(0) = 1 - Y_i(0)\), but \(Y_i(0)\) is the <strong>counterfactual</strong> we can never observe.</p>
+<h2 id="key_assumptions_for_identification"><a href="#key_assumptions_for_identification" class="header-anchor">Key Assumptions for Identification</a></h2>
+<h3 id="sutva_stable_unit_treatment_value_assumption"><a href="#sutva_stable_unit_treatment_value_assumption" class="header-anchor"><ol>
+<li><p>SUTVA &#40;Stable Unit Treatment Value Assumption&#41;</p>
+</li>
+</ol>
+</a></h3>
+\[
+Y_i = Y_i(T_i)
+\]
+<p>No interference between units, and treatment is well-defined.</p>
+<h3 id="ol_start2_ignorability_unconfoundedness"><a href="#ol_start2_ignorability_unconfoundedness" class="header-anchor"><ol start="2">
+<li><p>Ignorability &#40;Unconfoundedness&#41;</p>
+</li>
+</ol>
+</a></h3>
+\[
+\{Y_i(1), Y_i(0)\} \perp\!\!\!\perp T_i \mid X_i
+\]
+<p>Given covariates \(X_i\), treatment assignment is independent of potential outcomes.</p>
+<h3 id="ol_start3_positivity_overlap"><a href="#ol_start3_positivity_overlap" class="header-anchor"><ol start="3">
+<li><p>Positivity &#40;Overlap&#41;</p>
+</li>
+</ol>
+</a></h3>
+\[
+0 < P(T_i = 1 \mid X_i = x) < 1 \quad \forall x
+\]
+<p>Every unit has a positive probability of receiving either treatment.</p>
+<h2 id="estimating_counterfactuals"><a href="#estimating_counterfactuals" class="header-anchor">Estimating Counterfactuals</a></h2>
+<p>Under these assumptions, we can identify the ATE:</p>
+\[
+\begin{align}
+\text{ATE} &= \mathbb{E}[Y_i(1) - Y_i(0)] \\
+&= \mathbb{E}_X[\mathbb{E}[Y_i \mid T_i=1, X_i] - \mathbb{E}[Y_i \mid T_i=0, X_i]]
+\end{align}
+\]
+<p><strong>Methods to estimate</strong>:</p>
+<ul>
+<li><p>Randomized experiments &#40;gold standard&#41;</p>
+</li>
+<li><p>Matching on covariates</p>
+</li>
+<li><p>Propensity score weighting</p>
+</li>
+<li><p>Regression adjustment</p>
+</li>
+<li><p>Instrumental variables</p>
+</li>
+<li><p>Difference-in-differences</p>
+</li>
+<li><p>Regression discontinuity</p>
+</li>
+</ul>
+<h2 id="the_philosophical_core"><a href="#the_philosophical_core" class="header-anchor">The Philosophical Core</a></h2>
+<p>Counterfactuals represent <strong>causal thinking</strong>. When we ask &quot;Did treatment cause the outcome?&quot; we&#39;re asking:</p>
+<blockquote>
+<p>Would the outcome have been different in the counterfactual world where treatment was different?</p>
+</blockquote>
+<p>This is why correlation ≠ causation: correlation tells us about the observed world, causation requires comparing observed reality to unobserved counterfactual alternatives.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 17, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

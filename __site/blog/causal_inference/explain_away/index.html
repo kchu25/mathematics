@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Do Operator and Explaining Away: Connection Summary</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="do_operator_and_explaining_away_connection_summary"><a href="#do_operator_and_explaining_away_connection_summary" class="header-anchor">Do Operator and Explaining Away: Connection Summary</a></h1>
+<h2 id="what_is_explaining_away"><a href="#what_is_explaining_away" class="header-anchor">What is Explaining Away?</a></h2>
+<p><strong>Explaining away</strong> &#40;Berkson&#39;s paradox/collider bias&#41; occurs when two independent causes of a common effect become negatively correlated when you <strong>condition</strong> on that effect.</p>
+<h3 id="classic_example"><a href="#classic_example" class="header-anchor">Classic Example</a></h3>
+<pre><code class="language-julia">Talent → Admission ← Hard Work</code></pre>
+<p><strong>Setup</strong>: \(T, H \in \{0,1\}\) are independent with \(P(T=1) = P(H=1) = 0.5\)</p>
+<p><strong>Admission rule</strong>: \(A = 1 \iff T = 1 \text{ OR } H = 1\) &#40;logical OR&#41;</p>
+<p><strong>Before conditioning</strong> &#40;independence holds&#41;:</p>
+\[P(T=1 \mid H=0) = P(T=1) = 0.5\]
+<p><strong>After conditioning on \(A=1\)</strong> &#40;explaining away occurs&#41;:</p>
+<p><strong>Computing the joint probabilities:</strong></p>
+<p>Since \(T\) and \(H\) are independent: \(P(T,H) = P(T) \cdot P(H) = 0.5 \times 0.5 = 0.25\) for each combination.</p>
+<p>The admission rule is deterministic: \(A=1\) if \((T=1 \text{ OR } H=1)\), otherwise \(A=0\).</p>
+<pre><code class="language-julia">Case 1: T&#61;0, H&#61;0  →  P&#40;T,H&#41; &#61; 0.25, A&#61;0  →  P&#40;T,H,A&#61;0&#41; &#61; 0.25 &#40;not admitted&#41;
+Case 2: T&#61;0, H&#61;1  →  P&#40;T,H&#41; &#61; 0.25, A&#61;1  →  P&#40;T,H,A&#61;1&#41; &#61; 0.25 &#40;admitted&#41;
+Case 3: T&#61;1, H&#61;0  →  P&#40;T,H&#41; &#61; 0.25, A&#61;1  →  P&#40;T,H,A&#61;1&#41; &#61; 0.25 &#40;admitted&#41;
+Case 4: T&#61;1, H&#61;1  →  P&#40;T,H&#41; &#61; 0.25, A&#61;1  →  P&#40;T,H,A&#61;1&#41; &#61; 0.25 &#40;admitted&#41;</code></pre>
+<p>Therefore: \(P(A=1) = 0.25 + 0.25 + 0.25 = 0.75\)</p>
+<p><strong>Now compute the explaining away effect:</strong></p>
+\[P(T=1 \mid H=0, A=1) = \frac{P(T=1, H=0, A=1)}{P(H=0, A=1)} = \frac{0.25}{0.25} = 1.0\]
+<p>versus:</p>
+\[P(T=1 \mid A=1) = \frac{P(T=1, A=1)}{P(A=1)} = \frac{0.5}{0.75} = \frac{2}{3}\]
+<p><strong>Result</strong>: \(P(T=1 \mid H=0, A=1) = 1.0 > \frac{2}{3}\)</p>
+<p><strong>Interpretation</strong>: Learning \(H=0\) among admitted students makes you <em>certain</em> \(T=1\) &#40;they had to get in somehow&#33;&#41;. Independent causes become negatively correlated when conditioning on their common effect.</p>
+<hr />
+<h2 id="the_connection_to_do_operator"><a href="#the_connection_to_do_operator" class="header-anchor">The Connection to Do Operator</a></h2>
+<h3 id="key_insight"><a href="#key_insight" class="header-anchor">Key Insight</a></h3>
+<p><strong>Explaining away happens through conditioning, and the do operator prevents it.</strong></p>
+<h3 id="conditioning_creates_explaining_away"><a href="#conditioning_creates_explaining_away" class="header-anchor">Conditioning Creates Explaining Away</a></h3>
+<p>When you <strong>condition on a collider</strong> &#40;common effect&#41;:</p>
+<ul>
+<li><p>Induces spurious correlation between independent causes</p>
+</li>
+<li><p>Creates statistical dependency with no causal basis</p>
+</li>
+<li><p>&quot;Opens&quot; a blocked path in the causal graph</p>
+</li>
+</ul>
+<h3 id="intervention_prevents_it"><a href="#intervention_prevents_it" class="header-anchor">Intervention Prevents It</a></h3>
+<p>When you <strong>intervene on a collider</strong>:</p>
+\[P(T=1 \mid \text{do}(A=1)) = P(T=1) = 0.5\]
+<p>Why no explaining away?</p>
+<ul>
+<li><p>\(\text{do}(A=1)\) cuts: \(T \rightarrow A\) and \(H \rightarrow A\)</p>
+</li>
+<li><p>\(A\) becomes independent of its former causes</p>
+</li>
+<li><p>No spurious correlation arises</p>
+</li>
+</ul>
+<hr />
+<h2 id="the_deeper_pattern"><a href="#the_deeper_pattern" class="header-anchor">The Deeper Pattern</a></h2>
+<h3 id="what_is_a_cause_in_the_probability_sense"><a href="#what_is_a_cause_in_the_probability_sense" class="header-anchor">What is a &quot;Cause&quot; in the Probability Sense?</a></h3>
+<p><strong>Important distinction</strong>: In probability theory alone, there is no notion of causation&#33;</p>
+<ul>
+<li><p><strong>Probability</strong>: \(P(Y \mid X)\) tells us how \(Y\) is distributed given knowledge of \(X\)</p>
+</li>
+<li><p><strong>Causation</strong>: \(X\) causes \(Y\) means changing \(X\) would change \(Y\)</p>
+</li>
+</ul>
+<p>A &quot;cause&quot; in causal inference is a variable that appears as a parent in a causal DAG—meaning it has a direct causal mechanism influencing another variable. This is a <strong>structural assumption</strong> beyond probability.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-julia">Ice Cream Sales ← Temperature → Drowning</code></pre>
+<ul>
+<li><p>Temperature is a <strong>cause</strong> of both Ice Cream Sales and Drowning</p>
+</li>
+<li><p>Ice Cream Sales is <strong>not a cause</strong> of Drowning &#40;no arrow&#41;</p>
+</li>
+<li><p>Yet probabilistically: \(P(\text{Drowning} \mid \text{Ice Cream}=\text{high})\) is elevated&#33;</p>
+</li>
+</ul>
+<p>Probability sees correlation. Causation requires the DAG structure.</p>
+<h3 id="why_conditioning_on_a_cause_fails"><a href="#why_conditioning_on_a_cause_fails" class="header-anchor">Why Conditioning on a Cause Fails</a></h3>
+<p>When we condition on a cause, we&#39;re asking: &quot;Among cases where the cause took value \(x\), what&#39;s the distribution of the effect?&quot;</p>
+<p><strong>The problem</strong>: The cause naturally took value \(x\) for a reason&#33;</p>
+<p><strong>Example: Education → Income</strong></p>
+<pre><code class="language-julia">Ability
+    ↙   ↘
+Education → Income</code></pre>
+<p><strong>Conditioning</strong>: \(P(\text{Income} \mid \text{Education}=\text{college})\)</p>
+<p>This asks: &quot;Among people who went to college, what&#39;s their income?&quot;</p>
+<p>But <strong>who goes to college?</strong> People with:</p>
+<ul>
+<li><p>High ability &#40;which also boosts income directly&#41;</p>
+</li>
+<li><p>Wealthy families &#40;which also affects income&#41;</p>
+</li>
+<li><p>Good schools &#40;another confounder&#41;</p>
+</li>
+</ul>
+<p>When you condition on Education&#61;college, you&#39;re <strong>inadvertently selecting</strong> for these confounders&#33;</p>
+\(P(\text{Income} \mid \text{Education}=\text{college}) = \sum_a P(\text{Income} \mid \text{Education}=\text{college}, \text{Ability}=a) \cdot P(\text{Ability}=a \mid \text{Education}=\text{college})\)
+<p>Notice: \(P(\text{Ability} \mid \text{Education}=\text{college}) \neq P(\text{Ability})\)</p>
+<p>People who went to college have <strong>different ability distribution</strong> than the general population&#33;</p>
+<p><strong>Intervention</strong>: \(P(\text{Income} \mid \text{do}(\text{Education}=\text{college}))\)</p>
+<p>This asks: &quot;If we forced random people to go to college, what would their income be?&quot;</p>
+\(P(\text{Income} \mid \text{do}(\text{Education}=\text{college})) = \sum_a P(\text{Income} \mid \text{Education}=\text{college}, \text{Ability}=a) \cdot P(\text{Ability}=a)\)
+<p>Notice: We use \(P(\text{Ability})\)—the <strong>unconditional</strong> distribution&#33;</p>
+<p>By breaking the arrow \(\text{Ability} \rightarrow \text{Education}\), we ensure ability is distributed the same as in the general population.</p>
+<h3 id="the_core_issue"><a href="#the_core_issue" class="header-anchor">The Core Issue</a></h3>
+<p><strong>Conditioning respects the natural causal structure</strong>—it includes all the reasons why \(X=x\) occurred.</p>
+<p><strong>Intervention breaks the structure</strong>—it makes \(X=x\) happen regardless of the usual causes.</p>
+<p>To isolate the causal effect of \(X\) on \(Y\), we need to:</p>
+<ol>
+<li><p>Remove the influence of \(X\)</p>
+</li>
+</ol>
+<h3 id="the_unified_view"><a href="#the_unified_view" class="header-anchor">The Unified View</a></h3>
+<p>The do operator exists because <strong>conditioning can mislead about causation</strong> in multiple ways:</p>
+<ol>
+<li><p><strong>Confounding</strong>: \(P(Y \mid X=x)\) includes spurious paths through confounders</p>
+</li>
+<li><p><strong>Collider bias</strong>: Conditioning on effects creates spurious associations</p>
+</li>
+</ol>
+<p><strong>Solution</strong>: Replace problematic conditioning with intervention</p>
+<ul>
+<li><p>\(\text{do}(X=x)\) breaks incoming arrows to \(X\)</p>
+</li>
+<li><p>Isolates true causal effects</p>
+</li>
+<li><p>Prevents both confounding and collider-induced correlations</p>
+</li>
+</ul>
+<hr />
+<h2 id="summary"><a href="#summary" class="header-anchor">Summary</a></h2>
+<p>Yes, the do operator is intimately related to explaining away:</p>
+<ul>
+<li><p><strong>Explaining away</strong> shows how conditioning on colliders misleads</p>
+</li>
+<li><p><strong>Do operator</strong> provides intervention-based alternative to conditioning</p>
+</li>
+<li><p>Both illustrate why <strong>observation ≠ causation</strong></p>
+</li>
+<li><p>The do operator is motivated by phenomena like explaining away that demonstrate how conditioning can create or hide causal relationships</p>
+</li>
+</ul>
+<p><strong>Core principle</strong>: True causal inference requires intervention &#40;or techniques that simulate it&#41;, not mere conditioning.s parents on \(X\) &#40;graph surgery&#41;</p>
+<ol start="2">
+<li><p>Let only \(X\)&#39;s direct causal effect on \(Y\) remain &#40;keep outgoing arrows&#41;. &#40;to clarify that we preserve the outgoing edges from \(X\) during graph surgery&#41;.</p>
+</li>
+</ol>
+<h3 id="the_unified_view__2"><a href="#the_unified_view__2" class="header-anchor">The Unified View</a></h3>
+<p>The do operator exists because <strong>conditioning can mislead about causation</strong> in multiple ways:</p>
+<ol>
+<li><p><strong>Confounding</strong>: \(P(Y \mid X=x)\) includes spurious paths through confounders</p>
+</li>
+<li><p><strong>Collider bias</strong>: Conditioning on effects creates spurious associations</p>
+</li>
+</ol>
+<p><strong>Solution</strong>: Replace problematic conditioning with intervention</p>
+<ul>
+<li><p>\(\text{do}(X=x)\) breaks incoming arrows to \(X\)</p>
+</li>
+<li><p>Isolates true causal effects</p>
+</li>
+<li><p>Prevents both confounding and collider-induced correlations</p>
+</li>
+</ul>
+<hr />
+<h2 id="summary__2"><a href="#summary__2" class="header-anchor">Summary</a></h2>
+<p>Yes, the do operator is intimately related to explaining away:</p>
+<ul>
+<li><p><strong>Explaining away</strong> shows how conditioning on colliders misleads</p>
+</li>
+<li><p><strong>Do operator</strong> provides intervention-based alternative to conditioning</p>
+</li>
+<li><p>Both illustrate why <strong>observation ≠ causation</strong></p>
+</li>
+<li><p>The do operator is motivated by phenomena like explaining away that demonstrate how conditioning can create or hide causal relationships</p>
+</li>
+</ul>
+<p><strong>Core principle</strong>: True causal inference requires intervention &#40;or techniques that simulate it&#41;, not mere conditioning.s causal effect on \(Y\) remain</p>
+<p>Conditioning does neither. Intervention does both.</p>
+<h3 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h3>
+<table><tr><th align="right">Problem</th><th align="right">Issue</th><th align="right">What Goes Wrong</th><th align="right">Solution</th></tr><tr><td align="right"><strong>Confounding</strong></td><td align="right">Conditioning on cause doesn&#39;t isolate causal effects</td><td align="right">\(P(Y \mid X=x)\) includes selection bias via \(P(\text{Confounders} \mid X=x)\)</td><td align="right">Use \(P(Y \mid \text{do}(X=x))\) with \(P(\text{Confounders})\)</td></tr><tr><td align="right"><strong>Explaining Away</strong></td><td align="right">Conditioning on effect creates spurious associations</td><td align="right">Independent causes become correlated via \(P(\text{Cause1} \mid \text{Effect})\)</td><td align="right">Avoid conditioning on colliders; use intervention if needed</td></tr></table>
+<h3 id="the_unified_view__3"><a href="#the_unified_view__3" class="header-anchor">The Unified View</a></h3>
+<p>The do operator exists because <strong>conditioning can mislead about causation</strong> in multiple ways:</p>
+<ol>
+<li><p><strong>Confounding</strong>: \(P(Y \mid X=x)\) includes spurious paths through confounders</p>
+</li>
+<li><p><strong>Collider bias</strong>: Conditioning on effects creates spurious associations</p>
+</li>
+</ol>
+<p><strong>Solution</strong>: Replace problematic conditioning with intervention</p>
+<ul>
+<li><p>\(\text{do}(X=x)\) breaks incoming arrows to \(X\)</p>
+</li>
+<li><p>Isolates true causal effects</p>
+</li>
+<li><p>Prevents both confounding and collider-induced correlations</p>
+</li>
+</ul>
+<hr />
+<h2 id="summary__3"><a href="#summary__3" class="header-anchor">Summary</a></h2>
+<p>Yes, the do operator is intimately related to explaining away:</p>
+<ul>
+<li><p><strong>Explaining away</strong> shows how conditioning on colliders misleads</p>
+</li>
+<li><p><strong>Do operator</strong> provides intervention-based alternative to conditioning</p>
+</li>
+<li><p>Both illustrate why <strong>observation ≠ causation</strong></p>
+</li>
+<li><p>The do operator is motivated by phenomena like explaining away that demonstrate how conditioning can create or hide causal relationships</p>
+</li>
+</ul>
+<p><strong>Core principle</strong>: True causal inference requires intervention &#40;or techniques that simulate it&#41;, not mere conditioning.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 17, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

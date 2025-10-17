@@ -145,9 +145,42 @@
 <hr />
 <h4 id="step_5_calculate_minimum_detectable_cohens_d"><a href="#step_5_calculate_minimum_detectable_cohens_d" class="header-anchor"><strong>Step 5: Calculate Minimum Detectable Cohen&#39;s d</strong></a></h4>
 <p>This tells you what your current sample can actually detect:</p>
-\[d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}\]
-<p><strong>Example:</strong> n_eff &#61; 36</p>
-\[d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47\]
+\(d_{\min} = \frac{Z_{1-\alpha/2} + Z_{1-\beta}}{\sqrt{n_{\text{eff}}/2}}\)
+<p>For α&#61;0.05, 80&#37; power, this simplifies to:</p>
+\(d_{\min} = \frac{2.8}{\sqrt{n_{\text{eff}}}}\)
+<blockquote>
+<p><strong>📊 Where Does the 2.8 Come From?</strong></p>
+<p>The coefficient 2.8 comes from: \(Z_{1-\alpha/2} + Z_{1-\beta} = 1.96 + 0.84 = 2.80\)</p>
+<p><strong>Assumptions built into this coefficient:</strong></p>
+<ul>
+<li><p><strong>α &#61; 0.05</strong> &#40;two-sided test, 5&#37; significance level&#41;</p>
+</li>
+<li><p><strong>Power &#61; 80&#37;</strong> &#40;β &#61; 0.20, so 20&#37; chance of Type II error&#41;</p>
+</li>
+</ul>
+<p><strong>For different assumptions, use different coefficients:</strong></p>
+<table><tr><th align="right">α &#40;two-sided&#41;</th><th align="right">Power</th><th align="right">\(Z_{1-\alpha/2}\)</th><th align="right">\(Z_{1-\beta}\)</th><th align="right">Coefficient</th></tr><tr><td align="right">0.10</td><td align="right">70&#37;</td><td align="right">1.645</td><td align="right">0.524</td><td align="right"><strong>2.17</strong></td></tr><tr><td align="right">0.05</td><td align="right">70&#37;</td><td align="right">1.960</td><td align="right">0.524</td><td align="right"><strong>2.48</strong></td></tr><tr><td align="right"><strong>0.05</strong></td><td align="right"><strong>80&#37;</strong></td><td align="right"><strong>1.960</strong></td><td align="right"><strong>0.842</strong></td><td align="right"><strong>2.80</strong></td></tr><tr><td align="right">0.05</td><td align="right">90&#37;</td><td align="right">1.960</td><td align="right">1.282</td><td align="right"><strong>3.24</strong></td></tr><tr><td align="right">0.05</td><td align="right">95&#37;</td><td align="right">1.960</td><td align="right">1.645</td><td align="right"><strong>3.61</strong></td></tr><tr><td align="right">0.01</td><td align="right">80&#37;</td><td align="right">2.576</td><td align="right">0.842</td><td align="right"><strong>3.42</strong></td></tr><tr><td align="right">0.01</td><td align="right">90&#37;</td><td align="right">2.576</td><td align="right">1.282</td><td align="right"><strong>3.86</strong></td></tr></table>
+<p><strong>Example:</strong> For 90&#37; power with α&#61;0.05: \(d_{\min} = \frac{3.24}{\sqrt{n_{\text{eff}}}}\)</p>
+<p><strong>Key insight:</strong> Higher power or lower α → larger coefficient → larger d_min → need more samples to achieve that power/significance level.</p>
+</blockquote>
+<p><strong>Example:</strong> n_eff &#61; 36, using standard assumptions &#40;α&#61;0.05, 80&#37; power&#41; \(d_{\min} = \frac{2.8}{\sqrt{36}} = \frac{2.8}{6} \approx 0.47\)</p>
+<hr />
+<h4 id="reference_table_minimum_detectable_d_for_common_sample_sizes"><a href="#reference_table_minimum_detectable_d_for_common_sample_sizes" class="header-anchor"><strong>Reference Table: Minimum Detectable d for Common Sample Sizes</strong></a></h4>
+<p>Using standard assumptions &#40;α&#61;0.05, 80&#37; power, two-sided&#41;:</p>
+<table><tr><th align="right">n_eff</th><th align="right">d_min</th><th align="right">Interpretation</th></tr><tr><td align="right">10</td><td align="right">0.89</td><td align="right">Very large effects only</td></tr><tr><td align="right">15</td><td align="right">0.72</td><td align="right">Large effects only</td></tr><tr><td align="right">20</td><td align="right">0.63</td><td align="right">Large effects</td></tr><tr><td align="right">25</td><td align="right">0.56</td><td align="right">Medium-large effects</td></tr><tr><td align="right">30</td><td align="right">0.51</td><td align="right">Medium effects</td></tr><tr><td align="right">40</td><td align="right">0.44</td><td align="right">Medium effects</td></tr><tr><td align="right">50</td><td align="right">0.40</td><td align="right">Small-medium effects</td></tr><tr><td align="right">64</td><td align="right">0.35</td><td align="right">Small-medium effects</td></tr><tr><td align="right">80</td><td align="right">0.31</td><td align="right">Small-medium effects</td></tr><tr><td align="right">100</td><td align="right">0.28</td><td align="right">Small effects</td></tr><tr><td align="right">150</td><td align="right">0.23</td><td align="right">Small effects</td></tr><tr><td align="right">200</td><td align="right">0.20</td><td align="right">Small effects</td></tr><tr><td align="right">300</td><td align="right">0.16</td><td align="right">Very small effects</td></tr><tr><td align="right">400</td><td align="right">0.14</td><td align="right">Very small effects</td></tr></table>
+<p><strong>How to use this table:</strong></p>
+<ol>
+<li><p>Calculate your n_eff from your actual sample sizes</p>
+</li>
+<li><p>Find the closest n_eff in the table</p>
+</li>
+<li><p>Check if d_min is reasonable for your expected effect</p>
+</li>
+<li><p>If your expected d &gt; d_min → you&#39;re good&#33;</p>
+</li>
+<li><p>If your expected d &lt; d_min → underpowered</p>
+</li>
+</ol>
 <hr />
 <h4 id="step_6_compare_and_decide"><a href="#step_6_compare_and_decide" class="header-anchor"><strong>Step 6: Compare and Decide</strong></a></h4>
 <p><strong>Decision Rule:</strong></p>
@@ -161,6 +194,38 @@
 <li><p><strong>0.57 &gt; 0.47</strong> → ✓ <strong>You have adequate power&#33;</strong></p>
 </li>
 </ul>
+<blockquote>
+<p><strong>✍️ How to Report Your Power Analysis</strong></p>
+<p><strong>After confirming adequate power, you should report this in your analysis. Here are standard ways to phrase it:</strong></p>
+<p><strong>Option 1 - Simple statement:</strong> &quot;The sample means were compared using an independent samples t-test with 80&#37; power to detect a medium effect size &#40;d &#61; 0.5&#41; at α &#61; 0.05.&quot;</p>
+<p><strong>Option 2 - More detailed:</strong> &quot;Given sample sizes of n₁ &#61; 45 and n₂ &#61; 30 &#40;effective n &#61; 36&#41;, this study had 80&#37; power to detect an effect size of d ≥ 0.47 at the α &#61; 0.05 significance level.&quot;</p>
+<p><strong>Option 3 - Full reporting &#40;recommended for publications&#41;:</strong> &quot;A post-hoc power analysis indicated that with n₁ &#61; 45 and n₂ &#61; 30, the study achieved 80&#37; power &#40;1-β &#61; 0.80&#41; to detect a minimum effect size of Cohen&#39;s d &#61; 0.47 at α &#61; 0.05 &#40;two-tailed&#41;. The expected effect size based on prior literature was d &#61; 0.57, confirming adequate statistical power.&quot;</p>
+<p><strong>What NOT to say:</strong> ❌ &quot;The test was significant with p &lt; 0.05&quot; &#40;this doesn&#39;t mention power&#41; ❌ &quot;We had enough samples&quot; &#40;too vague&#41; ❌ &quot;Post-hoc power was 95&#37;&quot; after seeing significant results &#40;this is circular reasoning - see note below&#41;</p>
+<p><strong>Important considerations:</strong></p>
+<p><strong>1. A priori vs. post-hoc power:</strong></p>
+<ul>
+<li><p><strong>A priori &#40;before seeing results&#41;</strong>: Calculate power based on expected effect → GOOD</p>
+</li>
+<li><p><strong>Post-hoc using observed effect</strong>: Calculate power after seeing your result → PROBLEMATIC &#40;gives inflated sense of confidence&#41;</p>
+</li>
+<li><p><strong>Post-hoc using n<em>eff and d</em>min</strong>: Calculate what you COULD detect with your samples → GOOD &#40;this is what we did above&#41;</p>
+</li>
+</ul>
+<p><strong>2. If you find &quot;not significant&quot;:</strong></p>
+<ul>
+<li><p>Report power analysis to show whether you had adequate power to detect effects</p>
+</li>
+<li><p>Example: &quot;No significant difference was found &#40;p &#61; 0.12&#41;. However, with n_eff &#61; 36, the study only had 80&#37; power to detect effects of d ≥ 0.47. Smaller effects may exist but were not detectable with this sample size.&quot;</p>
+</li>
+</ul>
+<p><strong>3. If you&#39;re underpowered:</strong></p>
+<ul>
+<li><p>Be honest about limitations</p>
+</li>
+<li><p>Example: &quot;The sample sizes &#40;n₁ &#61; 15, n₂ &#61; 12, n_eff &#61; 13&#41; provided only 80&#37; power to detect very large effects &#40;d ≥ 0.77&#41;. Results should be interpreted cautiously as smaller but meaningful effects may have been missed.&quot;</p>
+</li>
+</ul>
+</blockquote>
 <hr />
 <h3 id="alternative_if_you_dont_know_δ_yet"><a href="#alternative_if_you_dont_know_δ_yet" class="header-anchor">Alternative: If You Don&#39;t Know δ Yet</a></h3>
 <p><strong>If you haven&#39;t decided what difference matters</strong>, reverse the calculation:</p>
@@ -621,7 +686,7 @@ NO: ✗ Underpowered → Collect more data or reconsider</code></pre>
 <div class="page-foot">
     Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
     <br>
-    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 14, 2025.
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 17, 2025.
     <br>
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
 </div>

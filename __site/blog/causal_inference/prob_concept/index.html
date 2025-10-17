@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Probability Concepts in Graphical Models: Intuitive Guide</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="probability_concepts_in_graphical_models_intuitive_guide"><a href="#probability_concepts_in_graphical_models_intuitive_guide" class="header-anchor">Probability Concepts in Graphical Models: Intuitive Guide</a></h1>
+<h2 id="conditional_independence"><a href="#conditional_independence" class="header-anchor"><ol>
+<li><p>Conditional Independence</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> X and Y don&#39;t give you information about each other once you know Z. It&#39;s like two people who only talk through a mutual friend - if you already know what the friend said, talking to both people tells you nothing new.</p>
+<p><strong>Formally:</strong> \(P(X, Y | Z) = P(X | Z) \cdot P(Y | Z)\)</p>
+<p>Or equivalently: \(P(X | Y, Z) = P(X | Z)\)</p>
+<p><strong>Example:</strong> Your alarm &#40;X&#41; and your neighbor&#39;s alarm &#40;Y&#41; both depend on an earthquake &#40;Z&#41;. If you know whether there was an earthquake, knowing your alarm went off tells you nothing new about whether your neighbor&#39;s alarm went off.</p>
+<hr />
+<h2 id="ol_start2_d-separation_directional_separation"><a href="#ol_start2_d-separation_directional_separation" class="header-anchor"><ol start="2">
+<li><p>d-Separation &#40;Directional Separation&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> A graphical way to read off conditional independencies from a causal diagram. Think of it as checking whether information can &quot;flow&quot; between variables through the graph.</p>
+<p><strong>The three structures:</strong></p>
+<ul>
+<li><p><strong>Chain</strong> \(X \to Z \to Y\): Conditioning on Z blocks the path</p>
+</li>
+<li><p><strong>Fork</strong> \(X \gets Z \to Y\): Conditioning on Z blocks the path  </p>
+</li>
+<li><p><strong>Collider</strong> \(X \to Z \gets Y\): Conditioning on Z <em>opens</em> the path &#40;the weird one&#33;&#41;</p>
+</li>
+</ul>
+<p><strong>Intuition:</strong> Information flows through chains and forks unless you condition on the middle. But colliders block information <em>until</em> you condition on them - then information starts flowing backward&#33;</p>
+<hr />
+<h2 id="ol_start3_the_backdoor_criterion"><a href="#ol_start3_the_backdoor_criterion" class="header-anchor"><ol start="3">
+<li><p>The Backdoor Criterion</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> A recipe for finding a set of variables to control for when estimating causal effects. You want to block all the &quot;sneaky&quot; paths from treatment to outcome that don&#39;t go through the treatment&#39;s actual causal effect.</p>
+<p><strong>Formally:</strong> Set Z satisfies the backdoor criterion if:</p>
+<ol>
+<li><p>No variable in Z is a descendant of treatment X</p>
+</li>
+<li><p>Z blocks all paths from X to Y that have an arrow into X</p>
+</li>
+</ol>
+<p><strong>Intuition:</strong> You&#39;re trying to close all the &quot;back doors&quot; - alternative explanations that make X and Y correlated without X actually causing Y. Think of blocking confounders while avoiding conditioning on consequences of the treatment.</p>
+<hr />
+<h2 id="ol_start4_do-calculus_intervention"><a href="#ol_start4_do-calculus_intervention" class="header-anchor"><ol start="4">
+<li><p>Do-Calculus / Intervention</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> The difference between seeing &#40;\(P(Y|X)\)&#41; and doing &#40;\(P(Y|do(X))\)&#41;. Seeing is passive observation; doing is active intervention where you force X to a value.</p>
+<p><strong>Notation:</strong> \(P(Y | do(X = x))\)</p>
+<p><strong>Intuition:</strong> If you see someone with an umbrella, you predict rain. But if you <em>give</em> someone an umbrella &#40;intervention&#41;, that doesn&#39;t cause rain&#33; The do-operator cuts the arrows pointing into X, representing that we override the natural causes.</p>
+<p><strong>Example:</strong> </p>
+<ul>
+<li><p>\(P(\text{recovery} | \text{took medicine})\) might be low because sicker people take medicine</p>
+</li>
+<li><p>\(P(\text{recovery} | do(\text{took medicine}))\) tells you the actual treatment effect</p>
+</li>
+</ul>
+<hr />
+<h2 id="ol_start5_confounding"><a href="#ol_start5_confounding" class="header-anchor"><ol start="5">
+<li><p>Confounding</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> When a third variable causes both your treatment and outcome, creating a spurious correlation.</p>
+<p><strong>Visually:</strong> \(X \gets Z \to Y\)</p>
+<p><strong>Intuition:</strong> Ice cream sales and drowning deaths are correlated, but ice cream doesn&#39;t cause drowning. Temperature &#40;the confounder&#41; causes both - hot weather means more swimming &#40;drowning&#41; and more ice cream.</p>
+<p><strong>Why it matters:</strong> \(P(Y|X) \neq P(Y|do(X))\) when there&#39;s confounding. You need to adjust for Z to get the causal effect.</p>
+<hr />
+<h2 id="ol_start6_collider_bias_berksons_paradox"><a href="#ol_start6_collider_bias_berksons_paradox" class="header-anchor"><ol start="6">
+<li><p>Collider Bias &#40;Berkson&#39;s Paradox&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> Conditioning on a common effect of two variables creates a spurious correlation between them, even when they&#39;re independent.</p>
+<p><strong>Structure:</strong> \(X \to Z \gets Y\)</p>
+<p><strong>Intuition:</strong> Among hospitalized patients, there&#39;s a negative correlation between having disease X and disease Y, even if they&#39;re unrelated in the general population. Why? If someone is hospitalized with mild disease X, they probably don&#39;t have disease Y &#40;otherwise they&#39;d be even sicker&#41;. Conditioning on hospitalization creates a false relationship.</p>
+<p><strong>Another example:</strong> Among famous people, talent and attractiveness seem negatively correlated. But that&#39;s because you can become famous through either route - conditioning on fame creates spurious correlation.</p>
+<hr />
+<h2 id="ol_start7_markov_property"><a href="#ol_start7_markov_property" class="header-anchor"><ol start="7">
+<li><p>Markov Property</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> A variable is independent of its non-descendants given its parents. In other words, the parents shield you from needing to know the whole history.</p>
+<p><strong>Formally:</strong> \(P(X | \text{parents}(X), \text{non-descendants}(X)) = P(X | \text{parents}(X))\)</p>
+<p><strong>Intuition:</strong> To predict what happens at a node, you only need to know its immediate causes &#40;parents&#41;, not the entire past. The causal structure captures all relevant information through the parent variables.</p>
+<hr />
+<h2 id="ol_start8_faithfulness_assumption"><a href="#ol_start8_faithfulness_assumption" class="header-anchor"><ol start="8">
+<li><p>Faithfulness Assumption</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> The only independencies in your data are the ones implied by the causal structure - no weird coincidental cancellations.</p>
+<p><strong>Counter-example:</strong> Suppose \(X \to Z \gets Y\) where \(Z = X + Y\) normally creates dependence. But if the specific coefficients make \(Z = X - X\), you get independence by coincidence. Faithfulness rules this out.</p>
+<p><strong>Intuition:</strong> Nature doesn&#39;t conspire to perfectly cancel out effects. If two things are dependent in the causal graph, they&#39;ll be dependent in the data &#40;with enough samples&#41;.</p>
+<hr />
+<h2 id="ol_start9_the_front-door_criterion"><a href="#ol_start9_the_front-door_criterion" class="header-anchor"><ol start="9">
+<li><p>The Front-Door Criterion</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> An alternative to the backdoor criterion when you can&#39;t measure confounders. You find a mediator that captures all of X&#39;s effect on Y.</p>
+<p><strong>Structure:</strong> Need \(X \to M \to Y\) where:</p>
+<ul>
+<li><p>M blocks all directed paths from X to Y</p>
+</li>
+<li><p>No backdoor paths from X to M  </p>
+</li>
+<li><p>All backdoor paths from M to Y are blocked by X</p>
+</li>
+</ul>
+<p><strong>Intuition:</strong> Even if smoking and lung cancer are confounded by an unmeasured gene, you can still estimate the effect by going through tar deposits &#40;mediator&#41;. You break the problem into two smaller problems that are each identifiable.</p>
+<hr />
+<h2 id="ol_start10_instrumental_variable"><a href="#ol_start10_instrumental_variable" class="header-anchor"><ol start="10">
+<li><p>Instrumental Variable</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> A variable that affects your treatment but only affects the outcome through the treatment - it gives you leverage to tease out the causal effect.</p>
+<p><strong>Structure:</strong> \(Z \to X \to Y\) &#40;with possible unmeasured \(X \gets U \to Y\)&#41;</p>
+<p><strong>Intuition:</strong> Draft lottery number &#40;Z&#41; affects military service &#40;X&#41; which affects earnings &#40;Y&#41;. Since lottery is random, it&#39;s not confounded with earnings. We can use variation in service caused by the lottery to estimate the effect of service.</p>
+<p><strong>Requirements:</strong></p>
+<ol>
+<li><p>Relevance: Z actually affects X  </p>
+</li>
+<li><p>Exclusion: Z affects Y only through X</p>
+</li>
+<li><p>Exogeneity: Z is independent of confounders</p>
+</li>
+</ol>
+<hr />
+<h2 id="ol_start11_exchangeability_no_unmeasured_confounding"><a href="#ol_start11_exchangeability_no_unmeasured_confounding" class="header-anchor"><ol start="11">
+<li><p>Exchangeability &#40;No Unmeasured Confounding&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> If you swapped treated and control groups, their outcomes would also swap. The groups are comparable except for the treatment.</p>
+<p><strong>Formally:</strong> \(Y(1), Y(0) \perp X | Z\) </p>
+<p>Where \(Y(1)\) is potential outcome under treatment, \(Y(0)\) under control.</p>
+<p><strong>Intuition:</strong> In a perfect randomized trial, treatment assignment is exchangeable - you could swap who got treatment and who got control without changing anything systematic about the groups. In observational studies, we try to achieve conditional exchangeability by adjusting for confounders Z.</p>
+<hr />
+<h2 id="ol_start12_positivity_overlap"><a href="#ol_start12_positivity_overlap" class="header-anchor"><ol start="12">
+<li><p>Positivity &#40;Overlap&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> Every combination of confounders must have some chance of receiving both treatment and control.</p>
+<p><strong>Formally:</strong> \(0 < P(X=1|Z) < 1\) for all observed values of Z</p>
+<p><strong>Intuition:</strong> You can&#39;t estimate treatment effects for groups that never get treated or never get control. If all elderly patients always receive treatment, you have nothing to compare to - you can&#39;t know the counterfactual.</p>
+<p><strong>Example:</strong> If only women take a certain drug, you can&#39;t say what would happen if men took it using observational data alone.</p>
+<hr />
+<h2 id="ol_start13_consistency_sutva_-_part_1"><a href="#ol_start13_consistency_sutva_-_part_1" class="header-anchor"><ol start="13">
+<li><p>Consistency &#40;SUTVA - part 1&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> The potential outcome under treatment equals the observed outcome when treatment is actually received. No &quot;hidden versions&quot; of treatment.</p>
+<p><strong>Formally:</strong> If \(X = x\), then \(Y = Y(x)\)</p>
+<p><strong>Intuition:</strong> &quot;Treatment&quot; must be well-defined. If the &quot;same&quot; treatment can be delivered different ways with different effects, you can&#39;t reason about causal effects cleanly. Taking aspirin made by Bayer vs generic must have the same effect.</p>
+<hr />
+<h2 id="ol_start14_no_interference_sutva_-_part_2"><a href="#ol_start14_no_interference_sutva_-_part_2" class="header-anchor"><ol start="14">
+<li><p>No Interference &#40;SUTVA - part 2&#41;</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> One person&#39;s treatment doesn&#39;t affect another person&#39;s outcome.</p>
+<p><strong>Formally:</strong> \(Y_i(x_1, ..., x_n) = Y_i(x_i)\)</p>
+<p><strong>Intuition:</strong> Your outcome from taking a vaccine depends only on whether <em>you</em> took it, not whether your neighbor did. This is violated for contagious diseases &#40;spillover effects&#41; or social networks. Also called &quot;no spillover.&quot;</p>
+<hr />
+<h2 id="ol_start15_selection_bias"><a href="#ol_start15_selection_bias" class="header-anchor"><ol start="15">
+<li><p>Selection Bias</p>
+</li>
+</ol>
+</a></h2>
+<p><strong>What it means:</strong> Your sample isn&#39;t representative because selection into the sample depends on both treatment and outcome.</p>
+<p><strong>Structure:</strong> Conditioning on a collider of treatment and outcome &#40;or their causes&#41;</p>
+<p><strong>Intuition:</strong> A study of surgery effectiveness done only on surgical patients is biased - people select into surgery based on health status &#40;which also affects outcomes&#41;. This creates collider bias.</p>
+<p><strong>Example:</strong> Studying hospital mortality rates unfairly penalizes hospitals that take sicker patients - conditioning on hospitalization creates selection bias.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 17, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
