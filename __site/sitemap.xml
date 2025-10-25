@@ -74,6 +74,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://kchu25.github.io/blog/general_topics/transform_and_power/index.html</loc>
+    <lastmod>2025-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://kchu25.github.io/blog/measure_theory/3_convergence_thms/index.html</loc>
     <lastmod>2025-10-06</lastmod>
     <changefreq>monthly</changefreq>
@@ -135,7 +141,7 @@
 </url>
 <url>
     <loc>https://kchu25.github.io/blog/index.html</loc>
-    <lastmod>2025-10-06</lastmod>
+    <lastmod>2025-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

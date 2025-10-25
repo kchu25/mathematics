@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Why You Can't Transform Power Indices After non-linear trasnformation</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="why_you_cant_transform_power_indices_after_non-linear_trasnformation"><a href="#why_you_cant_transform_power_indices_after_non-linear_trasnformation" class="header-anchor">Why You Can&#39;t Transform Power Indices After non-linear trasnformation</a></h1>
+<h2 id="the_question"><a href="#the_question" class="header-anchor">The Question</a></h2>
+<p>If we compute a Banzhaf power index in log space, can we simply apply \(\exp()\) to transform it back to original space? <strong>No&#33;</strong></p>
+<h2 id="counter_example"><a href="#counter_example" class="header-anchor">Counter Example</a></h2>
+<p>Consider a simple cooperative game with 3 players and characteristic function in log space:</p>
+<h3 id="log-space_payoffs"><a href="#log-space_payoffs" class="header-anchor">Log-space payoffs:</a></h3>
+<ul>
+<li><p>\(v(\{1\}) = \log(2) \approx 0.693\)</p>
+</li>
+<li><p>\(v(\{2\}) = \log(3) \approx 1.099\)</p>
+</li>
+<li><p>\(v(\{1,2\}) = \log(10) \approx 2.303\)</p>
+</li>
+</ul>
+<h3 id="banzhaf_power_index_computation_in_log_space"><a href="#banzhaf_power_index_computation_in_log_space" class="header-anchor">Banzhaf power index computation in log space:</a></h3>
+<p>Player 1&#39;s marginal contribution when player 2 is present:</p>
+\[v(\{1,2\}) - v(\{2\}) = \log(10) - \log(3) = \log(10/3) \approx 1.204\]
+<p>Player 2&#39;s marginal contribution when player 1 is present:</p>
+\[v(\{1,2\}) - v(\{1\}) = \log(10) - \log(2) = \log(5) \approx 1.609\]
+<p>In log space: <strong>Player 2 has higher Banzhaf index than Player 1</strong></p>
+<h3 id="naively_applying_exp_to_the_power_indices"><a href="#naively_applying_exp_to_the_power_indices" class="header-anchor">Naively applying exp&#40;&#41; to the power indices:</a></h3>
+<ul>
+<li><p>\(\exp(1.204) \approx 3.33\)</p>
+</li>
+<li><p>\(\exp(1.609) \approx 5.00\)</p>
+</li>
+</ul>
+<h3 id="the_correct_approach_transform_first_then_compute"><a href="#the_correct_approach_transform_first_then_compute" class="header-anchor">The correct approach &#40;transform first, then compute&#41;:</a></h3>
+<p>Original space payoffs:</p>
+<ul>
+<li><p>\(v'(\{1\}) = 2\)</p>
+</li>
+<li><p>\(v'(\{2\}) = 3\)</p>
+</li>
+<li><p>\(v'(\{1,2\}) = 10\)</p>
+</li>
+</ul>
+<p>Marginal contributions in original space:</p>
+<ul>
+<li><p>Player 1: \(10 - 3 = \boxed{7}\)</p>
+</li>
+<li><p>Player 2: \(10 - 2 = \boxed{8}\)</p>
+</li>
+</ul>
+<h3 id="the_problem"><a href="#the_problem" class="header-anchor">The Problem</a></h3>
+<p>Notice that:</p>
+\[7 \neq 3.33 \quad \text{and} \quad 8 \neq 5.00\]
+<h2 id="why_this_happens"><a href="#why_this_happens" class="header-anchor">Why This Happens</a></h2>
+<p>The Banzhaf index involves <strong>averaging/summing</strong> marginal contributions across coalitions. Since \(\exp()\) is a <strong>non-linear</strong> function:</p>
+\[\exp\left(\frac{1}{n}\sum_{i} x_i\right) \neq \frac{1}{n}\sum_{i} \exp(x_i)\]
+<p>More generally:</p>
+\[\exp(\mathbb{E}[X]) \neq \mathbb{E}[\exp(X)]\]
+<h2 id="the_verdict"><a href="#the_verdict" class="header-anchor">The Verdict</a></h2>
+<p><strong>You must transform payoffs to original space FIRST, then compute the power index.</strong></p>
+<p>There is no valid way to transform the power index after computation.</p>
+<h2 id="what_does_each_approach_measure"><a href="#what_does_each_approach_measure" class="header-anchor">What Does Each Approach Measure?</a></h2>
+<ul>
+<li><p><strong>Power index in log space</strong>: Measures influence in terms of <strong>multiplicative/percentage changes</strong></p>
+</li>
+<li><p><strong>Power index in original space</strong>: Measures influence in terms of <strong>absolute changes</strong></p>
+</li>
+</ul>
+<p>Choose the space that matches your notion of &quot;influence&quot; for your application, but compute the index directly in that space.</p>
+<h2 id="what_if_the_transformation_is_linear"><a href="#what_if_the_transformation_is_linear" class="header-anchor">What If The Transformation Is Linear?</a></h2>
+<p>If the transformation from transformed space to original space is <strong>linear</strong>, i.e.: \(v'(S) = a \cdot v(S) + b\)</p>
+<p>Then you <strong>CAN</strong> transform the power index afterwards&#33;</p>
+<h3 id="why_linear_transformations_work"><a href="#why_linear_transformations_work" class="header-anchor">Why Linear Transformations Work</a></h3>
+<p>For the Banzhaf index, marginal contributions in original space are: \(v'(S \cup \{i\}) - v'(S) = [a \cdot v(S \cup \{i\}) + b] - [a \cdot v(S) + b]\) \(= a \cdot [v(S \cup \{i\}) - v(S)]\)</p>
+<p>The constant \(b\) cancels out, and we get: \(\text{Marginal contribution in original space} = a \times \text{Marginal contribution in transformed space}\)</p>
+<p>Since the Banzhaf index is computed by averaging/summing marginal contributions: \(\phi_i(\text{original}) = \frac{1}{n}\sum_S [a \cdot \Delta_i(S)] = a \cdot \frac{1}{n}\sum_S \Delta_i(S) = a \cdot \phi_i(\text{transformed})\)</p>
+<p><strong>Linearity of expectation/summation allows us to pull out the constant&#33;</strong></p>
+<h3 id="practical_application"><a href="#practical_application" class="header-anchor">Practical Application</a></h3>
+<p>If your transformation is:</p>
+<ul>
+<li><p>\(v'(S) = a \cdot v(S) + b\) &#40;affine transformation&#41;</p>
+</li>
+<li><p>Or simply \(v'(S) = a \cdot v(S)\) &#40;linear scaling&#41;</p>
+</li>
+</ul>
+<p>Then:</p>
+<ol>
+<li><p>Compute Banzhaf index in transformed space: \(\phi_i\)</p>
+</li>
+<li><p>Transform back: \(\phi'_i = a \cdot \phi_i\) &#40;the constant \(b\) doesn&#39;t matter&#41;</p>
+</li>
+</ol>
+<h3 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h3>
+<table><tr><th align="right">Transformation Type</th><th align="right">Can Transform After?</th><th align="right">Reason</th></tr><tr><td align="right">Linear: \(v' = a \cdot v + b\)</td><td align="right">✅ <strong>YES</strong></td><td align="right">Linearity of expectation</td></tr><tr><td align="right">Logarithmic: \(v' = \exp(v)\)</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linear</td></tr><tr><td align="right">Polynomial: \(v' = v^2\)</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linear</td></tr><tr><td align="right">General non-linear</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linearity breaks averaging</td></tr></table>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 25, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
