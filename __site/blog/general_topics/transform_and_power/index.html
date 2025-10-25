@@ -24,7 +24,7 @@
 
 
 <!-- Content appended here -->
-<div class="franklin-content"><h1 id="why_you_cant_transform_power_indices_after_non-linear_trasnformation"><a href="#why_you_cant_transform_power_indices_after_non-linear_trasnformation" class="header-anchor">Why You Can&#39;t Transform Power Indices After non-linear trasnformation</a></h1>
+<div class="franklin-content"><h1 id="why_you_cant_transform_power_indices_after_computation"><a href="#why_you_cant_transform_power_indices_after_computation" class="header-anchor">Why You Can&#39;t Transform Power Indices After Computation</a></h1>
 <h2 id="the_question"><a href="#the_question" class="header-anchor">The Question</a></h2>
 <p>If we compute a Banzhaf power index in log space, can we simply apply \(\exp()\) to transform it back to original space? <strong>No&#33;</strong></p>
 <h2 id="counter_example"><a href="#counter_example" class="header-anchor">Counter Example</a></h2>
@@ -112,6 +112,30 @@
 </ol>
 <h3 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h3>
 <table><tr><th align="right">Transformation Type</th><th align="right">Can Transform After?</th><th align="right">Reason</th></tr><tr><td align="right">Linear: \(v' = a \cdot v + b\)</td><td align="right">✅ <strong>YES</strong></td><td align="right">Linearity of expectation</td></tr><tr><td align="right">Logarithmic: \(v' = \exp(v)\)</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linear</td></tr><tr><td align="right">Polynomial: \(v' = v^2\)</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linear</td></tr><tr><td align="right">General non-linear</td><td align="right">❌ <strong>NO</strong></td><td align="right">Non-linearity breaks averaging</td></tr></table>
+<h2 id="does_this_work_for_all_power_indices"><a href="#does_this_work_for_all_power_indices" class="header-anchor">Does This Work For All Power Indices?</a></h2>
+<p><strong>Yes&#33;</strong> This property holds for <strong>all</strong> standard power indices including Shapley value, Banzhaf index, and others.</p>
+<h3 id="why"><a href="#why" class="header-anchor">Why?</a></h3>
+<p>Most power indices &#40;Shapley, Banzhaf, etc.&#41; have the general form: \(\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} w(|S|) \cdot [v(S \cup \{i\}) - v(S)]\)</p>
+<p>where \(w(|S|)\) is a weighting function that depends on coalition size. Different indices use different weights:</p>
+<p><strong>Shapley value:</strong> \(w(|S|) = \frac{|S|! (n - |S| - 1)!}{n!}\)</p>
+<p><strong>Banzhaf index:</strong> \(w(|S|) = \frac{1}{2^{n-1}}\)</p>
+<p><strong>Key insight:</strong> The weights \(w(|S|)\) don&#39;t depend on the payoff values \(v(S)\), only on coalition sizes.</p>
+<h3 id="proof_for_general_power_indices"><a href="#proof_for_general_power_indices" class="header-anchor">Proof for General Power Indices</a></h3>
+<p>Given linear transformation \(v'(S) = a \cdot v(S) + b\):</p>
+\(\phi_i(v') = \sum_{S} w(|S|) \cdot [v'(S \cup \{i\}) - v'(S)]\)
+\(= \sum_{S} w(|S|) \cdot [(a \cdot v(S \cup \{i\}) + b) - (a \cdot v(S) + b)]\)
+\(= \sum_{S} w(|S|) \cdot a \cdot [v(S \cup \{i\}) - v(S)]\)
+\(= a \sum_{S} w(|S|) \cdot [v(S \cup \{i\}) - v(S)]\)
+\(= a \cdot \phi_i(v)\)
+<p>The constant \(b\) cancels in the marginal contribution, and \(a\) can be pulled out due to linearity&#33;</p>
+<h3 id="conclusion"><a href="#conclusion" class="header-anchor">Conclusion</a></h3>
+<p>For <strong>any</strong> power index that is a weighted sum of marginal contributions with fixed weights &#40;which includes virtually all standard power indices&#41;:</p>
+<ul>
+<li><p>Linear transformation: ✅ Transform the index afterwards</p>
+</li>
+<li><p>Non-linear transformation: ❌ Must transform payoffs first</p>
+</li>
+</ul>
 <div class="page-foot">
     Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
     <br>

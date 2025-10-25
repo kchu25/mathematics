@@ -1,8 +1,7 @@
 @def title = "Why You Can't Transform Power Indices After non-linear trasnformation"
 @def published = "25 October 2025"
 @def tags = ["general-topics"]
-
-# Why You Can't Transform Power Indices After non-linear trasnformation
+# Why You Can't Transform Power Indices After Computation
 
 ## The Question
 
@@ -108,3 +107,44 @@ Then:
 | Logarithmic: $v' = \exp(v)$ | ❌ **NO** | Non-linear |
 | Polynomial: $v' = v^2$ | ❌ **NO** | Non-linear |
 | General non-linear | ❌ **NO** | Non-linearity breaks averaging |
+
+## Does This Work For All Power Indices?
+
+**Yes!** This property holds for **all** standard power indices including Shapley value, Banzhaf index, and others.
+
+### Why?
+
+Most power indices (Shapley, Banzhaf, etc.) have the general form:
+$\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} w(|S|) \cdot [v(S \cup \{i\}) - v(S)]$
+
+where $w(|S|)$ is a weighting function that depends on coalition size. Different indices use different weights:
+
+**Shapley value:**
+$w(|S|) = \frac{|S|! (n - |S| - 1)!}{n!}$
+
+**Banzhaf index:**
+$w(|S|) = \frac{1}{2^{n-1}}$
+
+**Key insight:** The weights $w(|S|)$ don't depend on the payoff values $v(S)$, only on coalition sizes.
+
+### Proof for General Power Indices
+
+Given linear transformation $v'(S) = a \cdot v(S) + b$:
+
+$\phi_i(v') = \sum_{S} w(|S|) \cdot [v'(S \cup \{i\}) - v'(S)]$
+
+$= \sum_{S} w(|S|) \cdot [(a \cdot v(S \cup \{i\}) + b) - (a \cdot v(S) + b)]$
+
+$= \sum_{S} w(|S|) \cdot a \cdot [v(S \cup \{i\}) - v(S)]$
+
+$= a \sum_{S} w(|S|) \cdot [v(S \cup \{i\}) - v(S)]$
+
+$= a \cdot \phi_i(v)$
+
+The constant $b$ cancels in the marginal contribution, and $a$ can be pulled out due to linearity!
+
+### Conclusion
+
+For **any** power index that is a weighted sum of marginal contributions with fixed weights (which includes virtually all standard power indices):
+- Linear transformation: ✅ Transform the index afterwards
+- Non-linear transformation: ❌ Must transform payoffs first
