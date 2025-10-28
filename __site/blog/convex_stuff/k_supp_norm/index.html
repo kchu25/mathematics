@@ -78,9 +78,61 @@
 <p>This proves convexity. ∎</p>
 <h2 id="connection_to_top-k_thresholding"><a href="#connection_to_top-k_thresholding" class="header-anchor">Connection to Top-K Thresholding</a></h2>
 <p>The proximal operator of the k-support norm is:</p>
-\[\text{prox}_{\lambda \|\cdot\|_{k\text{-sup}}}(x) = \arg\min_z \frac{1}{2}\|x - z\|_2^2 + \lambda \|z\|_{k\text{-sup}}\]
-<p><strong>Result</strong>: This proximal operator performs <strong>top-k hard thresholding</strong> with an appropriate threshold value that depends on \(\lambda\) and the values in \(x\).</p>
-<p>For appropriate choice of \(\lambda\), this exactly selects the top-k elements by magnitude and zeros out the rest.</p>
+\(\text{prox}_{\lambda \|\cdot\|_{k\text{-sup}}}(x) = \arg\min_z \frac{1}{2}\|x - z\|_2^2 + \lambda \|z\|_{k\text{-sup}}\)
+<p><strong>Theorem</strong>: For sufficiently large \(\lambda\), this proximal operator performs <strong>top-k hard thresholding</strong>: it keeps the \(k\) largest elements &#40;in absolute value&#41; from \(x\) and sets all others to zero.</p>
+<h3 id="proof_sketch"><a href="#proof_sketch" class="header-anchor">Proof Sketch</a></h3>
+<p><strong>Step 1: Optimality Conditions</strong></p>
+<p>Let \(z^*\) be the optimal solution. The subdifferential optimality condition is: \(0 \in z^* - x + \lambda \partial \|z^*\|_{k\text{-sup}}\)</p>
+<p>where \(\partial\) denotes the subdifferential.</p>
+<p><strong>Step 2: Structure of the Subdifferential</strong></p>
+<p>Recall that: \(\|z\|_{k\text{-sup}} = \min_{|I| \leq k} \left(\|z_I\|_2 + \|z_{I^c}\|_1\right)\)</p>
+<p>Let \(I^*\) be the optimal index set achieving this minimum for \(z^*\). The subdifferential has the form:</p>
+\(\partial \|z^*\|_{k\text{-sup}} \ni \begin{cases}
+\frac{z_i^*}{\|z_{I^*}\|_2} & \text{if } i \in I^* \text{ and } \|z_{I^*}\|_2 > 0\\
+\text{sign}(z_i^*) & \text{if } i \in I^{*c} \text{ and } z_i^* \neq 0\\
+[-1, 1] & \text{if } z_i^* = 0
+\end{cases}\)
+<p><strong>Step 3: Top-k Structure Emerges</strong></p>
+<p>From the optimality condition: \(z^* = x - \lambda g\) where \(g \in \partial \|z^*\|_{k\text{-sup}}\).</p>
+<p>Consider what happens if \(z^*\) has the top-k structure: exactly \(k\) non-zero entries corresponding to the largest \(|x_i|\) values.</p>
+<ul>
+<li><p>For indices \(i\) in the support with \(z_i^* \neq 0\): \(z_i^* = x_i - \lambda g_i\) where \(g_i\) depends on whether \(i\) is in the \(\ell_2\) part or \(\ell_1\) part.</p>
+</li>
+<li><p>For indices \(i\) outside the support with \(z_i^* = 0\): \(0 = x_i - \lambda g_i \implies x_i = \lambda g_i \text{ where } g_i \in [-1, 1]\) This is satisfied when \(|x_i| \leq \lambda\).</p>
+</li>
+</ul>
+<p><strong>Step 4: Large \(\lambda\) Forces Top-k</strong></p>
+<p>When \(\lambda\) is sufficiently large:</p>
+<ol>
+<li><p>The optimal support \(I^*\) will have exactly \(k\) elements &#40;the penalty strongly favors sparsity&#41;</p>
+</li>
+<li><p>These \(k\) elements must be those with largest \(|x_i|\) to minimize \(\|x - z\|_2^2\)</p>
+</li>
+<li><p>All other elements are set to zero because the penalty overwhelms keeping small values</p>
+</li>
+</ol>
+<p><strong>More precisely</strong>: If we sort \(|x|\) as \(|x|_{(1)} \geq |x|_{(2)} \geq \cdots \geq |x|_{(n)}\), then for: \(\lambda > \frac{|x|_{(k)} - |x|_{(k+1)}}{2}\)</p>
+<p>the solution will select exactly the top-k elements.</p>
+<h3 id="intuition"><a href="#intuition" class="header-anchor">Intuition</a></h3>
+<p>The k-support norm penalizes vectors that spread their &quot;mass&quot; across many coordinates. The optimal trade-off between fitting \(x\) &#40;via \(\|x-z\|_2^2\)&#41; and having small k-support norm is to:</p>
+<ul>
+<li><p>Keep the \(k\) largest values from \(x\) &#40;to minimize reconstruction error&#41;</p>
+</li>
+<li><p>Zero out everything else &#40;to minimize the norm penalty&#41;</p>
+</li>
+</ul>
+<p>This is exactly what top-k hard thresholding does&#33;</p>
+<h3 id="algorithmic_note"><a href="#algorithmic_note" class="header-anchor">Algorithmic Note</a></h3>
+<p>In practice, computing the proximal operator involves:</p>
+<ol>
+<li><p>Sort \(|x|\) to find the top-k elements</p>
+</li>
+<li><p>Apply soft thresholding or shrinkage to these elements</p>
+</li>
+<li><p>Zero out the remaining \(n-k\) elements</p>
+</li>
+</ol>
+<p>The exact threshold depends on \(\lambda\) and the specific values, but the <strong>support</strong> &#40;which elements are non-zero&#41; is determined purely by the top-k selection.</p>
 <h2 id="why_is_k-support_norm_rarely_used"><a href="#why_is_k-support_norm_rarely_used" class="header-anchor">Why Is K-Support Norm Rarely Used?</a></h2>
 <p>Despite being a convex sparsity-promoting norm, the k-support norm is less popular than \(\ell_1\) for several reasons:</p>
 <h3 id="computational_complexity"><a href="#computational_complexity" class="header-anchor"><ol>
@@ -190,6 +242,117 @@
 <li><p>McDonald, A. M., Pontil, M., &amp; Stamos, D. &#40;2016&#41;. &quot;New perspectives on k-support and cluster norms.&quot; <em>JMLR</em>.</p>
 </li>
 </ul>
+<h2 id="exotic_properties_and_extensions"><a href="#exotic_properties_and_extensions" class="header-anchor">Exotic Properties and Extensions</a></h2>
+<h3 id="relationship_to_other_norms"><a href="#relationship_to_other_norms" class="header-anchor"><ol>
+<li><p><strong>Relationship to Other Norms</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The k-support norm can be expressed as: \(\|x\|_{k\text{-sup}} = \max_{\substack{S_1, \ldots, S_m \\ \text{partition of } [n]}} \sum_{j=1}^m \sqrt{|S_j|} \|x_{S_j}\|_2\) subject to each \(|S_j| \leq k\).</p>
+<p>This reveals it as a <strong>cluster norm</strong> that groups coordinates optimally.</p>
+<h3 id="ol_start2_dual_norm"><a href="#ol_start2_dual_norm" class="header-anchor"><ol start="2">
+<li><p><strong>Dual Norm</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The dual norm &#40;k-support&#41;* has a beautiful form: \(\|y\|_{k\text{-sup}}^* = \max_{|I| = k} \left(\|y_I\|_\infty + \frac{1}{\sqrt{k}}\|y_{I^c}\|_2\right)\)</p>
+<p>This is useful for deriving optimality conditions and understanding the geometry of the unit ball.</p>
+<h3 id="ol_start3_variational_characterization"><a href="#ol_start3_variational_characterization" class="header-anchor"><ol start="3">
+<li><p><strong>Variational Characterization</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The k-support norm admits a variational form: \(\|x\|_{k\text{-sup}}^2 = \min_{\substack{u, v \\ u + v = x}} \frac{1}{k}\|u\|_1^2 + \|v\|_2^2\)</p>
+<p>This decomposition into \(\ell_1\) and \(\ell_2\) components provides insight into how it balances sparsity and density.</p>
+<h3 id="ol_start4_non-smooth_optimization_landscape"><a href="#ol_start4_non-smooth_optimization_landscape" class="header-anchor"><ol start="4">
+<li><p><strong>Non-Smooth Optimization Landscape</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Unlike \(\ell_1\), the k-support norm is <strong>not smooth</strong> and its unit ball has <strong>flat faces</strong> at exactly the points with sparsity level \(k\). This creates interesting optimization challenges:</p>
+<ul>
+<li><p>The gradient is undefined at points where the support changes</p>
+</li>
+<li><p>Proximal gradient methods need careful implementation</p>
+</li>
+<li><p>The optimal support can &quot;jump&quot; discontinuously as parameters change</p>
+</li>
+</ul>
+<h3 id="ol_start5_connection_to_omp_and_matching_pursuit"><a href="#ol_start5_connection_to_omp_and_matching_pursuit" class="header-anchor"><ol start="5">
+<li><p><strong>Connection to OMP and Matching Pursuit</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The k-support norm provides a <strong>convex relaxation</strong> of Orthogonal Matching Pursuit &#40;OMP&#41;. While OMP greedily selects k atoms, minimizing the k-support norm finds the optimal k-sparse representation via convex optimization.</p>
+<h3 id="ol_start6_group_sparsity_extension"><a href="#ol_start6_group_sparsity_extension" class="header-anchor"><ol start="6">
+<li><p><strong>Group Sparsity Extension</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The norm extends naturally to <strong>overlapping group structures</strong>: \(\|x\|_{k,G} = \min_{\substack{G' \subseteq G \\ |G'| \leq k}} \left(\sum_{g \in G'} \|x_g\|_2 + \sum_{g \notin G'} \|x_g\|_1\right)\)</p>
+<p>This allows selecting \(k\) groups while keeping within-group structure.</p>
+<h3 id="ol_start7_statistical_properties"><a href="#ol_start7_statistical_properties" class="header-anchor"><ol start="7">
+<li><p><strong>Statistical Properties</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>For sparse linear regression with k-sparse true signal:</p>
+<ul>
+<li><p>K-support norm achieves <strong>minimax optimal</strong> estimation rates</p>
+</li>
+<li><p>It has better sample complexity than \(\ell_1\) when the sparsity level is known</p>
+</li>
+<li><p>Recovery guarantees hold under weaker restricted isometry properties &#40;RIP&#41; than \(\ell_1\)</p>
+</li>
+</ul>
+<h3 id="ol_start8_non-isotropy"><a href="#ol_start8_non-isotropy" class="header-anchor"><ol start="8">
+<li><p><strong>Non-Isotropy</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Unlike \(\ell_2\) &#40;rotationally invariant&#41; or \(\ell_1\) &#40;coordinate-aligned&#41;, the k-support norm ball has a <strong>hybrid geometry</strong>:</p>
+<ul>
+<li><p>It&#39;s &quot;round&quot; in the k-dimensional subspace of largest coefficients</p>
+</li>
+<li><p>It&#39;s &quot;diamond-shaped&quot; &#40;like \(\ell_1\)&#41; in the orthogonal complement</p>
+</li>
+<li><p>This geometry adapts to the signal structure</p>
+</li>
+</ul>
+<h3 id="ol_start9_atomic_norm_perspective"><a href="#ol_start9_atomic_norm_perspective" class="header-anchor"><ol start="9">
+<li><p><strong>Atomic Norm Perspective</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The k-support norm is an <strong>atomic norm</strong> where the atoms are: \(\mathcal{A}_k = \left\{x : \|x\|_2 = 1, \|x\|_0 \leq k\right\}\)</p>
+<p>This connects it to the broader theory of atomic norms and structured sparsity.</p>
+<h3 id="ol_start10_computational_trick_quickselect"><a href="#ol_start10_computational_trick_quickselect" class="header-anchor"><ol start="10">
+<li><p><strong>Computational Trick: QuickSelect</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Computing the k-support norm can be done in <strong>expected linear time</strong> \(O(n)\) using QuickSelect instead of full sorting:</p>
+<ol>
+<li><p>Use QuickSelect to partition around the k-th largest element</p>
+</li>
+<li><p>Compute \(\ell_1\) norm of top-k and \(\ell_2\) norm of the rest</p>
+</li>
+<li><p>No need to fully sort&#33;</p>
+</li>
+</ol>
+<h3 id="ol_start11_failure_mode_unknown_sparsity"><a href="#ol_start11_failure_mode_unknown_sparsity" class="header-anchor"><ol start="11">
+<li><p><strong>Failure Mode: Unknown Sparsity</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>The k-support norm has an interesting failure mode: if the true sparsity is \(k' < k\), using \(\|x\|_{k\text{-sup}}\) will <strong>not</strong> recover the sparser solution. It commits to using exactly \(k\) coordinates. This is unlike \(\ell_1\), which gracefully adapts to the actual sparsity level.</p>
+<h3 id="ol_start12_matrix_extension_kk-support_norm"><a href="#ol_start12_matrix_extension_kk-support_norm" class="header-anchor"><ol start="12">
+<li><p><strong>Matrix Extension: &#40;k,k&#41;-Support Norm</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>For matrices, there&#39;s a natural extension: \(\|X\|_{(k,k)} = \min_{\substack{|I| \leq k \\ |J| \leq k}} \left(\|X_{I,J}\|_F + \|X_{I,J^c}\|_{2,1} + \|X_{I^c,J}\|_{1,2} + \|X_{I^c,J^c}\|_{1,1}\right)\)</p>
+<p>This promotes bi-sparse structure in rows and columns simultaneously, useful for bi-clustering.</p>
 <div class="page-foot">
     Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
     <br>
