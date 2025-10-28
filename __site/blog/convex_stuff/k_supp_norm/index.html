@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>K-Support Norm and Top-K Thresholding</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="k-support_norm_and_top-k_thresholding"><a href="#k-support_norm_and_top-k_thresholding" class="header-anchor">K-Support Norm and Top-K Thresholding</a></h1>
+<h2 id="the_main_result"><a href="#the_main_result" class="header-anchor">The Main Result</a></h2>
+<p>The <strong>top-k thresholding operator</strong> &#40;selecting the k largest elements in absolute value and zeroing out the rest&#41; is the proximal operator of the <strong>k-support norm</strong>.</p>
+<p>For top-30 selection specifically, this solves:</p>
+\[\min_z \frac{1}{2}\|x - z\|_2^2 + \lambda \|z\|_{k\text{-sup}}\]
+<p>where the k-support norm is defined below.</p>
+<h2 id="definition_of_k-support_norm"><a href="#definition_of_k-support_norm" class="header-anchor">Definition of K-Support Norm</a></h2>
+<p>The k-support norm of a vector \(x \in \mathbb{R}^n\) is defined as:</p>
+\[\|x\|_{k\text{-sup}} = \min_{\substack{I \subseteq \{1,\ldots,n\} \\ |I| \leq k}} \left(\|x_I\|_2 + \|x_{I^c}\|_1\right)\]
+<p>where:</p>
+<ul>
+<li><p>\(x_I\) denotes the subvector of \(x\) indexed by \(I\)</p>
+</li>
+<li><p>\(I^c\) is the complement of \(I\)</p>
+</li>
+<li><p>\(|I|\) is the cardinality of \(I\)</p>
+</li>
+</ul>
+<p><strong>Equivalent characterization</strong>: If we sort \(|x|\) in decreasing order as \(|x|_{(1)} \geq |x|_{(2)} \geq \cdots \geq |x|_{(n)}\), then:</p>
+\[\|x\|_{k\text{-sup}} = \sum_{i=1}^k |x|_{(i)} + \sqrt{k} \sqrt{\sum_{i=k+1}^n |x|_{(i)}^2}\]
+<p>This is the sum of the top-k absolute values plus \(\sqrt{k}\) times the \(\ell_2\) norm of the remaining elements.</p>
+<h2 id="proof_of_convexity"><a href="#proof_of_convexity" class="header-anchor">Proof of Convexity</a></h2>
+<p><strong>Theorem</strong>: The k-support norm is convex.</p>
+<p><strong>Proof</strong>: We&#39;ll use the equivalent form:</p>
+\[\|x\|_{k\text{-sup}} = \min_{I: |I| \leq k} \left(\|x_I\|_2 + \|x_{I^c}\|_1\right)\]
+<h3 id="step_1_each_function_in_the_minimization_is_convex"><a href="#step_1_each_function_in_the_minimization_is_convex" class="header-anchor">Step 1: Each function in the minimization is convex</a></h3>
+<p>For any fixed subset \(I\) with \(|I| \leq k\), the function:</p>
+\[f_I(x) = \|x_I\|_2 + \|x_{I^c}\|_1\]
+<p>is convex because:</p>
+<ul>
+<li><p>\(\|x_I\|_2\) is a norm &#40;convex&#41;</p>
+</li>
+<li><p>\(\|x_{I^c}\|_1\) is a norm &#40;convex&#41;</p>
+</li>
+<li><p>The sum of convex functions is convex</p>
+</li>
+</ul>
+<h3 id="step_2_pointwise_minimum_preserves_convexity"><a href="#step_2_pointwise_minimum_preserves_convexity" class="header-anchor">Step 2: Pointwise minimum preserves convexity</a></h3>
+<p>The k-support norm is:</p>
+\[\|x\|_{k\text{-sup}} = \min_{I: |I| \leq k} f_I(x)\]
+<p><strong>Key fact</strong>: The pointwise minimum &#40;infimum&#41; of a family of convex functions is convex.</p>
+<p><strong>Proof of this fact</strong>: Let \(x, y \in \mathbb{R}^n\) and \(\theta \in [0,1]\). Then:</p>
+\[\|θx + (1-θ)y\|_{k\text{-sup}} = \min_{I: |I| \leq k} f_I(θx + (1-θ)y)\]
+<p>Since each \(f_I\) is convex:</p>
+\[f_I(θx + (1-θ)y) \leq θf_I(x) + (1-θ)f_I(y)\]
+<p>Taking minimum over all \(I\) on the right:</p>
+\[\min_I f_I(θx + (1-θ)y) \leq \min_I [θf_I(x) + (1-θ)f_I(y)]\]
+<p>Note that for any \(I\):</p>
+\[θf_I(x) + (1-θ)f_I(y) \geq θ\min_J f_J(x) + (1-θ)\min_J f_J(y)\]
+<p>Therefore:</p>
+\[\|θx + (1-θ)y\|_{k\text{-sup}} \leq θ\|x\|_{k\text{-sup}} + (1-θ)\|y\|_{k\text{-sup}}\]
+<p>This proves convexity. ∎</p>
+<h2 id="connection_to_top-k_thresholding"><a href="#connection_to_top-k_thresholding" class="header-anchor">Connection to Top-K Thresholding</a></h2>
+<p>The proximal operator of the k-support norm is:</p>
+\[\text{prox}_{\lambda \|\cdot\|_{k\text{-sup}}}(x) = \arg\min_z \frac{1}{2}\|x - z\|_2^2 + \lambda \|z\|_{k\text{-sup}}\]
+<p><strong>Result</strong>: This proximal operator performs <strong>top-k hard thresholding</strong> with an appropriate threshold value that depends on \(\lambda\) and the values in \(x\).</p>
+<p>For appropriate choice of \(\lambda\), this exactly selects the top-k elements by magnitude and zeros out the rest.</p>
+<h2 id="why_is_k-support_norm_rarely_used"><a href="#why_is_k-support_norm_rarely_used" class="header-anchor">Why Is K-Support Norm Rarely Used?</a></h2>
+<p>Despite being a convex sparsity-promoting norm, the k-support norm is less popular than \(\ell_1\) for several reasons:</p>
+<h3 id="computational_complexity"><a href="#computational_complexity" class="header-anchor"><ol>
+<li><p><strong>Computational Complexity</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Computing the k-support norm requires sorting &#40;finding top-k elements&#41;: \(O(n \log n)\) or \(O(n \log k)\)</p>
+</li>
+<li><p>The \(\ell_1\) norm is just a sum: \(O(n)\)</p>
+</li>
+<li><p>For large-scale problems, this difference matters</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: While \(O(n \log n)\) is technically &quot;almost linear&quot; and in practice performs quite well, the constant factors matter in iterative optimization algorithms. When you need to compute the norm &#40;and its proximal operator&#41; thousands or millions of times during gradient descent, even small multiplicative factors add up. Moreover, modern hardware vectorization makes simple operations like summing all elements extremely fast, while sorting is harder to parallelize efficiently. That said, you&#39;re right that this complexity difference is often overstated as a barrier—with modern quickselect or median-of-medians algorithms, finding top-k can even be done in \(O(n)\) expected time&#33;</p>
+</blockquote>
+<h3 id="ol_start2_less_accessible_optimization"><a href="#ol_start2_less_accessible_optimization" class="header-anchor"><ol start="2">
+<li><p><strong>Less Accessible Optimization</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>\(\ell_1\) has simple proximal operators and subgradients</p>
+</li>
+<li><p>\(\ell_1\) fits naturally into LASSO and other well-studied frameworks</p>
+</li>
+<li><p>K-support norm requires more specialized algorithms</p>
+</li>
+</ul>
+<h3 id="ol_start3_hyperparameter_selection"><a href="#ol_start3_hyperparameter_selection" class="header-anchor"><ol start="3">
+<li><p><strong>Hyperparameter Selection</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>With \(\ell_1\), you tune one parameter &#40;\(\lambda\)&#41; and get varying sparsity levels</p>
+</li>
+<li><p>With k-support norm, you must pre-specify \(k\) &#40;the exact sparsity level&#41;</p>
+</li>
+<li><p>Cross-validation for discrete \(k\) is less smooth than for continuous \(\lambda\)</p>
+</li>
+</ul>
+<h3 id="ol_start4_theoretical_development"><a href="#ol_start4_theoretical_development" class="header-anchor"><ol start="4">
+<li><p><strong>Theoretical Development</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>\(\ell_1\) has decades of theory &#40;compressed sensing, RIP conditions, etc.&#41;</p>
+</li>
+<li><p>K-support norm is newer &#40;introduced by Argyriou et al., 2012&#41;</p>
+</li>
+<li><p>Less established theory for recovery guarantees</p>
+</li>
+</ul>
+<h3 id="ol_start5_software_availability"><a href="#ol_start5_software_availability" class="header-anchor"><ol start="5">
+<li><p><strong>Software Availability</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>Every optimization library has \(\ell_1\) penalties built-in</p>
+</li>
+<li><p>K-support norm requires custom implementation</p>
+</li>
+</ul>
+<h3 id="ol_start6_the_sparsity_dilemma"><a href="#ol_start6_the_sparsity_dilemma" class="header-anchor"><ol start="6">
+<li><p><strong>The Sparsity Dilemma</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p>If you know \(k\) beforehand, you can just do best subset selection</p>
+</li>
+<li><p>If you don&#39;t know \(k\), then tuning the k-support norm isn&#39;t much better than tuning \(\ell_1\)</p>
+</li>
+</ul>
+<h2 id="when_k-support_norm_is_useful"><a href="#when_k-support_norm_is_useful" class="header-anchor">When K-Support Norm Is Useful</a></h2>
+<p>Despite these limitations, the k-support norm excels in:</p>
+<ol>
+<li><p><strong>Fixed sparsity constraints</strong>: When you know exactly how many features you want</p>
+</li>
+<li><p><strong>Group sparsity</strong>: Extensions to structured sparsity &#40;overlapping groups&#41;</p>
+</li>
+<li><p><strong>Theoretical analysis</strong>: Provides convex relaxation with exact sparsity control</p>
+</li>
+<li><p><strong>Portfolio optimization</strong>: Selecting exactly k assets</p>
+</li>
+<li><p><strong>Feature selection with budget</strong>: Hard constraint on number of selected features</p>
+</li>
+</ol>
+<h2 id="special_cases"><a href="#special_cases" class="header-anchor">Special Cases</a></h2>
+<ul>
+<li><p><strong>k &#61; 1</strong>: \(\|x\|_{1\text{-sup}} = \min_i (|x_i| + \|\{x_j : j \neq i\}\|_2)\) — not a standard norm</p>
+</li>
+<li><p><strong>k &#61; n</strong>: Reduces to \(\|x\|_1\) &#40;\(\ell_1\) norm&#41;</p>
+</li>
+<li><p>The norm interpolates between sparse &#40;\(\ell_1\)-like&#41; and dense &#40;\(\ell_2\)-like&#41; penalization as \(k\) varies</p>
+</li>
+</ul>
+<h2 id="references"><a href="#references" class="header-anchor">References</a></h2>
+<ul>
+<li><p>Argyriou, A., Foygel, R., &amp; Srebro, N. &#40;2012&#41;. &quot;Sparse prediction with the k-support norm.&quot; <em>NIPS</em>.</p>
+</li>
+<li><p>McDonald, A. M., Pontil, M., &amp; Stamos, D. &#40;2016&#41;. &quot;New perspectives on k-support and cluster norms.&quot; <em>JMLR</em>.</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 28, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
