@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>K-Support Norm: A Complete Guide</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="k-support_norm_a_complete_guide"><a href="#k-support_norm_a_complete_guide" class="header-anchor">K-Support Norm: A Complete Guide</a></h1>
+<p>Based on &quot;Sparse Prediction with the k-Support Norm&quot; by Argyriou, Foygel, and Srebro &#40;2012&#41;</p>
+<hr />
+<h2 id="the_big_picture_why_do_we_need_this"><a href="#the_big_picture_why_do_we_need_this" class="header-anchor">The Big Picture: Why Do We Need This?</a></h2>
+<p><strong>The Problem:</strong> When doing regression with sparse data, we want to find predictors that:</p>
+<ol>
+<li><p>Have few non-zero coefficients &#40;sparsity&#41;</p>
+</li>
+<li><p>Don&#39;t have huge coefficient values &#40;bounded \(\ell_2\) norm&#41;</p>
+</li>
+</ol>
+<p><strong>Traditional approaches:</strong></p>
+<ul>
+<li><p><strong>Lasso</strong> &#40;\(\ell_1\) regularization&#41;: Encourages sparsity but can be too aggressive</p>
+</li>
+<li><p><strong>Elastic Net</strong>: Combines \(\ell_1\) and \(\ell_2\) penalties, but is this the best we can do?</p>
+</li>
+</ul>
+<p><strong>The k-support norm answer:</strong> It turns out the elastic net is NOT the tightest convex relaxation&#33; The k-support norm is.</p>
+<hr />
+<h2 id="what_are_we_trying_to_relax"><a href="#what_are_we_trying_to_relax" class="header-anchor">What Are We Trying to Relax?</a></h2>
+<p>We want sparse vectors with bounded \(\ell_2\) norm. Mathematically, we care about the set:</p>
+\[S_k^{(2)} = \{w \in \mathbb{R}^d : \|w\|_0 \leq k, \|w\|_2 \leq 1\}\]
+<p><strong>Translation:</strong> Vectors with at most \(k\) non-zero entries and \(\ell_2\) norm at most 1.</p>
+<p><strong>The problem:</strong> This set isn&#39;t convex, making optimization hard &#40;NP-hard, actually&#41;.</p>
+<p><strong>The solution:</strong> Take the convex hull &#40;smallest convex set containing it&#41;:</p>
+\[C_k = \text{conv}(S_k^{(2)}) = \text{conv}\{w : \|w\|_0 \leq k, \|w\|_2 \leq 1\}\]
+<p>The k-support norm is the norm whose unit ball equals \(C_k\).</p>
+<hr />
+<h2 id="definition_two_equivalent_views"><a href="#definition_two_equivalent_views" class="header-anchor">Definition: Two Equivalent Views</a></h2>
+<h3 id="view_1_gauge_function_abstract"><a href="#view_1_gauge_function_abstract" class="header-anchor">View 1: Gauge Function &#40;Abstract&#41;</a></h3>
+<p>The k-support norm \(\|\cdot\|_k^{\text{sp}}\) is the gauge function of \(C_k\):</p>
+\(\|w\|_k^{\text{sp}} = \inf\{\lambda \geq 0 : w \in \lambda C_k\}\)
+<p><strong>Intuition:</strong> How much do we need to scale the unit ball \(C_k\) to contain \(w\)?</p>
+<blockquote>
+<p><strong>What is a gauge function?</strong></p>
+<p>A gauge function &#40;also called a Minkowski functional&#41; is a way to create a norm from any convex set \(C\) that contains the origin. Given a convex set \(C\), its gauge function \(\gamma_C(x)\) answers: <em>&quot;What&#39;s the smallest factor I need to scale \(C\) by so that \(x\) fits inside?&quot;</em></p>
+<p>Formally: \(\gamma_C(x) = \inf\{\lambda \geq 0 : x \in \lambda C\}\)</p>
+<p><strong>Example:</strong> If \(C\) is the unit ball of the \(\ell_2\) norm &#40;a sphere&#41;, then \(\gamma_C(x) = \|x\|_2\).</p>
+<p><strong>Key properties:</strong></p>
+<ul>
+<li><p>\(\gamma_C(\alpha x) = \alpha \gamma_C(x)\) for \(\alpha \geq 0\) &#40;positive homogeneity&#41;</p>
+</li>
+<li><p>\(\gamma_C(x + y) \leq \gamma_C(x) + \gamma_C(y)\) &#40;triangle inequality&#41;</p>
+</li>
+<li><p>If \(C\) is symmetric around the origin, \(\gamma_C\) is a norm&#33;</p>
+</li>
+</ul>
+<p><strong>Why it matters here:</strong> The k-support norm is defined as the gauge function of the convex hull \(C_k\). This automatically makes it a norm with \(C_k\) as its unit ball.</p>
+</blockquote>
+<hr />
+<h3 id="view_2_variational_formula_computational"><a href="#view_2_variational_formula_computational" class="header-anchor">View 2: Variational Formula &#40;Computational&#41;</a></h3>
+\(\|w\|_k^{\text{sp}} = \min \left\{\sum_{I \in \mathcal{G}_k} \|v_I\|_2 : \text{supp}(v_I) \subseteq I, \sum_{I \in \mathcal{G}_k} v_I = w\right\}\)
+<p>where \(\mathcal{G}_k\) is the set of all subsets of \(\{1, \ldots, d\}\) with cardinality at most \(k\).</p>
+<p><strong>Translation:</strong> Decompose \(w\) into pieces, each supported on at most \(k\) coordinates, and minimize the sum of their \(\ell_2\) norms.</p>
+<blockquote>
+<p><strong>Why &quot;variational&quot;?</strong></p>
+<p>The term &quot;variational&quot; comes from the calculus of variations, where we optimize over <em>functions</em> or <em>decompositions</em> rather than just numbers.</p>
+<p>Here, we&#39;re not just computing a value - we&#39;re minimizing over all possible ways to decompose \(w\) into sparse pieces:</p>
+<ul>
+<li><p>The &quot;variables&quot; are the decomposition vectors \(v_I\) &#40;infinitely many choices&#33;&#41;</p>
+</li>
+<li><p>We search for the decomposition that minimizes the objective</p>
+</li>
+<li><p>Different decompositions give different values, and we want the minimum</p>
+</li>
+</ul>
+<p><strong>Contrast with direct formula:</strong> The gauge definition directly evaluates \(\|w\|\), while the variational formula says &quot;find the best decomposition, then compute from that.&quot;</p>
+<p>This is common in convex analysis - many norms have both a direct definition and a variational representation that&#39;s useful for different purposes &#40;theory vs. computation vs. intuition&#41;.</p>
+</blockquote>
+<p><strong>Key insight:</strong> This is the <strong>group lasso with overlaps</strong> for ALL possible groups of size \(k\)&#33;</p>
+<hr />
+<h2 id="the_closed-form_formula"><a href="#the_closed-form_formula" class="header-anchor">The Closed-Form Formula</a></h2>
+<p>Despite having exponentially many groups, we can compute the k-support norm in \(O(d \log d)\) time&#33;</p>
+<h3 id="the_formula"><a href="#the_formula" class="header-anchor">The Formula</a></h3>
+<p>For \(w \in \mathbb{R}^d\), let \(|w|^\downarrow\) denote \(w\) with entries sorted by absolute value in descending order. Then:</p>
+\[\|w\|_k^{\text{sp}} = \sqrt{\sum_{i=1}^{k-r-1} (|w|_i^\downarrow)^2 + \frac{1}{r+1}\left(\sum_{i=k-r}^d |w|_i^\downarrow\right)^2}\]
+<p>where \(r \in \{0, \ldots, k-1\}\) is the unique integer satisfying:</p>
+\[|w|_{k-r-1}^\downarrow > \frac{1}{r+1}\sum_{i=k-r}^d |w|_i^\downarrow \geq |w|_{k-r}^\downarrow\]
+<p>&#40;with the convention that \(|w|_0^\downarrow = +\infty\)&#41;</p>
+<hr />
+<h2 id="what_does_this_mean"><a href="#what_does_this_mean" class="header-anchor">What Does This Mean?</a></h2>
+<p>The k-support norm <strong>partitions the sorted vector</strong> into two parts:</p>
+<ol>
+<li><p><strong>Head</strong> &#40;largest \(k-r-1\) entries&#41;: These get full \(\ell_2\) treatment</p>
+</li>
+<li><p><strong>Tail</strong> &#40;remaining entries&#41;: These get averaged together</p>
+</li>
+</ol>
+<p><strong>The intuition:</strong> </p>
+<ul>
+<li><p>Large entries aren&#39;t penalized much &#40;like \(\ell_2\)&#41;</p>
+</li>
+<li><p>Small entries get shrunk together &#40;like \(\ell_1\)&#41;</p>
+</li>
+<li><p>It&#39;s a smooth interpolation that favors keeping the \(k\) most important features</p>
+</li>
+</ul>
+<hr />
+<h2 id="step-by-step_algorithm"><a href="#step-by-step_algorithm" class="header-anchor">Step-by-Step Algorithm</a></h2>
+<h3 id="to_compute_w_ktextsp"><a href="#to_compute_w_ktextsp" class="header-anchor">To compute \(\|w\|_k^{\text{sp}}\):</a></h3>
+<p><strong>Step 1:</strong> Sort the absolute values in descending order:</p>
+\[|w|_1^\downarrow \geq |w|_2^\downarrow \geq \cdots \geq |w|_d^\downarrow\]
+<p><strong>Step 2:</strong> Find the partition point \(r\) by checking the condition:</p>
+\[|w|_{k-r-1}^\downarrow > \frac{\sum_{i=k-r}^d |w|_i^\downarrow}{r+1} \geq |w|_{k-r}^\downarrow\]
+<p>Start with \(r=0\) and increase until this holds.</p>
+<p><strong>Step 3:</strong> Plug into the formula:</p>
+\[\|w\|_k^{\text{sp}} = \sqrt{\sum_{i=1}^{k-r-1} (|w|_i^\downarrow)^2 + \frac{1}{r+1}\left(\sum_{i=k-r}^d |w|_i^\downarrow\right)^2}\]
+<hr />
+<h2 id="worked_example"><a href="#worked_example" class="header-anchor">Worked Example</a></h2>
+<p>Let \(w = [3, 1, -4, 2, -5]\) and compute \(\|w\|_3^{\text{sp}}\).</p>
+<h3 id="step_1_sort_absolute_values"><a href="#step_1_sort_absolute_values" class="header-anchor">Step 1: Sort absolute values</a></h3>
+\[|w|^\downarrow = [5, 4, 3, 2, 1]\]
+<h3 id="step_2_find_r_try_r012"><a href="#step_2_find_r_try_r012" class="header-anchor">Step 2: Find \(r\) &#40;try \(r=0,1,2\)&#41;</a></h3>
+<p>Try \(r=0\):</p>
+<ul>
+<li><p>Need: \(|w|_2^\downarrow = 4 > \frac{5+4+3+2+1}{1} = 15\) ✗</p>
+</li>
+</ul>
+<p>Try \(r=1\):</p>
+<ul>
+<li><p>Need: \(|w|_1^\downarrow = 5 > \frac{4+3+2+1}{2} = 5\) ✗</p>
+</li>
+</ul>
+<p>Try \(r=2\):</p>
+<ul>
+<li><p>Need: \(5 > \frac{3+2+1}{3} = 2\) ✓</p>
+</li>
+<li><p>And: \(2 \geq |w|_1^\downarrow = 5\) ✗ &#40;Wait, this doesn&#39;t work either&#41;</p>
+</li>
+</ul>
+<p>Actually, let me recalculate with \(k=3\):</p>
+<p>Try \(r=0\):</p>
+<ul>
+<li><p>Need: \(|w|_3^\downarrow = 3 > \frac{3+2+1}{1} = 6\) ✗</p>
+</li>
+</ul>
+<p>Try \(r=1\):</p>
+<ul>
+<li><p>Need: \(|w|_2^\downarrow = 4 > \frac{3+2+1}{2} = 3\) ✓</p>
+</li>
+<li><p>And: \(3 \geq |w|_3^\downarrow = 3\) ✓</p>
+</li>
+</ul>
+<p>So \(r=1\).</p>
+<h3 id="step_3_compute"><a href="#step_3_compute" class="header-anchor">Step 3: Compute</a></h3>
+\[\|w\|_3^{\text{sp}} = \sqrt{5^2 + \frac{1}{2}(4+3+2+1)^2} = \sqrt{25 + \frac{100}{4}} = \sqrt{25 + 25} = \sqrt{50} \approx 7.07\]
+<hr />
+<h2 id="the_dual_norm"><a href="#the_dual_norm" class="header-anchor">The Dual Norm</a></h2>
+<p>The dual of the k-support norm has an even simpler form&#33;</p>
+\[\|u\|_{k}^{\text{sp}*} = \|u\|_{(k)}^{(2)} = \sqrt{\sum_{i=1}^k (|u|_i^\downarrow)^2}\]
+<p><strong>Translation:</strong> Just take the \(\ell_2\) norm of the \(k\) largest entries&#33;</p>
+<p><strong>Special cases:</strong></p>
+<ul>
+<li><p>When \(k=1\): \(\|u\|_1^{\text{sp}*} = \|u\|_\infty\) &#40;just the largest entry&#41;</p>
+</li>
+<li><p>When \(k=d\): \(\|u\|_d^{\text{sp}*} = \|u\|_2\) &#40;full \(\ell_2\) norm&#41;</p>
+</li>
+</ul>
+<p>This dual norm is called the <strong>2-k symmetric gauge norm</strong>.</p>
+<hr />
+<h2 id="how_does_it_compare_to_elastic_net"><a href="#how_does_it_compare_to_elastic_net" class="header-anchor">How Does It Compare to Elastic Net?</a></h2>
+<p>The elastic net uses the norm:</p>
+\[\|w\|_k^{\text{el}} = \max\left\{\|w\|_2, \frac{\|w\|_1}{\sqrt{k}}\right\}\]
+<h3 id="the_key_results"><a href="#the_key_results" class="header-anchor">The Key Results</a></h3>
+<p><strong>Theorem:</strong> </p>
+\[\|w\|_k^{\text{el}} \leq \|w\|_k^{\text{sp}} < \sqrt{2} \|w\|_k^{\text{el}}\]
+<p><strong>What this means:</strong></p>
+<ol>
+<li><p>The k-support norm is <strong>always tighter</strong> than elastic net</p>
+</li>
+<li><p>But the gap is <strong>at most a factor of \(\sqrt{2}\)</strong></p>
+</li>
+<li><p>This translates to at most a <strong>factor of 2 in sample complexity</strong></p>
+</li>
+</ol>
+<p>So the k-support norm is provably better, but elastic net is still pretty good&#33;</p>
+<hr />
+<h2 id="geometric_intuition"><a href="#geometric_intuition" class="header-anchor">Geometric Intuition</a></h2>
+<p>Looking at the unit balls in \(\mathbb{R}^3\) for \(k=2\):</p>
+<p><strong>Elastic Net ball:</strong> Has sharp corners at sparse points, flat faces between them</p>
+<p><strong>k-Support ball:</strong> More &quot;rounded&quot; - smooth except at the sparsest points</p>
+<p><strong>Key difference:</strong> The k-support norm is less biased toward sparsity. It&#39;s differentiable at points with cardinality less than \(k\), while elastic net isn&#39;t.</p>
+<p>This means: k-support is <strong>better for prediction</strong> when correlated features should all be included, even if elastic net is <strong>better for inducing sparsity</strong>.</p>
+<hr />
+<h2 id="using_it_for_learning"><a href="#using_it_for_learning" class="header-anchor">Using It for Learning</a></h2>
+<h3 id="regression_with_k-support_norm"><a href="#regression_with_k-support_norm" class="header-anchor">Regression with k-support norm:</a></h3>
+\[\min_{w \in \mathbb{R}^d} \left\{\frac{1}{2}\|Xw - y\|^2 + \frac{\lambda}{2}(\|w\|_k^{\text{sp}})^2\right\}\]
+<p><strong>Two hyperparameters to tune &#40;via cross-validation&#41;:</strong></p>
+<ol>
+<li><p>\(\lambda > 0\): regularization strength</p>
+</li>
+<li><p>\(k \in \{1, \ldots, d\}\): sparsity level</p>
+</li>
+</ol>
+<p><strong>Important:</strong> \(k\) doesn&#39;t directly control the number of non-zeros in the solution&#33; It controls how much we relax the sparsity constraint.</p>
+<hr />
+<h2 id="optimization_proximal_methods"><a href="#optimization_proximal_methods" class="header-anchor">Optimization: Proximal Methods</a></h2>
+<p>We can solve the learning problem efficiently using accelerated proximal gradient methods &#40;like FISTA&#41;.</p>
+<p><strong>Key requirement:</strong> Computing the proximal operator:</p>
+\[\text{prox}_{\frac{1}{2L}(\|\cdot\|_k^{\text{sp}})^2}(v) = \arg\min_u \left\{\frac{1}{2}\|u-v\|^2 + \frac{1}{2L}(\|u\|_k^{\text{sp}})^2\right\}\]
+<p><strong>Good news:</strong> This can be computed in \(O(d(k + \log d))\) time using a specialized algorithm&#33;</p>
+<p><strong>Result:</strong> After \(T\) iterations of FISTA, we get \(O(1/T^2)\) convergence - optimal for first-order methods.</p>
+<hr />
+<h2 id="when_should_you_use_k-support_vs_elastic_net"><a href="#when_should_you_use_k-support_vs_elastic_net" class="header-anchor">When Should You Use k-Support vs Elastic Net?</a></h2>
+<h3 id="use_k-support_norm_when"><a href="#use_k-support_norm_when" class="header-anchor">Use k-Support Norm when:</a></h3>
+<ul>
+<li><p>You want the <strong>tightest possible convex relaxation</strong></p>
+</li>
+<li><p><strong>Prediction accuracy</strong> is your primary goal</p>
+</li>
+<li><p>Features are <strong>correlated</strong> and you want to include groups of them</p>
+</li>
+<li><p>You can afford slightly more computation</p>
+</li>
+</ul>
+<h3 id="use_elastic_net_when"><a href="#use_elastic_net_when" class="header-anchor">Use Elastic Net when:</a></h3>
+<ul>
+<li><p>You want <strong>more sparsity</strong> in your solution</p>
+</li>
+<li><p>Computation speed is critical</p>
+</li>
+<li><p>Interpretability requires fewer features</p>
+</li>
+<li><p>The \(\sqrt{2}\) factor doesn&#39;t matter for your application</p>
+</li>
+</ul>
+<hr />
+<h2 id="special_cases"><a href="#special_cases" class="header-anchor">Special Cases</a></h2>
+<h3 id="when_k1"><a href="#when_k1" class="header-anchor">When \(k=1\):</a></h3>
+\[\|w\|_1^{\text{sp}} = \|w\|_1\]
+<p>&#40;recovers Lasso&#41;</p>
+<h3 id="when_kd"><a href="#when_kd" class="header-anchor">When \(k=d\):</a></h3>
+\[\|w\|_d^{\text{sp}} = \sqrt{d} \cdot \|w\|_2\]
+<p>&#40;just scaled Ridge regression&#41;</p>
+<h3 id="intermediate_k"><a href="#intermediate_k" class="header-anchor">Intermediate \(k\):</a></h3>
+<p>Smooth interpolation between these extremes&#33;</p>
+<hr />
+<h2 id="empirical_results_from_the_paper"><a href="#empirical_results_from_the_paper" class="header-anchor">Empirical Results from the Paper</a></h2>
+<p>The authors tested on three datasets:</p>
+<ol>
+<li><p><strong>Synthetic data</strong> &#40;correlated features&#41;: k-support reduced MSE by 14.7&#37; vs elastic net</p>
+</li>
+<li><p><strong>Heart disease data</strong>: All methods performed identically</p>
+</li>
+<li><p><strong>20 Newsgroups</strong> &#40;text classification&#41;: k-support achieved 73.40&#37; accuracy vs 72.53&#37; for elastic net</p>
+</li>
+</ol>
+<p><strong>Takeaway:</strong> Gains are modest but real, especially when features are correlated.</p>
+<hr />
+<h2 id="summary_the_main_ideas"><a href="#summary_the_main_ideas" class="header-anchor">Summary: The Main Ideas</a></h2>
+<ol>
+<li><p><strong>k-support norm &#61; tightest convex relaxation</strong> of sparsity &#43; \(\ell_2\) constraint</p>
+</li>
+<li><p><strong>Better than elastic net</strong> by up to \(\sqrt{2}\) factor &#40;at most 2× in sample complexity&#41;</p>
+</li>
+<li><p><strong>Computable in \(O(d \log d)\)</strong> despite exponentially many groups</p>
+</li>
+<li><p><strong>Encourages grouped selection</strong> of correlated features &#40;good for prediction&#41;</p>
+</li>
+<li><p><strong>Less sparse than elastic net</strong> but often more accurate</p>
+</li>
+<li><p><strong>Dual norm is simple:</strong> just \(\ell_2\) norm of top \(k\) entries</p>
+</li>
+</ol>
+<p>The k-support norm beautifully balances the competing goals of sparsity, bounded magnitude, and predictive accuracy&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 31, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

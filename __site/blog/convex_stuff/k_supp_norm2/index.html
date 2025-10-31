@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Deep Dive: Mathematical Machinery in "Sparse Prediction with the k-Support Norm"</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="deep_dive_mathematical_machinery_in_sparse_prediction_with_the_k-support_norm"><a href="#deep_dive_mathematical_machinery_in_sparse_prediction_with_the_k-support_norm" class="header-anchor">Deep Dive: Mathematical Machinery in &quot;Sparse Prediction with the k-Support Norm&quot;</a></h1>
+<h2 id="the_authors_core_intuition"><a href="#the_authors_core_intuition" class="header-anchor">The Authors&#39; Core Intuition</a></h2>
+<h3 id="the_problem_with_standard_relaxations"><a href="#the_problem_with_standard_relaxations" class="header-anchor">The Problem with Standard Relaxations</a></h3>
+<p>The authors start with a critical observation: <strong>scale matters in convex relaxations</strong>. </p>
+<p><strong>Naive claim</strong>: &quot;\(\|\cdot\|_1\) is the convex envelope of \(\|\cdot\|_0\)&quot;</p>
+<p><strong>Reality</strong>: This is scale-dependent&#33; We have:</p>
+\[\|w\|_1 \leq \|w\|_\infty \cdot \|w\|_0\]
+<p>So \(\ell_1\) only lower-bounds \(\ell_0\) when entries are bounded. This leads to different relaxations:</p>
+<ol>
+<li><p><strong>With \(\ell_\infty\) constraint</strong>: \(S_k^{(\infty)} = \{w : \|w\|_0 \leq k, \|w\|_\infty \leq 1\}\)</p>
+<ul>
+<li><p>Relaxation: \(\{w : \|w\|_1 \leq k\}\)</p>
+</li>
+<li><p>Sample complexity: \(O(k^2 \log d)\) &#40;quadratic in \(k\)&#33;&#41;</p>
+</li>
+</ul>
+</li>
+<li><p><strong>With \(\ell_2\) constraint</strong>: \(S_k^{(2)} = \{w : \|w\|_0 \leq k, \|w\|_2 \leq 1\}\)</p>
+<ul>
+<li><p>Relaxation: \(\{w : \|w\|_1 \leq \sqrt{k}\}\)</p>
+</li>
+<li><p>Sample complexity: \(O(k \log d)\) &#40;linear in \(k\)&#33;&#41;</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Key insight</strong>: The \(\ell_2\) constraint is more natural because:</p>
+<ul>
+<li><p>In regression, \(\mathbb{E}[(x^\top w)^2]\) being bounded is reasonable</p>
+</li>
+<li><p>It provides better sample complexity</p>
+</li>
+<li><p>But we can do even better&#33;</p>
+</li>
+</ul>
+<hr />
+<h2 id="part_i_the_convex_hull_construction"><a href="#part_i_the_convex_hull_construction" class="header-anchor">Part I: The Convex Hull Construction</a></h2>
+<h3 id="the_geometric_picture"><a href="#the_geometric_picture" class="header-anchor">The Geometric Picture</a></h3>
+<p>The authors ask: <em>What is the exact convex hull of \(S_k^{(2)}\)?</em></p>
+\[C_k = \text{conv}\{w : \|w\|_0 \leq k, \|w\|_2 \leq 1\}\]
+<p><strong>Intuition</strong>: Every point in \(C_k\) can be written as:</p>
+\[w = \sum_{i=1}^m \lambda_i z_i, \quad \sum_{i=1}^m \lambda_i = 1, \quad \lambda_i \geq 0, \quad z_i \in S_k^{(2)}\]
+<p>This is a <strong>convex combination</strong> of k-sparse unit vectors.</p>
+<h3 id="the_variational_characterization"><a href="#the_variational_characterization" class="header-anchor">The Variational Characterization</a></h3>
+<p>The authors prove \(C_k\) is the unit ball of:</p>
+\[\|w\|_k^{\text{sp}} = \min\left\{\sum_{I \in \mathcal{G}_k} \|v_I\|_2 : \text{supp}(v_I) \subseteq I, \sum_{I \in \mathcal{G}_k} v_I = w\right\}\]
+<p><strong>Why this works</strong>: </p>
+<ul>
+<li><p>Decompose \(w\) into pieces \(v_I\), each supported on at most \(k\) coordinates</p>
+</li>
+<li><p>Minimize the sum of \(\ell_2\) norms of these pieces</p>
+</li>
+<li><p>This is the <strong>group lasso with overlapping groups</strong> where groups &#61; all k-subsets</p>
+</li>
+</ul>
+<p><strong>The puzzle</strong>: There are \(\binom{d}{k}\) groups&#33; How to compute this?</p>
+<hr />
+<h2 id="part_ii_the_dual_norm_-_hardy-littlewood-pólya_machinery"><a href="#part_ii_the_dual_norm_-_hardy-littlewood-pólya_machinery" class="header-anchor">Part II: The Dual Norm - Hardy-Littlewood-Pólya Machinery</a></h2>
+<h3 id="the_duality_approach"><a href="#the_duality_approach" class="header-anchor">The Duality Approach</a></h3>
+<p>The dual norm is:</p>
+\[\|u\|_k^{\text{sp}*} = \sup\{\langle w, u\rangle : \|w\|_k^{\text{sp}} \leq 1\}\]
+<p><strong>Authors&#39; strategy</strong>: Use the geometric definition.</p>
+\[\|u\|_k^{\text{sp}*} = \sup\{\langle w, u\rangle : w \in C_k\}\]
+<p>Since \(C_k\) is convex, the supremum is attained at an <strong>extreme point</strong> of \(C_k\). The extreme points are exactly the k-sparse unit vectors&#33;</p>
+\[\|u\|_k^{\text{sp}*} = \max\left\{\sqrt{\sum_{i \in I} u_i^2} : I \subseteq \{1,\ldots,d\}, |I| \leq k\right\}\]
+<p><strong>Key inequality</strong> &#40;Hardy-Littlewood-Pólya&#41;:</p>
+\[\langle w, u \rangle \leq \langle w^\downarrow, u^\downarrow \rangle\]
+<p>This says: the inner product is maximized when both vectors are sorted in the same order.</p>
+<p><strong>Application</strong>: </p>
+\[\max_{|I|=k} \sqrt{\sum_{i \in I} u_i^2} = \sqrt{\sum_{i=1}^k (|u|_i^\downarrow)^2}\]
+<p><strong>Result</strong>: The dual is the <strong>\(\ell_2\) norm of the top-k entries</strong>&#33;</p>
+\[\|u\|_k^{\text{sp}*} = \|u\|_{(2)}^{(k)} := \left(\sum_{i=1}^k (|u|_i^\downarrow)^2\right)^{1/2}\]
+<p><strong>Beautiful structure</strong>: </p>
+<ul>
+<li><p>Primal interpolates between \(\ell_1\) &#40;k&#61;1&#41; and \(\ell_2\) &#40;k&#61;d&#41;</p>
+</li>
+<li><p>Dual interpolates between \(\ell_\infty\) &#40;k&#61;1&#41; and \(\ell_2\) &#40;k&#61;d&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="part_iii_computing_the_primal_norm_-_the_water-filling_algorithm"><a href="#part_iii_computing_the_primal_norm_-_the_water-filling_algorithm" class="header-anchor">Part III: Computing the Primal Norm - The Water-Filling Algorithm</a></h2>
+<h3 id="the_fenchel-young_machinery"><a href="#the_fenchel-young_machinery" class="header-anchor">The Fenchel-Young Machinery</a></h3>
+<p>For any norm and its dual:</p>
+\[\|w\|_k^{\text{sp}} = \max_u \{\langle w, u \rangle - \tfrac{1}{2}\|u\|_{(2)}^{(k)2}\} + \tfrac{1}{2}\|w\|_k^{\text{sp}2}\]
+<p><strong>Authors&#39; trick</strong>: Use the <strong>dual characterization</strong> to compute the primal&#33;</p>
+\[\tfrac{1}{2}\|w\|_k^{\text{sp}2} = \max_u \left\{\langle w, u \rangle - \tfrac{1}{2}\|u\|_{(2)}^{(k)2}\right\}\]
+<h3 id="the_lagrangian_analysis"><a href="#the_lagrangian_analysis" class="header-anchor">The Lagrangian Analysis</a></h3>
+<p>Rewrite using \(\alpha_i = |u_i^\downarrow|\) with \(\alpha_1 \geq \cdots \geq \alpha_d \geq 0\):</p>
+\[\tfrac{1}{2}\|w\|_k^{\text{sp}2} = \max_{\alpha_1 \geq \cdots \geq \alpha_d \geq 0} \left\{\sum_{i=1}^d \alpha_i |w|_i^\downarrow - \tfrac{1}{2}\sum_{i=1}^k \alpha_i^2\right\}\]
+<p><strong>Key observation</strong>: Only the top \(k\) dual variables \(\alpha_1, \ldots, \alpha_k\) appear in the penalty term&#33;</p>
+<h3 id="the_water-filling_intuition"><a href="#the_water-filling_intuition" class="header-anchor">The Water-Filling Intuition</a></h3>
+<p>Think of \(\alpha_i\) as &quot;water levels&quot; at positions \(i = 1, \ldots, d\):</p>
+<ul>
+<li><p>Water poured from position 1 to position \(d\)</p>
+</li>
+<li><p>Must satisfy \(\alpha_1 \geq \alpha_2 \geq \cdots \geq \alpha_d \geq 0\)</p>
+</li>
+<li><p>Positions 1 to \(k\) have &quot;cost&quot; \(\frac{1}{2}\alpha_i^2\) &#40;quadratic penalty&#41;</p>
+</li>
+<li><p>Positions \(k+1\) to \(d\) are &quot;free&quot; &#40;no penalty&#41;</p>
+</li>
+</ul>
+<p><strong>Optimization principle</strong>: </p>
+<ul>
+<li><p>For \(i \leq k-1\): set \(\alpha_i = |w|_i^\downarrow\) &#40;benefit \(|w|_i^\downarrow\) outweighs cost \(\frac{1}{2}\alpha_i^2\) since these are large&#41;</p>
+</li>
+<li><p>At some position \(k-r\) to \(\ell\): the \(\alpha\) values &quot;plateau&quot; at a constant level</p>
+</li>
+<li><p>For \(i > \ell\): set \(\alpha_i = 0\) &#40;too costly&#41;</p>
+</li>
+</ul>
+<h3 id="the_plateau_condition"><a href="#the_plateau_condition" class="header-anchor">The Plateau Condition</a></h3>
+<p>The optimal \(\alpha\) satisfies:</p>
+\[\alpha_i = \begin{cases}
+|w|_i^\downarrow & i = 1, \ldots, k-r-1 \text{ (steep part)}\\
+\frac{1}{r+1}\sum_{j=k-r}^\ell |w|_j^\downarrow & i = k-r, \ldots, \ell \text{ (plateau)}\\
+0 & i = \ell+1, \ldots, d \text{ (flat)}
+\end{cases}\]
+<p><strong>Boundary conditions</strong>: The plateau level \(\bar{\alpha} = \frac{1}{r+1}\sum_{j=k-r}^\ell |w|_j^\downarrow\) must satisfy:</p>
+\[|w|_{k-r-1}^\downarrow > \bar{\alpha} \geq |w|_{k-r}^\downarrow\]
+\[|w|_\ell^\downarrow > \bar{\alpha} \geq |w|_{\ell+1}^\downarrow\]
+<p><strong>Computational algorithm</strong>: </p>
+<ol>
+<li><p>Sort \(|w|\) in decreasing order: \(O(d \log d)\)</p>
+</li>
+<li><p>Search for \(r, \ell\) satisfying boundary conditions: \(O(k)\) or \(O(d)\)</p>
+</li>
+<li><p>Compute the norm using the closed form</p>
+</li>
+</ol>
+<p><strong>Final formula</strong>:</p>
+\[\|w\|_k^{\text{sp}} = \sqrt{\sum_{i=1}^{k-r-1} (|w|_i^\downarrow)^2 + \frac{1}{r+1}\left(\sum_{i=k-r}^\ell |w|_i^\downarrow\right)^2}\]
+<hr />
+<h2 id="part_iv_comparison_with_elastic_net_-_the_sqrt2_factor"><a href="#part_iv_comparison_with_elastic_net_-_the_sqrt2_factor" class="header-anchor">Part IV: Comparison with Elastic Net - The \(\sqrt{2}\) Factor</a></h2>
+<h3 id="the_elastic_net_as_a_max-norm"><a href="#the_elastic_net_as_a_max-norm" class="header-anchor">The Elastic Net as a Max-Norm</a></h3>
+<p>The elastic net with constraints \(\|w\|_1 \leq \sqrt{k}, \|w\|_2 \leq 1\) has unit ball:</p>
+\[B_k^{\text{el}} = \{w : \|w\|_1 \leq \sqrt{k}\} \cap \{w : \|w\|_2 \leq 1\}\]
+<p>The corresponding norm is:</p>
+\[\|w\|_k^{\text{el}} = \max\left\{\|w\|_2, \frac{\|w\|_1}{\sqrt{k}}\right\}\]
+<p><strong>Geometric intuition</strong>: The unit ball is the <strong>intersection</strong> of two balls &#40;not a convex hull&#41;. This is larger than \(C_k\)&#33;</p>
+<h3 id="the_dual_of_elastic_net"><a href="#the_dual_of_elastic_net" class="header-anchor">The Dual of Elastic Net</a></h3>
+<p>For max-norms, the dual is an <strong>infimal convolution</strong>:</p>
+\[\|u\|_k^{\text{el}*} = \inf_{a \in \mathbb{R}^d} \{\|a\|_2 + \sqrt{k}\|u - a\|_\infty\}\]
+<p><strong>Interpretation</strong>: Split \(u = a + (u - a)\) optimally between \(\ell_2\) and \(\ell_\infty\) parts.</p>
+<h3 id="lower_bound_cdot_ktextel_leq_cdot_ktextsp"><a href="#lower_bound_cdot_ktextel_leq_cdot_ktextsp" class="header-anchor">Lower Bound: \(\|\cdot\|_k^{\text{el}} \leq \|\cdot\|_k^{\text{sp}}\)</a></h3>
+<p><strong>Strategy</strong>: Show \(C_k \subseteq B_k^{\text{el}}\).</p>
+<p>For any k-sparse unit vector \(w\):</p>
+<ul>
+<li><p>\(\|w\|_2 = 1\) ✓</p>
+</li>
+<li><p>\(\|w\|_1 \leq \sqrt{k} \cdot \|w\|_2 = \sqrt{k}\) &#40;by Cauchy-Schwarz&#41; ✓</p>
+</li>
+</ul>
+<p>So \(S_k^{(2)} \subseteq B_k^{\text{el}}\), hence \(C_k = \text{conv}(S_k^{(2)}) \subseteq B_k^{\text{el}}\).</p>
+<h3 id="upper_bound_cdot_ktextsp_sqrt2_cdot_ktextel"><a href="#upper_bound_cdot_ktextsp_sqrt2_cdot_ktextel" class="header-anchor">Upper Bound: \(\|\cdot\|_k^{\text{sp}} < \sqrt{2} \|\cdot\|_k^{\text{el}}\)</a></h3>
+<p><strong>Strategy</strong>: Work in the dual space&#33;</p>
+<p>Need to show: \(\|u\|_{(2)}^{(k)} < \sqrt{2} \cdot \|u\|_k^{\text{el}*}\)</p>
+<p><strong>Construction</strong>: Choose \(a = (u_1 - u_{k+1}, \ldots, u_k - u_{k+1}, 0, \ldots, 0)\).</p>
+<p>Then:</p>
+\[\|a\|_2 = \sqrt{\sum_{i=1}^k (u_i - u_{k+1})^2}\]
+\[\|u - a\|_\infty = |u_{k+1}|\]
+<p>So:</p>
+\[\|u\|_k^{\text{el}*} \leq \sqrt{\sum_{i=1}^k (u_i - u_{k+1})^2} + \sqrt{k} |u_{k+1}|\]
+<p><strong>Algebraic manipulation</strong>:</p>
+\[\begin{aligned}
+\text{RHS}^2 &\leq \left(\sqrt{\sum_{i=1}^k (u_i - u_{k+1})^2} + \sqrt{k} |u_{k+1}|\right)^2\\
+&= \sum_{i=1}^k (u_i - u_{k+1})^2 + k u_{k+1}^2 + 2\sqrt{k \sum_{i=1}^k (u_i - u_{k+1})^2} \cdot |u_{k+1}|\\
+&\leq \sum_{i=1}^k u_i^2 - k u_{k+1}^2 + k u_{k+1}^2 + 2\sqrt{k \sum_{i=1}^k u_i^2} \cdot |u_{k+1}|\\
+&= \sum_{i=1}^k u_i^2 + 2\sqrt{k u_{k+1}^2 \sum_{i=1}^k u_i^2}
+\end{aligned}\]
+<p><strong>Key inequality</strong> &#40;AM-GM or Cauchy-Schwarz&#41;:</p>
+\[2\sqrt{k u_{k+1}^2 \sum_{i=1}^k u_i^2} \leq k u_{k+1}^2 + \sum_{i=1}^k u_i^2\]
+<p>Therefore:</p>
+\[\|u\|_k^{\text{el}*2} \leq 2\sum_{i=1}^k u_i^2 = 2\|u\|_{(2)}^{(k)2}\]
+<p><strong>Result</strong>: \(\|w\|_k^{\text{sp}} < \sqrt{2} \|w\|_k^{\text{el}}\) with strict inequality &#40;unless special cases&#41;.</p>
+<hr />
+<h2 id="part_v_proximal_operator_-_the_soft-thresholding_generalization"><a href="#part_v_proximal_operator_-_the_soft-thresholding_generalization" class="header-anchor">Part V: Proximal Operator - The Soft-Thresholding Generalization</a></h2>
+<h3 id="the_proximity_problem"><a href="#the_proximity_problem" class="header-anchor">The Proximity Problem</a></h3>
+<p>For optimization, we need:</p>
+\[\text{prox}_{\frac{\lambda}{2L}\|\cdot\|_k^{\text{sp}2}}(v) = \arg\min_w \left\{\frac{1}{2}\|w - v\|^2 + \frac{\lambda}{2L}\|w\|_k^{\text{sp}2}\right\}\]
+<h3 id="the_fixed-point_characterization"><a href="#the_fixed-point_characterization" class="header-anchor">The Fixed-Point Characterization</a></h3>
+<p><strong>Optimality condition</strong>: \(q = \text{prox}(v)\) if and only if:</p>
+\[Lv - Lq \in \partial\left(\tfrac{1}{2}\|q\|_k^{\text{sp}2}\right)\]
+<p><strong>Authors&#39; insight</strong>: Use the variational formula for \(\|\cdot\|_k^{\text{sp}}\)&#33;</p>
+<p>The subdifferential is:</p>
+\[\partial\left(\tfrac{1}{2}\|q\|_k^{\text{sp}2}\right) = \{u : \|u\|_{(2)}^{(k)} \leq 1, \langle u, q \rangle = \|q\|_k^{\text{sp}}\}\]
+<h3 id="the_shrinkage_structure"><a href="#the_shrinkage_structure" class="header-anchor">The Shrinkage Structure</a></h3>
+<p><strong>Key observation</strong>: By symmetry, \(q\) has the same sign pattern and ordering as \(v\).</p>
+<p>The optimal \(q\) has the form:</p>
+\[q_i = \begin{cases}
+\frac{L}{L+1}v_i & i = 1, \ldots, k-r-1 \text{ (light shrinkage)}\\
+v_i - \frac{T_{r,\ell}}{\ell - k + (L+1)r + L + 1} & i = k-r, \ldots, \ell \text{ (moderate shrinkage)}\\
+0 & i = \ell+1, \ldots, d \text{ (hard thresholding)}
+\end{cases}\]
+<p>where \(T_{r,\ell} = \sum_{i=k-r}^\ell v_i^\downarrow\).</p>
+<p><strong>Interpretation</strong>: This is a <strong>generalized soft-thresholding</strong>:</p>
+<ul>
+<li><p>Large coordinates &#40;top \(k-r-1\)&#41;: shrunk by factor \(\frac{L}{L+1}\) &#40;Ridge-like&#41;</p>
+</li>
+<li><p>Medium coordinates &#40;\(k-r\) to \(\ell\)&#41;: shifted by a constant &#40;Lasso-like&#41;</p>
+</li>
+<li><p>Small coordinates &#40;\(> \ell\)&#41;: set to zero &#40;hard thresholding&#41;</p>
+</li>
+</ul>
+<p><strong>Algorithm</strong>: </p>
+<ol>
+<li><p>Find \(r, \ell\) satisfying conditions &#40;7&#41;-&#40;8&#41;</p>
+</li>
+<li><p>Apply piecewise shrinkage formula</p>
+</li>
+<li><p>Restore original sign and ordering</p>
+</li>
+</ol>
+<p><strong>Complexity</strong>: \(O(d(k + \log d))\)</p>
+<hr />
+<h2 id="part_vi_the_sample_complexity_argument"><a href="#part_vi_the_sample_complexity_argument" class="header-anchor">Part VI: The Sample Complexity Argument</a></h2>
+<h3 id="the_authors_statistical_viewpoint"><a href="#the_authors_statistical_viewpoint" class="header-anchor">The Authors&#39; Statistical Viewpoint</a></h3>
+<p><strong>Question</strong>: Why is \(\ell_2 + \text{sparsity}\) better than \(\ell_\infty + \text{sparsity}\)?</p>
+<p><strong>Answer</strong>: Sample complexity&#33;</p>
+<p>Let \(\mathcal{F}_k = \{x \mapsto w^\top x : w \in S_k^{(2)}\}\) be the function class.</p>
+<p><strong>Rademacher complexity</strong> &#40;roughly measures &quot;richness&quot; of function class&#41;:</p>
+\[\mathcal{R}_n(\mathcal{F}_k) \approx \sqrt{\frac{k \log d}{n}}\]
+<p>The sample complexity for learning is:</p>
+\[n \approx \frac{k \log d}{\epsilon^2}\]
+<p>to achieve excess risk \(\epsilon\).</p>
+<h3 id="the_k2_vs_k_dichotomy"><a href="#the_k2_vs_k_dichotomy" class="header-anchor">The \(k^2\) vs \(k\) Dichotomy</a></h3>
+<p>With \(\ell_\infty\) constraint and \(\ell_1\) relaxation:</p>
+<ul>
+<li><p>True class: \(\{w : \|w\|_0 \leq k, \|w\|_\infty \leq 1\}\)</p>
+</li>
+<li><p>Relaxed class: \(\{w : \|w\|_1 \leq k\}\)</p>
+</li>
+<li><p>The \(\ell_1\) ball has Rademacher complexity \(\approx \sqrt{\frac{k^2 \log d}{n}}\) &#40;quadratic&#33;&#41;</p>
+</li>
+</ul>
+<p>With \(\ell_2\) constraint and \(\ell_1\) relaxation:</p>
+<ul>
+<li><p>True class: \(\{w : \|w\|_0 \leq k, \|w\|_2 \leq 1\}\)</p>
+</li>
+<li><p>Relaxed class: \(\{w : \|w\|_1 \leq \sqrt{k}\}\)</p>
+</li>
+<li><p>The \(\ell_1\) ball &#40;rescaled&#41; has complexity \(\approx \sqrt{\frac{k \log d}{n}}\) &#40;linear&#33;&#41;</p>
+</li>
+</ul>
+<p><strong>The gap</strong>: Elastic net has complexity \(\approx \sqrt{\frac{k \log d}{n}}\).</p>
+<p>k-support norm is tighter, so same or better&#33;</p>
+<hr />
+<h2 id="the_big_picture_why_this_all_works"><a href="#the_big_picture_why_this_all_works" class="header-anchor">The Big Picture: Why This All Works</a></h2>
+<h3 id="the_philosophical_view"><a href="#the_philosophical_view" class="header-anchor">The Philosophical View</a></h3>
+<p>The authors are doing <strong>systematic convex relaxation</strong>:</p>
+<ol>
+<li><p><strong>Start with intractable constraint</strong>: \(\|w\|_0 \leq k\) &#40;combinatorial&#41;</p>
+</li>
+<li><p><strong>Add scale constraint</strong>: \(\|w\|_2 \leq 1\) &#40;makes problem well-posed&#41;</p>
+</li>
+<li><p><strong>Take convex hull</strong>: \(C_k = \text{conv}(S_k^{(2)})\) &#40;makes problem tractable&#41;</p>
+</li>
+<li><p><strong>Extract the norm</strong>: gauge function of \(C_k\)</p>
+</li>
+<li><p><strong>Compute the dual</strong>: find structure &#40;top-k \(\ell_2\) norm&#41;</p>
+</li>
+<li><p><strong>Exploit duality</strong>: compute primal via dual</p>
+</li>
+<li><p><strong>Build algorithms</strong>: use proximal methods</p>
+</li>
+</ol>
+<h3 id="the_technical_innovation"><a href="#the_technical_innovation" class="header-anchor">The Technical Innovation</a></h3>
+<p><strong>Not just theory</strong>: Every step is computational&#33;</p>
+<ul>
+<li><p>Dual norm: \(O(k)\) &#40;partial sort&#41;</p>
+</li>
+<li><p>Primal norm: \(O(d \log d)\) &#40;full sort &#43; search&#41;</p>
+</li>
+<li><p>Proximity operator: \(O(d(k + \log d))\) &#40;same structure&#41;</p>
+</li>
+<li><p>Full optimization: \(O(T \cdot d(k + \log d))\) for \(T\) iterations</p>
+</li>
+</ul>
+<h3 id="the_geometric_insight"><a href="#the_geometric_insight" class="header-anchor">The Geometric Insight</a></h3>
+<p>The k-support norm has a <strong>differentiability structure</strong> that reflects the underlying sparsity:</p>
+<ul>
+<li><p>At k-sparse points with \(\|w\|_2 = 1\): <strong>non-differentiable</strong> &#40;vertices of \(C_k\)&#41;</p>
+</li>
+<li><p>At points with \(\|w\|_0 < k\): <strong>differentiable</strong> &#40;interior of faces&#41;</p>
+</li>
+</ul>
+<p><strong>Contrast with \(\ell_1\)</strong>: Always non-differentiable at sparse points.</p>
+<p><strong>Effect on optimization</strong>: Less &quot;bias toward sparsity&quot; than Lasso, but more than Ridge.</p>
+<hr />
+<h2 id="summary_the_conceptual_flow"><a href="#summary_the_conceptual_flow" class="header-anchor">Summary: The Conceptual Flow</a></h2>
+<ol>
+<li><p><strong>Identify the right scale</strong>: \(\ell_2\) not \(\ell_\infty\) for statistical reasons</p>
+</li>
+<li><p><strong>Form convex hull</strong>: geometric relaxation of discrete constraint</p>
+</li>
+<li><p><strong>Extract gauge</strong>: functional representation of geometry</p>
+</li>
+<li><p><strong>Compute dual via extremal principle</strong>: max over k-subsets → top-k norm</p>
+</li>
+<li><p><strong>Use duality for primal</strong>: Fenchel conjugate gives water-filling</p>
+</li>
+<li><p><strong>Design proximal operator</strong>: generalized soft-thresholding</p>
+</li>
+<li><p><strong>Prove approximation guarantees</strong>: elastic net within \(\sqrt{2}\)</p>
+</li>
+<li><p><strong>Implement efficiently</strong>: \(O(d \log d)\) per iteration</p>
+</li>
+</ol>
+<p>This is <strong>convex analysis done right</strong>: geometry → analysis → algorithms → guarantees.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: October 31, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
