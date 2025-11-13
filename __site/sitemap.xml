@@ -26,6 +26,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://kchu25.github.io/blog/diffQ/ode_modelling/index.html</loc>
+    <lastmod>2025-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://kchu25.github.io/blog/information_theory/mi/index.html</loc>
     <lastmod>2025-10-09</lastmod>
     <changefreq>monthly</changefreq>
@@ -87,7 +93,7 @@
 </url>
 <url>
     <loc>https://kchu25.github.io/blog/index.html</loc>
-    <lastmod>2025-10-06</lastmod>
+    <lastmod>2025-11-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
@@ -105,7 +111,7 @@
 </url>
 <url>
     <loc>https://kchu25.github.io/index.html</loc>
-    <lastmod>2025-10-17</lastmod>
+    <lastmod>2025-11-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

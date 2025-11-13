@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Constructing Systems of ODEs: A Practical Guide</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="constructing_systems_of_odes_a_practical_guide"><a href="#constructing_systems_of_odes_a_practical_guide" class="header-anchor">Constructing Systems of ODEs: A Practical Guide</a></h1>
+<h2 id="the_core_philosophy"><a href="#the_core_philosophy" class="header-anchor">The Core Philosophy</a></h2>
+<p>You&#39;re exactly right&#33; Constructing ODEs is about <strong>observing a system and translating its behavior into mathematics</strong>. The basic idea is beautifully simple:</p>
+<blockquote>
+<p><strong>Rate of change &#61; What affects the change</strong></p>
+</blockquote>
+<p>If something is changing over time, you write down what causes it to change.</p>
+<h2 id="the_starting_point_three_questions"><a href="#the_starting_point_three_questions" class="header-anchor">The Starting Point: Three Questions</a></h2>
+<p>When facing any system, ask yourself:</p>
+<ol>
+<li><p><strong>What quantities are changing?</strong> &#40;These become your variables&#41;</p>
+</li>
+<li><p><strong>What is the rate of change?</strong> &#40;These become your derivatives&#41;</p>
+</li>
+<li><p><strong>What influences this rate?</strong> &#40;These become the right-hand side of your equation&#41;</p>
+</li>
+</ol>
+<h3 id="odes_vs_pdes_when_do_you_need_partials"><a href="#odes_vs_pdes_when_do_you_need_partials" class="header-anchor">ODEs vs PDEs: When Do You Need Partials?</a></h3>
+<p><strong>Here&#39;s the key insight:</strong> You naturally think in ODEs when tracking <strong>discrete objects</strong> or <strong>well-mixed systems</strong>. You need PDEs when things vary across <strong>space</strong>.</p>
+<h4 id="youre_already_thinking_in_odes"><a href="#youre_already_thinking_in_odes" class="header-anchor">You&#39;re Already Thinking in ODEs</a></h4>
+<p>Most everyday observations are ODE-friendly:</p>
+<ul>
+<li><p>&quot;The coffee is cooling over time&quot; → ODE &#40;one temperature for the whole cup&#41;</p>
+</li>
+<li><p>&quot;The population is growing&quot; → ODE &#40;total population count&#41;</p>
+</li>
+<li><p>&quot;My bank account balance changes&quot; → ODE &#40;one balance value&#41;</p>
+</li>
+</ul>
+<p><strong>Why ODEs work here:</strong> Each quantity has a single value at any moment.</p>
+<h4 id="when_you_need_pdes"><a href="#when_you_need_pdes" class="header-anchor">When You Need PDEs</a></h4>
+<p>PDEs emerge when you ask: <strong>&quot;But what if it&#39;s different over here vs over there?&quot;</strong></p>
+<p><strong>Example progression:</strong></p>
+<p><em>ODE thinking:</em></p>
+<ul>
+<li><p>&quot;The room is heating up&quot; → \(\frac{dT}{dt} = \text{heat input}\)</p>
+</li>
+</ul>
+<p><em>PDE thinking:</em></p>
+<ul>
+<li><p>&quot;But wait, it&#39;s warmer near the heater and cooler by the window...&quot;</p>
+</li>
+<li><p>Now temperature is \(T(x, y, z, t)\) → need \(\frac{\partial T}{\partial t}\)</p>
+</li>
+<li><p>Heat flows from hot to cold regions → need \(\frac{\partial T}{\partial x}\), etc.</p>
+</li>
+</ul>
+<p><strong>The heat equation:</strong> \(\frac{\partial T}{\partial t} = \alpha \left(\frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} + \frac{\partial^2 T}{\partial z^2}\right)\)</p>
+<h4 id="common_ode_pde_transitions"><a href="#common_ode_pde_transitions" class="header-anchor">Common ODE → PDE Transitions</a></h4>
+<table><tr><th align="right">Scenario</th><th align="right">ODE Version</th><th align="right">PDE Version</th></tr><tr><td align="right"><strong>Population</strong></td><td align="right">Total population \(P(t)\)</td><td align="right">Population density \(\rho(x,y,t)\)</td></tr><tr><td align="right"><strong>Concentration</strong></td><td align="right">Well-mixed tank \(C(t)\)</td><td align="right">Concentration field \(C(x,t)\)</td></tr><tr><td align="right"><strong>Vibration</strong></td><td align="right">Single mass-spring \(x(t)\)</td><td align="right">Vibrating string \(u(x,t)\)</td></tr><tr><td align="right"><strong>Disease</strong></td><td align="right">Total infected \(I(t)\)</td><td align="right">Infection density \(I(x,y,t)\)</td></tr></table>
+<h4 id="the_observation_difference"><a href="#the_observation_difference" class="header-anchor">The Observation Difference</a></h4>
+<p><strong>For ODEs, you observe:</strong></p>
+<ul>
+<li><p>&quot;How much is there?&quot;</p>
+</li>
+<li><p>&quot;How fast is it changing?&quot;</p>
+</li>
+<li><p>Time is usually the only independent variable</p>
+</li>
+</ul>
+<p><strong>For PDEs, you observe:</strong></p>
+<ul>
+<li><p>&quot;How is it distributed in space?&quot;</p>
+</li>
+<li><p>&quot;How does it flow from place to place?&quot;</p>
+</li>
+<li><p>&quot;Does it diffuse? Advect? Wave-like propagate?&quot;</p>
+</li>
+</ul>
+<p><strong>More nuanced observations needed:</strong></p>
+<ul>
+<li><p><strong>Diffusion:</strong> Things spread from high to low concentration</p>
+</li>
+<li><p><strong>Advection:</strong> Things get carried along &#40;like wind&#41;</p>
+</li>
+<li><p><strong>Waves:</strong> Disturbances propagate</p>
+</li>
+<li><p><strong>Boundary effects:</strong> What happens at edges matters&#33;</p>
+</li>
+</ul>
+<h4 id="why_pdes_are_harder_to_see"><a href="#why_pdes_are_harder_to_see" class="header-anchor">Why PDEs Are Harder to &quot;See&quot;</a></h4>
+<p><strong>ODEs:</strong> Follow one thing through time \(\frac{d}{dt}[\text{one quantity}] = \text{influences}\)</p>
+<p><strong>PDEs:</strong> Track how spatial patterns evolve \(\frac{\partial}{\partial t}[\text{field}] = \text{spatial operators}[\text{field}] + \text{sources}\)</p>
+<p>You need to think about:</p>
+<ul>
+<li><p><strong>Gradients:</strong> \(\nabla T\) &#40;which way does it change in space?&#41;</p>
+</li>
+<li><p><strong>Laplacians:</strong> \(\nabla^2 T\) &#40;is it locally peaked or flat?&#41;</p>
+</li>
+<li><p><strong>Divergence/Curl:</strong> For vector fields</p>
+</li>
+</ul>
+<h4 id="the_beautiful_pattern"><a href="#the_beautiful_pattern" class="header-anchor">The Beautiful Pattern</a></h4>
+<p>Most physical laws have this structure:</p>
+\(\frac{\partial}{\partial t}[\text{density}] + \nabla \cdot [\text{flux}] = \text{sources} - \text{sinks}\)
+<p>This is a <strong>conservation law</strong>:</p>
+<ul>
+<li><p>Rate of change in a region</p>
+</li>
+<li><p>Plus what flows out of the region  </p>
+</li>
+<li><p>Equals what&#39;s created or destroyed</p>
+</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><p>Mass conservation → Continuity equation</p>
+</li>
+<li><p>Energy conservation → Heat equation</p>
+</li>
+<li><p>Momentum conservation → Navier-Stokes</p>
+</li>
+</ul>
+<h4 id="when_to_use_what"><a href="#when_to_use_what" class="header-anchor">When to Use What?</a></h4>
+<p><strong>Stick with ODEs if:</strong></p>
+<ul>
+<li><p>Spatial variations don&#39;t matter &#40;well-mixed, uniform&#41;</p>
+</li>
+<li><p>Tracking discrete counts or totals</p>
+</li>
+<li><p>System is 0-dimensional &#40;point masses, lumped systems&#41;</p>
+</li>
+</ul>
+<p><strong>Move to PDEs when:</strong></p>
+<ul>
+<li><p>Spatial patterns are essential</p>
+</li>
+<li><p>You care about waves, diffusion, or transport</p>
+</li>
+<li><p>Boundary conditions matter</p>
+</li>
+<li><p>System has continuous spatial extent</p>
+</li>
+</ul>
+<h4 id="the_cognitive_jump"><a href="#the_cognitive_jump" class="header-anchor">The Cognitive Jump</a></h4>
+<p>You&#39;re right that <strong>we naturally think in ODEs</strong> because we naturally track objects:</p>
+<ul>
+<li><p>&quot;How many?&quot; </p>
+</li>
+<li><p>&quot;How fast?&quot;</p>
+</li>
+<li><p>&quot;What happens next?&quot;</p>
+</li>
+</ul>
+<p>PDEs require thinking about <strong>fields and flows</strong>:</p>
+<ul>
+<li><p>&quot;How is it distributed?&quot;</p>
+</li>
+<li><p>&quot;Where is it flowing?&quot;</p>
+</li>
+<li><p>&quot;How do patterns evolve?&quot;</p>
+</li>
+</ul>
+<p>This is why ODEs feel intuitive &#40;tracking your bank account&#41; while PDEs feel abstract &#40;tracking how money flows through an economy&#39;s spatial network&#41;.</p>
+<h3 id="the_good_news"><a href="#the_good_news" class="header-anchor">The Good News</a></h3>
+<p>Even complex PDE systems often reduce to ODEs in special cases:</p>
+<ul>
+<li><p><strong>Separation of variables:</strong> Splits space and time</p>
+</li>
+<li><p><strong>Spatial averaging:</strong> Get ODEs for total quantities</p>
+</li>
+<li><p><strong>Lumped parameter models:</strong> Discretize space into compartments</p>
+</li>
+</ul>
+<p>So mastering ODEs gives you the foundation. PDEs are &quot;just&quot; ODEs where your variables also depend on position&#33;</p>
+<h2 id="classic_example_population_growth"><a href="#classic_example_population_growth" class="header-anchor">Classic Example: Population Growth</a></h2>
+<p><strong>Observation:</strong> A population grows over time.</p>
+<p><strong>Step 1:</strong> Identify the variable</p>
+<ul>
+<li><p>Let \(P(t)\) &#61; population at time \(t\)</p>
+</li>
+</ul>
+<p><strong>Step 2:</strong> What&#39;s changing?</p>
+<ul>
+<li><p>\(\frac{dP}{dt}\) &#61; rate of population change</p>
+</li>
+</ul>
+<p><strong>Step 3:</strong> What influences this rate?</p>
+<ul>
+<li><p>More people → more births → faster growth</p>
+</li>
+<li><p>So growth rate is proportional to current population</p>
+</li>
+</ul>
+<p><strong>Result:</strong> </p>
+\[\frac{dP}{dt} = rP\]
+<p>where \(r\) is the growth rate constant.</p>
+<h2 id="building_complexity_predator-prey"><a href="#building_complexity_predator-prey" class="header-anchor">Building Complexity: Predator-Prey</a></h2>
+<p><strong>Observation:</strong> Rabbits and foxes interact in an ecosystem.</p>
+<p><strong>Step 1:</strong> Variables</p>
+<ul>
+<li><p>\(R(t)\) &#61; rabbit population</p>
+</li>
+<li><p>\(F(t)\) &#61; fox population</p>
+</li>
+</ul>
+<p><strong>Step 2:</strong> What changes each population?</p>
+<p><em>For rabbits:</em></p>
+<ul>
+<li><p>✅ Rabbits reproduce → increases \(R\)</p>
+</li>
+<li><p>❌ Foxes eat rabbits → decreases \(R\)</p>
+</li>
+</ul>
+<p><em>For foxes:</em></p>
+<ul>
+<li><p>✅ Eating rabbits helps foxes survive → increases \(F\)</p>
+</li>
+<li><p>❌ Foxes die naturally → decreases \(F\)</p>
+</li>
+</ul>
+<p><strong>Step 3:</strong> Translate to math</p>
+\[\begin{align}
+\frac{dR}{dt} &= aR - bRF \quad \text{(birth rate - predation)} \\
+\frac{dF}{dt} &= cRF - dF \quad \text{(gain from eating - death rate)}
+\end{align}\]
+<h2 id="the_general_recipe"><a href="#the_general_recipe" class="header-anchor">The General Recipe</a></h2>
+<h3 id="mechanical_systems_physics"><a href="#mechanical_systems_physics" class="header-anchor"><ol>
+<li><p><strong>Mechanical Systems</strong> &#40;Physics&#41;</p>
+</li>
+</ol>
+</a></h3>
+<p>Start with Newton&#39;s laws: \(F = ma\)</p>
+<p><strong>Example:</strong> Spring-mass system</p>
+<ul>
+<li><p>Position: \(x(t)\)</p>
+</li>
+<li><p>Velocity: \(v(t) = \frac{dx}{dt}\)</p>
+</li>
+<li><p>Acceleration: \(\frac{dv}{dt} = \frac{d^2x}{dt^2}\)</p>
+</li>
+</ul>
+<p>Forces acting:</p>
+<ul>
+<li><p>Spring force: \(-kx\)</p>
+</li>
+<li><p>Damping: \(-c\frac{dx}{dt}\)</p>
+</li>
+</ul>
+\[\frac{d^2x}{dt^2} = -kx - c\frac{dx}{dt}\]
+<p>Or as a system:</p>
+\[\begin{align}
+\frac{dx}{dt} &= v \\
+\frac{dv}{dt} &= -kx - cv
+\end{align}\]
+<h3 id="ol_start2_chemical_reactions"><a href="#ol_start2_chemical_reactions" class="header-anchor"><ol start="2">
+<li><p><strong>Chemical Reactions</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>Start with reaction rates and mass balance.</p>
+<p><strong>Example:</strong> \(A \rightarrow B\) with rate \(k\)</p>
+\[\begin{align}
+\frac{d[A]}{dt} &= -k[A] \\
+\frac{d[B]}{dt} &= k[A]
+\end{align}\]
+<h3 id="ol_start3_compartment_models_epidemiology_economics"><a href="#ol_start3_compartment_models_epidemiology_economics" class="header-anchor"><ol start="3">
+<li><p><strong>Compartment Models</strong> &#40;Epidemiology, Economics&#41;</p>
+</li>
+</ol>
+</a></h3>
+<p>Track flow between categories.</p>
+<p><strong>Example:</strong> SIR disease model</p>
+<ul>
+<li><p>\(S\) &#61; susceptible</p>
+</li>
+<li><p>\(I\) &#61; infected  </p>
+</li>
+<li><p>\(R\) &#61; recovered</p>
+</li>
+</ul>
+\[\begin{align}
+\frac{dS}{dt} &= -\beta SI \quad \text{(susceptible → infected)} \\
+\frac{dI}{dt} &= \beta SI - \gamma I \quad \text{(gains from S, losses to R)} \\
+\frac{dR}{dt} &= \gamma I \quad \text{(infected → recovered)}
+\end{align}\]
+<h3 id="ol_start4_conservation_laws"><a href="#ol_start4_conservation_laws" class="header-anchor"><ol start="4">
+<li><p><strong>Conservation Laws</strong></p>
+</li>
+</ol>
+</a></h3>
+<p>If something is conserved, its total derivative is zero.</p>
+<p><strong>Example:</strong> Energy conservation</p>
+\[E = E_{\text{kinetic}} + E_{\text{potential}}\]
+\[\frac{dE}{dt} = 0\]
+<h2 id="key_principles_to_remember"><a href="#key_principles_to_remember" class="header-anchor">Key Principles to Remember</a></h2>
+<h3 id="principle_1_units_must_match"><a href="#principle_1_units_must_match" class="header-anchor">Principle 1: Units Must Match</a></h3>
+<p>Both sides of your equation must have the same units&#33;</p>
+<p>If \(\frac{dP}{dt}\) is in &quot;people/day&quot;, then the right side must also be &quot;people/day&quot;.</p>
+<h3 id="principle_2_look_for_feedback"><a href="#principle_2_look_for_feedback" class="header-anchor">Principle 2: Look for Feedback</a></h3>
+<ul>
+<li><p><strong>Positive feedback:</strong> More of \(X\) causes more \(X\) &#40;exponential growth&#41;</p>
+</li>
+<li><p><strong>Negative feedback:</strong> More of \(X\) causes less \(X\) &#40;stability, oscillation&#41;</p>
+</li>
+</ul>
+<h3 id="principle_3_start_simple_add_complexity"><a href="#principle_3_start_simple_add_complexity" class="header-anchor">Principle 3: Start Simple, Add Complexity</a></h3>
+<ul>
+<li><p>First model: capture the most important effect</p>
+</li>
+<li><p>Then add: secondary effects, nonlinearities, coupling between variables</p>
+</li>
+</ul>
+<h3 id="principle_4_check_limiting_behavior"><a href="#principle_4_check_limiting_behavior" class="header-anchor">Principle 4: Check Limiting Behavior</a></h3>
+<p>Ask: &quot;What happens when \(X = 0\)?&quot; or &quot;What happens when \(X \to \infty\)?&quot;</p>
+<p>Your equations should make physical sense in these limits.</p>
+<h2 id="common_patterns"><a href="#common_patterns" class="header-anchor">Common Patterns</a></h2>
+<h3 id="linear_growthdecay"><a href="#linear_growthdecay" class="header-anchor">Linear Growth/Decay</a></h3>
+\[\frac{dy}{dt} = ay + b\]
+<h3 id="logistic_growth_with_carrying_capacity"><a href="#logistic_growth_with_carrying_capacity" class="header-anchor">Logistic Growth &#40;with carrying capacity&#41;</a></h3>
+\[\frac{dy}{dt} = ry\left(1 - \frac{y}{K}\right)\]
+<h3 id="coupled_oscillators"><a href="#coupled_oscillators" class="header-anchor">Coupled Oscillators</a></h3>
+\[\begin{align}
+\frac{dx}{dt} &= -\omega y \\
+\frac{dy}{dt} &= \omega x
+\end{align}\]
+<h3 id="mass_action_interactions"><a href="#mass_action_interactions" class="header-anchor">Mass Action &#40;interactions&#41;</a></h3>
+\[\frac{dx}{dt} = -kxy\]
+<p>Rate proportional to how often \(X\) and \(Y\) meet.</p>
+<h2 id="practice_exercise"><a href="#practice_exercise" class="header-anchor">Practice Exercise</a></h2>
+<p><strong>Your turn:</strong> Model a cup of hot coffee cooling in a room.</p>
+<p>&lt;details&gt; &lt;summary&gt;Hint 1&lt;/summary&gt;</p>
+<p>What&#39;s the variable? Temperature \(T(t)\).</p>
+<p>What affects cooling rate?</p>
+<p>&lt;/details&gt;</p>
+<p>&lt;details&gt; &lt;summary&gt;Hint 2&lt;/summary&gt;</p>
+<p>The bigger the temperature difference, the faster it cools.</p>
+<p>&lt;/details&gt;</p>
+<p>&lt;details&gt; &lt;summary&gt;Solution&lt;/summary&gt;</p>
+<p>Newton&#39;s Law of Cooling:</p>
+\[\frac{dT}{dt} = -k(T - T_{\text{room}})\]
+<p>When \(T > T_{\text{room}}\): \(\frac{dT}{dt} < 0\) &#40;cooling&#41;</p>
+<p>When \(T = T_{\text{room}}\): \(\frac{dT}{dt} = 0\) &#40;equilibrium&#41;</p>
+<p>&lt;/details&gt;</p>
+<h2 id="from_equations_to_parameters_fitting_odes_to_data"><a href="#from_equations_to_parameters_fitting_odes_to_data" class="header-anchor">From Equations to Parameters: Fitting ODEs to Data</a></h2>
+<p>Once you&#39;ve constructed your ODE system, you face a challenge: <strong>What are the parameter values?</strong></p>
+<p>Unlike simple regression where you fit \(y = mx + b\) directly, ODEs create an indirect relationship between parameters and data. You can&#39;t just use least squares directly&#33;</p>
+<h3 id="the_challenge"><a href="#the_challenge" class="header-anchor">The Challenge</a></h3>
+<p>Given data points \((t_1, y_1), (t_2, y_2), \ldots, (t_n, y_n)\) and a model: \(\frac{dy}{dt} = f(y, t; \theta)\)</p>
+<p>where \(\theta\) are unknown parameters, you need to find \(\theta\) that best fits the data.</p>
+<p><strong>The problem:</strong> You don&#39;t have a formula for \(y(t)\)—you only have the differential equation&#33;</p>
+<h3 id="approach_1_solve_then_fit"><a href="#approach_1_solve_then_fit" class="header-anchor">Approach 1: Solve, Then Fit</a></h3>
+<p><strong>When it works:</strong> Simple ODEs with analytical solutions</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><p>Solve the ODE analytically to get \(y(t; \theta)\)</p>
+</li>
+<li><p>Use standard least squares to minimize:</p>
+</li>
+</ol>
+\(\min_{\theta} \sum_{i=1}^n \left(y_i - y(t_i; \theta)\right)^2\)
+<p><strong>Example:</strong> For \(\frac{dP}{dt} = rP\) with \(P(0) = P_0\):</p>
+<ol>
+<li><p>Solve: \(P(t) = P_0 e^{rt}\)</p>
+</li>
+<li><p>Take log: \(\ln P(t) = \ln P_0 + rt\)</p>
+</li>
+<li><p>Linear regression on \(\ln P\) vs \(t\) gives you \(r\)&#33;</p>
+</li>
+</ol>
+<p><strong>Limitation:</strong> Most ODEs can&#39;t be solved analytically.</p>
+<h3 id="approach_2_numerical_integration_optimization"><a href="#approach_2_numerical_integration_optimization" class="header-anchor">Approach 2: Numerical Integration &#43; Optimization</a></h3>
+<p><strong>When it works:</strong> Most real-world problems &#40;the standard approach&#41;</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><p>Pick initial guess for parameters \(\theta\)</p>
+</li>
+<li><p>Numerically solve the ODE with these parameters</p>
+</li>
+<li><p>Compare solution to data, compute error</p>
+</li>
+<li><p>Adjust \(\theta\) to reduce error</p>
+</li>
+<li><p>Repeat until convergence</p>
+</li>
+</ol>
+<p><strong>The algorithm:</strong> \(\min_{\theta} \sum_{i=1}^n \left(y_i - y_{\text{sim}}(t_i; \theta)\right)^2\)</p>
+<p>where \(y_{\text{sim}}(t; \theta)\) is the numerical solution.</p>
+<p><strong>Tools:</strong></p>
+<ul>
+<li><p>Python: <code>scipy.optimize.minimize</code> &#43; <code>scipy.integrate.solve_ivp</code></p>
+</li>
+<li><p>MATLAB: <code>lsqnonlin</code> &#43; <code>ode45</code></p>
+</li>
+<li><p>R: <code>optim</code> &#43; <code>deSolve</code></p>
+</li>
+</ul>
+<p><strong>Example pseudo-code:</strong></p>
+<pre><code class="language-python">def simulate&#40;theta, t_points, y0&#41;:
+    # Solve ODE numerically
+    return solve_ivp&#40;lambda t, y: f&#40;y, t, theta&#41;, 
+                     &#91;t0, tf&#93;, y0, t_eval&#61;t_points&#41;
+
+def objective&#40;theta&#41;:
+    y_sim &#61; simulate&#40;theta, t_data, y0&#41;
+    return sum&#40;&#40;y_data - y_sim&#41;**2&#41;
+
+theta_best &#61; minimize&#40;objective, theta_initial&#41;</code></pre>
+<h3 id="approach_3_direct_derivative_estimation"><a href="#approach_3_direct_derivative_estimation" class="header-anchor">Approach 3: Direct Derivative Estimation</a></h3>
+<p><strong>When it works:</strong> When you have lots of smooth data</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li><p>Estimate \(\frac{dy}{dt}\) directly from data &#40;finite differences, smoothing splines&#41;</p>
+</li>
+<li><p>Use the ODE structure: \(\frac{dy}{dt} \approx f(y, t; \theta)\)</p>
+</li>
+<li><p>Fit \(\theta\) using regression on the derivatives</p>
+</li>
+</ol>
+<p><strong>Example:</strong> For \(\frac{dP}{dt} = rP\):</p>
+<ol>
+<li><p>Compute \(\frac{dP}{dt} \approx \frac{P_{i+1} - P_i}{t_{i+1} - t_i}\) at each point</p>
+</li>
+<li><p>Regression: \(\frac{dP}{dt}\) vs \(P\) gives slope \(r\)</p>
+</li>
+</ol>
+<p><strong>Advantages:</strong> Fast, doesn&#39;t require solving ODE <strong>Disadvantages:</strong> Very sensitive to noise in data</p>
+<h3 id="approach_4_bayesian_parameter_estimation"><a href="#approach_4_bayesian_parameter_estimation" class="header-anchor">Approach 4: Bayesian Parameter Estimation</a></h3>
+<p><strong>When it works:</strong> When you want uncertainty quantification</p>
+<p><strong>How it works:</strong></p>
+<ul>
+<li><p>Define prior distributions on parameters</p>
+</li>
+<li><p>Use MCMC or other sampling methods</p>
+</li>
+<li><p>Get full posterior distribution: \(p(\theta | \text{data})\)</p>
+</li>
+</ul>
+<p><strong>Advantages:</strong> </p>
+<ul>
+<li><p>Provides uncertainty estimates</p>
+</li>
+<li><p>Can incorporate prior knowledge</p>
+</li>
+<li><p>Handles model uncertainty</p>
+</li>
+</ul>
+<p><strong>Disadvantages:</strong> Computationally expensive</p>
+<h3 id="which_approach_should_you_use"><a href="#which_approach_should_you_use" class="header-anchor">Which Approach Should You Use?</a></h3>
+<pre><code class="language-julia">Data Quality          | Recommended Approach
+---------------------|------------------------
+Analytical solution  | Solve &#43; least squares
+Lots of clean data   | Direct derivative method
+Standard case        | Numerical ODE &#43; optimization
+Need uncertainty     | Bayesian methods
+Multiple scenarios   | Numerical &#43; optimization</code></pre>
+<h3 id="common_pitfalls"><a href="#common_pitfalls" class="header-anchor">Common Pitfalls</a></h3>
+<p><strong>1. Identifiability Problem</strong></p>
+<p>Sometimes different parameter values give identical predictions&#33;</p>
+<p>Example: In \(\frac{dP}{dt} = rP(1 - P/K)\), only the ratio \(r/K\) might be identifiable from limited data.</p>
+<p><strong>2. Local Minima</strong></p>
+<p>The optimization landscape can be complex. Solutions:</p>
+<ul>
+<li><p>Try multiple initial guesses</p>
+</li>
+<li><p>Use global optimization methods</p>
+</li>
+<li><p>Add regularization</p>
+</li>
+</ul>
+<p><strong>3. Overfitting</strong></p>
+<p>More parameters ≠ better model. Use:</p>
+<ul>
+<li><p>Cross-validation</p>
+</li>
+<li><p>Information criteria &#40;AIC, BIC&#41;</p>
+</li>
+<li><p>Physical constraints</p>
+</li>
+</ul>
+<p><strong>4. Stiff Systems</strong></p>
+<p>Some ODEs are &quot;stiff&quot; and hard to solve numerically. Use specialized solvers &#40;implicit methods&#41;.</p>
+<h3 id="practical_workflow"><a href="#practical_workflow" class="header-anchor">Practical Workflow</a></h3>
+<ol>
+<li><p><strong>Explore your data:</strong> Plot it, understand the trends</p>
+</li>
+<li><p><strong>Start simple:</strong> Fit simplest model first</p>
+</li>
+<li><p><strong>Check residuals:</strong> Do they look random?</p>
+</li>
+<li><p><strong>Add complexity:</strong> Only if residuals show systematic patterns</p>
+</li>
+<li><p><strong>Validate:</strong> Test on held-out data or different initial conditions</p>
+</li>
+<li><p><strong>Iterate:</strong> Refine model structure and refit</p>
+</li>
+</ol>
+<h3 id="reality_check"><a href="#reality_check" class="header-anchor">Reality Check</a></h3>
+<p>In practice, parameter estimation for ODEs is often <strong>more art than science</strong>:</p>
+<ul>
+<li><p>Initial conditions matter &#40;a lot&#33;&#41;</p>
+</li>
+<li><p>Measurement noise is real</p>
+</li>
+<li><p>Model structure matters more than precise parameters</p>
+</li>
+<li><p>Sometimes &quot;eyeballing it&quot; is surprisingly effective</p>
+</li>
+</ul>
+<p>The goal isn&#39;t always to find the &quot;true&quot; parameters—it&#39;s to build a model that captures the essential dynamics and makes useful predictions.</p>
+<h2 id="the_beautiful_truth"><a href="#the_beautiful_truth" class="header-anchor">The Beautiful Truth</a></h2>
+<p>The &quot;basics&quot; of ODE construction ARE simple&#33; The sophistication comes from:</p>
+<ol>
+<li><p>Choosing which effects matter most</p>
+</li>
+<li><p>Estimating parameters from data &#40;now you know how&#33;&#41;</p>
+</li>
+<li><p>Analyzing the resulting equations</p>
+</li>
+</ol>
+<p>But the core skill—translating observation into rates of change—is fundamentally intuitive. You&#39;re watching the world change and asking &quot;why?&quot;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: November 13, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
