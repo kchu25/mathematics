@@ -1,6 +1,7 @@
 @def title = "Function Composition and Homogeneity"
 @def published = "18 November 2025"
 @def tags = ["general-topics"]
+
 # Function Composition and Homogeneity
 
 ## Key Insight
@@ -79,23 +80,62 @@ Therefore, **every function in the composition must be 1-homogeneous**. ∎
 
 **Once scaling is absorbed, it cannot be recovered by subsequent operations.**
 
-## BatchNorm Example
+## Normalization Layers and Homogeneity
 
-### BatchNorm Normalization
+### All Normalization Layers Are 0-Homogeneous
+
+The core normalization operation in BatchNorm, LayerNorm, GroupNorm, and InstanceNorm is:
 $$\text{normalize}(x) = \frac{x - \mu}{\sigma}$$
 
-This is **0-homogeneous**:
+where $\mu$ and $\sigma$ are computed over different dimensions depending on the normalization type.
+
+**This is always 0-homogeneous:**
 $$\text{normalize}(\alpha x) = \frac{\alpha x - \alpha \mu}{\alpha \sigma} = \frac{\alpha(x - \mu)}{\alpha \sigma} = \frac{x - \mu}{\sigma} = \text{normalize}(x)$$
 
-### Network with BatchNorm
-For network $N(x) = W_n \circ \text{BN} \circ W_{n-1} \circ \cdots \circ W_1(x)$:
+The key insight: **both the mean and standard deviation scale linearly with $\alpha$**, so they cancel out in the division!
 
-$$N(\alpha x) = W_n(\text{BN}(W_{n-1}(\cdots \alpha x))) = W_n(\text{BN}(\text{something}))$$
+### Comparison of Normalization Types
 
-Since BN is 0-homogeneous, regardless of what comes before:
+| Type | Statistics computed over | 0-homogeneous? |
+|------|-------------------------|----------------|
+| **BatchNorm** | Batch + spatial dimensions (across samples) | ✅ Yes |
+| **LayerNorm** | Feature dimensions (per sample) | ✅ Yes |
+| **GroupNorm** | Groups of channels (per sample) | ✅ Yes |
+| **InstanceNorm** | Spatial dimensions per channel (per sample) | ✅ Yes |
+
+**All of them break 1-homogeneity equally!** The difference is only in:
+- Which dimensions they normalize over
+- Whether they use batch statistics (BatchNorm) or per-sample statistics (others)
+- Training vs inference behavior
+
+### Mathematical Proof (applies to all)
+
+For any normalization that computes $\mu$ and $\sigma$ from the input:
+
+$$\begin{align}
+\mu(\alpha x) &= \alpha \mu(x) \\
+\sigma(\alpha x) &= \alpha \sigma(x) \\
+\text{normalize}(\alpha x) &= \frac{\alpha x - \alpha \mu(x)}{\alpha \sigma(x)} = \frac{x - \mu(x)}{\sigma(x)} = \text{normalize}(x)
+\end{align}$$
+
+❌ **All normalization layers are 0-homogeneous**
+
+### Network with Any Normalization
+For network $N(x) = W_n \circ \text{Norm} \circ W_{n-1} \circ \cdots \circ W_1(x)$:
+
+$$N(\alpha x) = W_n(\text{Norm}(W_{n-1}(\cdots \alpha x))) = W_n(\text{Norm}(\text{something}))$$
+
+Since normalization is 0-homogeneous, regardless of what comes before:
 $$N(\alpha x) = \text{does not scale with } \alpha$$
 
 ❌ **The entire network becomes 0-homogeneous**
+
+### Why This Matters
+
+While LayerNorm and GroupNorm have advantages over BatchNorm (no batch dependency, better for small batches, etc.), **they all equally destroy 1-homogeneity**. You cannot fix the homogeneity problem by switching normalization types - you must either:
+1. Remove normalization entirely
+2. Use Weight Normalization instead
+3. Use NFNet-style architectures
 
 ## Skip Connections (Residual Connections)
 
@@ -156,6 +196,70 @@ Two problems:
 
 Removing $\gamma$ and $\beta$ doesn't help - you still have the 0-homogeneous normalization.
 
+### The "Impossible" Question: Can We Make BatchNorm 1-Homogeneous?
+
+**Short answer: Not while keeping standard BatchNorm behavior.**
+
+**Why it's fundamentally challenging:**
+
+The entire *point* of BatchNorm is to normalize inputs to have standardized statistics:
+$$\text{BN}(x) = \frac{x - \mu}{\sigma}$$
+
+This operation **must** be scale-invariant (0-homogeneous) when $\mu$ and $\sigma$ are computed from the input being normalized.
+
+### The ACTUAL Trick: Decouple Statistics from the Normalized Input! 🎯
+
+**Key insight:** What if we compute $\mu$ and $\sigma$ from a **different source** than the input we're normalizing?
+
+#### Method 1: Ghost BatchNorm
+
+Compute statistics from a **reference batch**:
+
+1. **Reference batch**: Get $\mu_{\text{ref}}, \sigma_{\text{ref}}$ from batch $B_{\text{ref}}$
+2. **Normalize current batch** $B$ using those statistics:
+   $$y = \frac{x - \mu_{\text{ref}}}{\sigma_{\text{ref}}}$$
+
+**Problem:** The mean centering still breaks homogeneity!
+
+**Solution:** Remove mean centering:
+$$y = \frac{x}{\sigma_{\text{ref}}}$$
+
+**Is this 1-homogeneous?**
+$$\frac{\alpha x}{\sigma_{\text{ref}}} = \alpha \frac{x}{\sigma_{\text{ref}}}$$
+
+✅ **YES!** Because $\sigma_{\text{ref}}$ is independent of the current input $x$.
+
+#### Method 2: Fixed Statistics (Inference-Mode Trick)
+
+In BatchNorm **inference mode**, statistics are **fixed** (running averages from training):
+$$\text{BN}_{\text{inference}}(x) = \gamma \frac{x - \mu_{\text{running}}}{\sigma_{\text{running}}} + \beta$$
+
+**Modified version** (no mean centering, no bias):
+$$\text{BN}_{\text{modified}}(x) = \gamma \frac{x}{\sigma_{\text{running}}} = \frac{\gamma}{\sigma_{\text{running}}} x$$
+
+✅ **This is 1-homogeneous!** It's just multiplication by a constant.
+
+#### Method 3: RMS Normalization with Fixed Scale
+
+$$\text{FixedRMSNorm}(x) = \frac{x}{\sigma_{\text{fixed}}} \cdot g$$
+
+where $\sigma_{\text{fixed}}$ is from dataset statistics or running average, and $g$ is learnable.
+
+✅ **1-homogeneous!** Because the denominator doesn't depend on $x$.
+
+### Summary: The Decoupling Trick
+
+| Method | Statistics from | Normalized input | 1-homo? |
+|--------|----------------|------------------|---------|
+| Standard BatchNorm | Current batch | Same batch | ❌ No |
+| Ghost BatchNorm (no mean) | Reference batch | Different batch | ✅ Yes! |
+| Inference BN (no mean) | Running average | Current input | ✅ Yes! |
+| Fixed RMSNorm | Pre-computed | Current input | ✅ Yes! |
+
+**The key:** When $\sigma$ doesn't depend on the input $x$ being normalized, then $x/\sigma$ is 1-homogeneous!
+
+**The trade-off:** You lose the adaptive, input-dependent normalization that makes BatchNorm effective for training stability. These approaches are closer to having a learned constant scaling factor (like Weight Normalization).
+
 ### Solution 1: Remove Normalization Entirely ✅
 
 Use only 1-homogeneous operations:
@@ -213,17 +317,89 @@ $$y(\beta x) = \beta x + \alpha F(\beta x) = \beta x + \alpha \beta F(x) = \beta
 - ❌ Sigmoid, Tanh: Not homogeneous
 - ✅ Any piecewise linear function through origin: 1-homogeneous
 
-### Summary Table
+### Solution 5: Remove Bias Terms! ✅
+
+**The bias problem:**
+
+A linear layer with bias:
+$f(x) = Wx + b$
+
+**Is this 1-homogeneous?**
+$f(\alpha x) = W(\alpha x) + b = \alpha Wx + b \neq \alpha(Wx + b)$
+
+❌ **No!** The bias term $b$ doesn't scale.
+
+**Why bias breaks homogeneity:**
+- The term $Wx$ is 1-homogeneous: $W(\alpha x) = \alpha Wx$
+- But $b$ is just a constant offset - it doesn't scale at all
+- So $f(\alpha x) = \alpha Wx + b$ while we need $\alpha f(x) = \alpha Wx + \alpha b$
+
+**The fix: Remove all bias terms!**
+
+Use:
+$f(x) = Wx$
+
+**Now it's 1-homogeneous:**
+$f(\alpha x) = W(\alpha x) = \alpha Wx = \alpha f(x)$ ✅
+
+**Practical implications:**
+
+In PyTorch/TensorFlow, set `bias=False`:
+```python
+# PyTorch
+nn.Linear(in_features, out_features, bias=False)
+nn.Conv2d(in_channels, out_channels, kernel_size, bias=False)
+
+# TensorFlow/Keras
+Dense(units, use_bias=False)
+Conv2D(filters, kernel_size, use_bias=False)
+```
+
+**What about the expressiveness loss?**
+
+You might think: "But bias terms are important for expressiveness!"
+
+**Counter-argument:**
+1. If you're using normalization (even the decoupled kind), it often includes learnable scale/shift parameters that can compensate
+2. For 1-homogeneous networks, the bias would break the property anyway
+3. Many successful architectures (like NFNet) work fine without biases in most layers
+4. The skip connections in residual networks can provide the "offset" functionality
+
+**Exception:** You can have bias in the **final output layer** if you don't need end-to-end 1-homogeneity (e.g., for classification, you often don't care if the final logits are 1-homogeneous).
+
+### Summary: Building a Fully 1-Homogeneous Network
+
+To make a network 1-homogeneous, you must:
+
+1. ✅ Use linear layers **without bias**: $f(x) = Wx$
+2. ✅ Use 1-homogeneous activations: ReLU, Leaky ReLU
+3. ✅ Either:
+   - Remove normalization entirely, OR
+   - Use Weight Normalization, OR
+   - Use decoupled normalization (statistics from different source), OR
+   - Use NFNet-style scaled skip connections
+4. ✅ Ensure skip connections maintain homogeneity: both branches must be 1-homogeneous
+5. ❌ **No bias terms anywhere** (except possibly final layer)
+6. ❌ **No 0-homogeneous operations** (no standard BatchNorm/LayerNorm with coupled statistics)
+
+**Example 1-homogeneous residual block:**
+$y = x + \alpha \cdot W_2(\text{ReLU}(W_1(x)))$
+
+where $W_1, W_2$ have no bias, and $\alpha$ is a fixed scalar.
+
+### Practical Recommendations
 
 | Method | 1-Homogeneous? | Training Stability | Practical? |
 |--------|----------------|-------------------|------------|
 | Remove all normalization | ✅ | ⚠️ Poor | ⚠️ Challenging |
 | Weight Normalization | ✅ | ✅ Good | ✅ Yes |
 | NFNet (scaled residuals) | ✅ | ✅ Good | ✅ Yes (SOTA) |
-| BatchNorm (no affine) | ❌ Still 0-homo | ✅ Good | ❌ No |
-| LayerNorm | ❌ Still 0-homo | ✅ Good | ❌ No |
+| Ghost BN (no mean) | ✅ | ⚠️ Moderate | ⚠️ Limited use |
+| Inference BN (no mean) | ✅ | ❌ Only at inference | ❌ No |
+| Standard BatchNorm | ❌ | ✅ Good | ✅ But not 1-homo |
+| LayerNorm | ❌ | ✅ Good | ✅ But not 1-homo |
 
-**Recommended approach:** Use **Weight Normalization** or **NFNet-style** architectures for 1-homogeneous networks with good training stability.
+**Best practical approaches:** Use **Weight Normalization** or **NFNet-style** architectures for 1-homogeneous networks with good training stability.
 
 ## Conclusion
 
@@ -234,4 +410,5 @@ $$y(\beta x) = \beta x + \alpha F(\beta x) = \beta x + \alpha \beta F(x) = \beta
 - The 0-homogeneous function "absorbs" all scaling information
 - Addition requires **matching homogeneity** on both branches
 - Subsequent layers cannot recover what was lost
-- **Practical solutions exist:** Weight Normalization and NFNet architectures
+- **Trick exists:** Decouple normalization statistics from the input being normalized
+- **Practical solutions:** Weight Normalization and NFNet architectures

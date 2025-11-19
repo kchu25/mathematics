@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
    <link rel="stylesheet" href="/libs/katex/katex.min.css">
      
-  
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
   <link rel="stylesheet" href="/css/franklin.css">
 <link rel="stylesheet" href="/css/hypertext.css">
 <link rel="icon" href="/assets/favicon.png">
@@ -91,17 +92,49 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 </li>
 </ul>
 <p><strong>Once scaling is absorbed, it cannot be recovered by subsequent operations.</strong></p>
-<h2 id="batchnorm_example"><a href="#batchnorm_example" class="header-anchor">BatchNorm Example</a></h2>
-<h3 id="batchnorm_normalization"><a href="#batchnorm_normalization" class="header-anchor">BatchNorm Normalization</a></h3>
+<h2 id="normalization_layers_and_homogeneity"><a href="#normalization_layers_and_homogeneity" class="header-anchor">Normalization Layers and Homogeneity</a></h2>
+<h3 id="all_normalization_layers_are_0-homogeneous"><a href="#all_normalization_layers_are_0-homogeneous" class="header-anchor">All Normalization Layers Are 0-Homogeneous</a></h3>
+<p>The core normalization operation in BatchNorm, LayerNorm, GroupNorm, and InstanceNorm is:</p>
 \[\text{normalize}(x) = \frac{x - \mu}{\sigma}\]
-<p>This is <strong>0-homogeneous</strong>:</p>
+<p>where \(\mu\) and \(\sigma\) are computed over different dimensions depending on the normalization type.</p>
+<p><strong>This is always 0-homogeneous:</strong></p>
 \[\text{normalize}(\alpha x) = \frac{\alpha x - \alpha \mu}{\alpha \sigma} = \frac{\alpha(x - \mu)}{\alpha \sigma} = \frac{x - \mu}{\sigma} = \text{normalize}(x)\]
-<h3 id="network_with_batchnorm"><a href="#network_with_batchnorm" class="header-anchor">Network with BatchNorm</a></h3>
-<p>For network \(N(x) = W_n \circ \text{BN} \circ W_{n-1} \circ \cdots \circ W_1(x)\):</p>
-\[N(\alpha x) = W_n(\text{BN}(W_{n-1}(\cdots \alpha x))) = W_n(\text{BN}(\text{something}))\]
-<p>Since BN is 0-homogeneous, regardless of what comes before:</p>
+<p>The key insight: <strong>both the mean and standard deviation scale linearly with \(\alpha\)</strong>, so they cancel out in the division&#33;</p>
+<h3 id="comparison_of_normalization_types"><a href="#comparison_of_normalization_types" class="header-anchor">Comparison of Normalization Types</a></h3>
+<table><tr><th align="right">Type</th><th align="right">Statistics computed over</th><th align="right">0-homogeneous?</th></tr><tr><td align="right"><strong>BatchNorm</strong></td><td align="right">Batch &#43; spatial dimensions &#40;across samples&#41;</td><td align="right">✅ Yes</td></tr><tr><td align="right"><strong>LayerNorm</strong></td><td align="right">Feature dimensions &#40;per sample&#41;</td><td align="right">✅ Yes</td></tr><tr><td align="right"><strong>GroupNorm</strong></td><td align="right">Groups of channels &#40;per sample&#41;</td><td align="right">✅ Yes</td></tr><tr><td align="right"><strong>InstanceNorm</strong></td><td align="right">Spatial dimensions per channel &#40;per sample&#41;</td><td align="right">✅ Yes</td></tr></table>
+<p><strong>All of them break 1-homogeneity equally&#33;</strong> The difference is only in:</p>
+<ul>
+<li><p>Which dimensions they normalize over</p>
+</li>
+<li><p>Whether they use batch statistics &#40;BatchNorm&#41; or per-sample statistics &#40;others&#41;</p>
+</li>
+<li><p>Training vs inference behavior</p>
+</li>
+</ul>
+<h3 id="mathematical_proof_applies_to_all"><a href="#mathematical_proof_applies_to_all" class="header-anchor">Mathematical Proof &#40;applies to all&#41;</a></h3>
+<p>For any normalization that computes \(\mu\) and \(\sigma\) from the input:</p>
+\[\begin{align}
+\mu(\alpha x) &= \alpha \mu(x) \\
+\sigma(\alpha x) &= \alpha \sigma(x) \\
+\text{normalize}(\alpha x) &= \frac{\alpha x - \alpha \mu(x)}{\alpha \sigma(x)} = \frac{x - \mu(x)}{\sigma(x)} = \text{normalize}(x)
+\end{align}\]
+<p>❌ <strong>All normalization layers are 0-homogeneous</strong></p>
+<h3 id="network_with_any_normalization"><a href="#network_with_any_normalization" class="header-anchor">Network with Any Normalization</a></h3>
+<p>For network \(N(x) = W_n \circ \text{Norm} \circ W_{n-1} \circ \cdots \circ W_1(x)\):</p>
+\[N(\alpha x) = W_n(\text{Norm}(W_{n-1}(\cdots \alpha x))) = W_n(\text{Norm}(\text{something}))\]
+<p>Since normalization is 0-homogeneous, regardless of what comes before:</p>
 \[N(\alpha x) = \text{does not scale with } \alpha\]
 <p>❌ <strong>The entire network becomes 0-homogeneous</strong></p>
+<h3 id="why_this_matters"><a href="#why_this_matters" class="header-anchor">Why This Matters</a></h3>
+<p>While LayerNorm and GroupNorm have advantages over BatchNorm &#40;no batch dependency, better for small batches, etc.&#41;, <strong>they all equally destroy 1-homogeneity</strong>. You cannot fix the homogeneity problem by switching normalization types - you must either:</p>
+<ol>
+<li><p>Remove normalization entirely</p>
+</li>
+<li><p>Use Weight Normalization instead</p>
+</li>
+<li><p>Use NFNet-style architectures</p>
+</li>
+</ol>
 <h2 id="skip_connections_residual_connections"><a href="#skip_connections_residual_connections" class="header-anchor">Skip Connections &#40;Residual Connections&#41;</a></h2>
 <h3 id="the_addition_problem"><a href="#the_addition_problem" class="header-anchor">The Addition Problem</a></h3>
 <p>Addition is <strong>NOT a homogeneous operation</strong> in general:</p>
@@ -151,6 +184,43 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 </li>
 </ol>
 <p>Removing \(\gamma\) and \(\beta\) doesn&#39;t help - you still have the 0-homogeneous normalization.</p>
+<h3 id="the_impossible_question_can_we_make_batchnorm_1-homogeneous"><a href="#the_impossible_question_can_we_make_batchnorm_1-homogeneous" class="header-anchor">The &quot;Impossible&quot; Question: Can We Make BatchNorm 1-Homogeneous?</a></h3>
+<p><strong>Short answer: Not while keeping standard BatchNorm behavior.</strong></p>
+<p><strong>Why it&#39;s fundamentally challenging:</strong></p>
+<p>The entire <em>point</em> of BatchNorm is to normalize inputs to have standardized statistics:</p>
+\[\text{BN}(x) = \frac{x - \mu}{\sigma}\]
+<p>This operation <strong>must</strong> be scale-invariant &#40;0-homogeneous&#41; when \(\mu\) and \(\sigma\) are computed from the input being normalized.</p>
+<h3 id="the_actual_trick_decouple_statistics_from_the_normalized_input"><a href="#the_actual_trick_decouple_statistics_from_the_normalized_input" class="header-anchor">The ACTUAL Trick: Decouple Statistics from the Normalized Input&#33; 🎯</a></h3>
+<p><strong>Key insight:</strong> What if we compute \(\mu\) and \(\sigma\) from a <strong>different source</strong> than the input we&#39;re normalizing?</p>
+<h4 id="method_1_ghost_batchnorm"><a href="#method_1_ghost_batchnorm" class="header-anchor">Method 1: Ghost BatchNorm</a></h4>
+<p>Compute statistics from a <strong>reference batch</strong>:</p>
+<ol>
+<li><p><strong>Reference batch</strong>: Get \(\mu_{\text{ref}}, \sigma_{\text{ref}}\) from batch \(B_{\text{ref}}\)</p>
+</li>
+<li><p><strong>Normalize current batch</strong> \(B\) using those statistics:</p>
+</li>
+</ol>
+\[y = \frac{x - \mu_{\text{ref}}}{\sigma_{\text{ref}}}\]
+<p><strong>Problem:</strong> The mean centering still breaks homogeneity&#33;</p>
+<p><strong>Solution:</strong> Remove mean centering:</p>
+\[y = \frac{x}{\sigma_{\text{ref}}}\]
+<p><strong>Is this 1-homogeneous?</strong></p>
+\[\frac{\alpha x}{\sigma_{\text{ref}}} = \alpha \frac{x}{\sigma_{\text{ref}}}\]
+<p>✅ <strong>YES&#33;</strong> Because \(\sigma_{\text{ref}}\) is independent of the current input \(x\).</p>
+<h4 id="method_2_fixed_statistics_inference-mode_trick"><a href="#method_2_fixed_statistics_inference-mode_trick" class="header-anchor">Method 2: Fixed Statistics &#40;Inference-Mode Trick&#41;</a></h4>
+<p>In BatchNorm <strong>inference mode</strong>, statistics are <strong>fixed</strong> &#40;running averages from training&#41;:</p>
+\[\text{BN}_{\text{inference}}(x) = \gamma \frac{x - \mu_{\text{running}}}{\sigma_{\text{running}}} + \beta\]
+<p><strong>Modified version</strong> &#40;no mean centering, no bias&#41;:</p>
+\[\text{BN}_{\text{modified}}(x) = \gamma \frac{x}{\sigma_{\text{running}}} = \frac{\gamma}{\sigma_{\text{running}}} x\]
+<p>✅ <strong>This is 1-homogeneous&#33;</strong> It&#39;s just multiplication by a constant.</p>
+<h4 id="method_3_rms_normalization_with_fixed_scale"><a href="#method_3_rms_normalization_with_fixed_scale" class="header-anchor">Method 3: RMS Normalization with Fixed Scale</a></h4>
+\[\text{FixedRMSNorm}(x) = \frac{x}{\sigma_{\text{fixed}}} \cdot g\]
+<p>where \(\sigma_{\text{fixed}}\) is from dataset statistics or running average, and \(g\) is learnable.</p>
+<p>✅ <strong>1-homogeneous&#33;</strong> Because the denominator doesn&#39;t depend on \(x\).</p>
+<h3 id="summary_the_decoupling_trick"><a href="#summary_the_decoupling_trick" class="header-anchor">Summary: The Decoupling Trick</a></h3>
+<table><tr><th align="right">Method</th><th align="right">Statistics from</th><th align="right">Normalized input</th><th align="right">1-homo?</th></tr><tr><td align="right">Standard BatchNorm</td><td align="right">Current batch</td><td align="right">Same batch</td><td align="right">❌ No</td></tr><tr><td align="right">Ghost BatchNorm &#40;no mean&#41;</td><td align="right">Reference batch</td><td align="right">Different batch</td><td align="right">✅ Yes&#33;</td></tr><tr><td align="right">Inference BN &#40;no mean&#41;</td><td align="right">Running average</td><td align="right">Current input</td><td align="right">✅ Yes&#33;</td></tr><tr><td align="right">Fixed RMSNorm</td><td align="right">Pre-computed</td><td align="right">Current input</td><td align="right">✅ Yes&#33;</td></tr></table>
+<p><strong>The key:</strong> When \(\sigma\) doesn&#39;t depend on the input \(x\) being normalized, then \(x/\sigma\) is 1-homogeneous&#33;</p>
+<p><strong>The trade-off:</strong> You lose the adaptive, input-dependent normalization that makes BatchNorm effective for training stability. These approaches are closer to having a learned constant scaling factor &#40;like Weight Normalization&#41;.</p>
 <h3 id="solution_1_remove_normalization_entirely"><a href="#solution_1_remove_normalization_entirely" class="header-anchor">Solution 1: Remove Normalization Entirely ✅</a></h3>
 <p>Use only 1-homogeneous operations:</p>
 \[y = x + W_2(\text{ReLU}(W_1(x)))\]
@@ -209,9 +279,77 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 <li><p>✅ Any piecewise linear function through origin: 1-homogeneous</p>
 </li>
 </ul>
-<h3 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h3>
-<table><tr><th align="right">Method</th><th align="right">1-Homogeneous?</th><th align="right">Training Stability</th><th align="right">Practical?</th></tr><tr><td align="right">Remove all normalization</td><td align="right">✅</td><td align="right">⚠️ Poor</td><td align="right">⚠️ Challenging</td></tr><tr><td align="right">Weight Normalization</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes</td></tr><tr><td align="right">NFNet &#40;scaled residuals&#41;</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes &#40;SOTA&#41;</td></tr><tr><td align="right">BatchNorm &#40;no affine&#41;</td><td align="right">❌ Still 0-homo</td><td align="right">✅ Good</td><td align="right">❌ No</td></tr><tr><td align="right">LayerNorm</td><td align="right">❌ Still 0-homo</td><td align="right">✅ Good</td><td align="right">❌ No</td></tr></table>
-<p><strong>Recommended approach:</strong> Use <strong>Weight Normalization</strong> or <strong>NFNet-style</strong> architectures for 1-homogeneous networks with good training stability.</p>
+<h3 id="solution_5_remove_bias_terms"><a href="#solution_5_remove_bias_terms" class="header-anchor">Solution 5: Remove Bias Terms&#33; ✅</a></h3>
+<p><strong>The bias problem:</strong></p>
+<p>A linear layer with bias: \(f(x) = Wx + b\)</p>
+<p><strong>Is this 1-homogeneous?</strong> \(f(\alpha x) = W(\alpha x) + b = \alpha Wx + b \neq \alpha(Wx + b)\)</p>
+<p>❌ <strong>No&#33;</strong> The bias term \(b\) doesn&#39;t scale.</p>
+<p><strong>Why bias breaks homogeneity:</strong></p>
+<ul>
+<li><p>The term \(Wx\) is 1-homogeneous: \(W(\alpha x) = \alpha Wx\)</p>
+</li>
+<li><p>But \(b\) is just a constant offset - it doesn&#39;t scale at all</p>
+</li>
+<li><p>So \(f(\alpha x) = \alpha Wx + b\) while we need \(\alpha f(x) = \alpha Wx + \alpha b\)</p>
+</li>
+</ul>
+<p><strong>The fix: Remove all bias terms&#33;</strong></p>
+<p>Use: \(f(x) = Wx\)</p>
+<p><strong>Now it&#39;s 1-homogeneous:</strong> \(f(\alpha x) = W(\alpha x) = \alpha Wx = \alpha f(x)\) ✅</p>
+<p><strong>Practical implications:</strong></p>
+<p>In PyTorch/TensorFlow, set <code>bias&#61;False</code>:</p>
+<pre><code class="language-python"># PyTorch
+nn.Linear&#40;in_features, out_features, bias&#61;False&#41;
+nn.Conv2d&#40;in_channels, out_channels, kernel_size, bias&#61;False&#41;
+
+# TensorFlow/Keras
+Dense&#40;units, use_bias&#61;False&#41;
+Conv2D&#40;filters, kernel_size, use_bias&#61;False&#41;</code></pre>
+<p><strong>What about the expressiveness loss?</strong></p>
+<p>You might think: &quot;But bias terms are important for expressiveness&#33;&quot;</p>
+<p><strong>Counter-argument:</strong></p>
+<ol>
+<li><p>If you&#39;re using normalization &#40;even the decoupled kind&#41;, it often includes learnable scale/shift parameters that can compensate</p>
+</li>
+<li><p>For 1-homogeneous networks, the bias would break the property anyway</p>
+</li>
+<li><p>Many successful architectures &#40;like NFNet&#41; work fine without biases in most layers</p>
+</li>
+<li><p>The skip connections in residual networks can provide the &quot;offset&quot; functionality</p>
+</li>
+</ol>
+<p><strong>Exception:</strong> You can have bias in the <strong>final output layer</strong> if you don&#39;t need end-to-end 1-homogeneity &#40;e.g., for classification, you often don&#39;t care if the final logits are 1-homogeneous&#41;.</p>
+<h3 id="summary_building_a_fully_1-homogeneous_network"><a href="#summary_building_a_fully_1-homogeneous_network" class="header-anchor">Summary: Building a Fully 1-Homogeneous Network</a></h3>
+<p>To make a network 1-homogeneous, you must:</p>
+<ol>
+<li><p>✅ Use linear layers <strong>without bias</strong>: \(f(x) = Wx\)</p>
+</li>
+<li><p>✅ Use 1-homogeneous activations: ReLU, Leaky ReLU</p>
+</li>
+<li><p>✅ Either:</p>
+<ul>
+<li><p>Remove normalization entirely, OR</p>
+</li>
+<li><p>Use Weight Normalization, OR</p>
+</li>
+<li><p>Use decoupled normalization &#40;statistics from different source&#41;, OR</p>
+</li>
+<li><p>Use NFNet-style scaled skip connections</p>
+</li>
+</ul>
+</li>
+<li><p>✅ Ensure skip connections maintain homogeneity: both branches must be 1-homogeneous</p>
+</li>
+<li><p>❌ <strong>No bias terms anywhere</strong> &#40;except possibly final layer&#41;</p>
+</li>
+<li><p>❌ <strong>No 0-homogeneous operations</strong> &#40;no standard BatchNorm/LayerNorm with coupled statistics&#41;</p>
+</li>
+</ol>
+<p><strong>Example 1-homogeneous residual block:</strong> \(y = x + \alpha \cdot W_2(\text{ReLU}(W_1(x)))\)</p>
+<p>where \(W_1, W_2\) have no bias, and \(\alpha\) is a fixed scalar.</p>
+<h3 id="practical_recommendations"><a href="#practical_recommendations" class="header-anchor">Practical Recommendations</a></h3>
+<table><tr><th align="right">Method</th><th align="right">1-Homogeneous?</th><th align="right">Training Stability</th><th align="right">Practical?</th></tr><tr><td align="right">Remove all normalization</td><td align="right">✅</td><td align="right">⚠️ Poor</td><td align="right">⚠️ Challenging</td></tr><tr><td align="right">Weight Normalization</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes</td></tr><tr><td align="right">NFNet &#40;scaled residuals&#41;</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes &#40;SOTA&#41;</td></tr><tr><td align="right">Ghost BN &#40;no mean&#41;</td><td align="right">✅</td><td align="right">⚠️ Moderate</td><td align="right">⚠️ Limited use</td></tr><tr><td align="right">Inference BN &#40;no mean&#41;</td><td align="right">✅</td><td align="right">❌ Only at inference</td><td align="right">❌ No</td></tr><tr><td align="right">Standard BatchNorm</td><td align="right">❌</td><td align="right">✅ Good</td><td align="right">✅ But not 1-homo</td></tr><tr><td align="right">LayerNorm</td><td align="right">❌</td><td align="right">✅ Good</td><td align="right">✅ But not 1-homo</td></tr></table>
+<p><strong>Best practical approaches:</strong> Use <strong>Weight Normalization</strong> or <strong>NFNet-style</strong> architectures for 1-homogeneous networks with good training stability.</p>
 <h2 id="conclusion"><a href="#conclusion" class="header-anchor">Conclusion</a></h2>
 <p><strong>To maintain 1-homogeneity through a composition:</strong></p>
 <ul>
@@ -227,7 +365,9 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 </li>
 <li><p>Subsequent layers cannot recover what was lost</p>
 </li>
-<li><p><strong>Practical solutions exist:</strong> Weight Normalization and NFNet architectures</p>
+<li><p><strong>Trick exists:</strong> Decouple normalization statistics from the input being normalized</p>
+</li>
+<li><p><strong>Practical solutions:</strong> Weight Normalization and NFNet architectures</p>
 </li>
 </ul>
 <div class="page-foot">
@@ -244,6 +384,10 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 <script>renderMathInElement(document.body)</script>
 
     
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
     
   </body>
 </html>
