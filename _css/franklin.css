@@ -155,7 +155,6 @@ h6 {
   margin-right: auto;
   border-collapse: collapse;
   text-align: center;
-  border: 1px solid #ccc;
 }
 
 .franklin-toc ol ol {
@@ -166,12 +165,7 @@ h6 {
 td {
   font-size: var(--small);
   padding: 10px;
-  border: 1px solid #ddd;
-}
-
-.franklin-content th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+  border: 1px solid black;
 }
 
 .franklin-content blockquote {
