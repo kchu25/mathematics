@@ -29,7 +29,8 @@
 <p><strong>A composition of functions is 1-homogeneous if and only if NO function in the chain is 0-homogeneous.</strong></p>
 <h2 id="mathematical_definitions"><a href="#mathematical_definitions" class="header-anchor">Mathematical Definitions</a></h2>
 <h3 id="k-homogeneous_function"><a href="#k-homogeneous_function" class="header-anchor">k-Homogeneous Function</a></h3>
-<p>A function \(f\) is <strong>k-homogeneous</strong> &#40;or <strong>homogeneous of degree k</strong>&#41; if: \(f(\alpha x) = \alpha^k \cdot f(x)\)</p>
+<p>A function \(f\) is <strong>k-homogeneous</strong> &#40;or <strong>homogeneous of degree k</strong>&#41; if:</p>
+\[f(\alpha x) = \alpha^k \cdot f(x)\]
 <ul>
 <li><p><strong>1-homogeneous</strong>: \(f(\alpha x) = \alpha \cdot f(x)\) &#40;scales linearly&#41;</p>
 </li>
@@ -42,28 +43,33 @@
 <h2 id="composition_rules"><a href="#composition_rules" class="header-anchor">Composition Rules</a></h2>
 <p>For a composition \(h(x) = f(g(x))\):</p>
 <h3 id="if_both_are_1-homogeneous"><a href="#if_both_are_1-homogeneous" class="header-anchor">If both are 1-homogeneous:</a></h3>
-<p>\(h(\alpha x) = f(g(\alpha x)) = f(\alpha \cdot g(x)) = \alpha \cdot f(g(x)) = \alpha \cdot h(x)\)  ✅ <strong>Result: 1-homogeneous</strong></p>
+\[h(\alpha x) = f(g(\alpha x)) = f(\alpha \cdot g(x)) = \alpha \cdot f(g(x)) = \alpha \cdot h(x)\]
+<p>✅ <strong>Result: 1-homogeneous</strong></p>
 <h3 id="if_g_is_0-homogeneous"><a href="#if_g_is_0-homogeneous" class="header-anchor">If g is 0-homogeneous:</a></h3>
-<p>\(h(\alpha x) = f(g(\alpha x)) = f(g(x)) = h(x)\) ❌ <strong>Result: 0-homogeneous</strong> &#40;scaling absorbed&#33;&#41;</p>
+\[h(\alpha x) = f(g(\alpha x)) = f(g(x)) = h(x)\]
+<p>❌ <strong>Result: 0-homogeneous</strong> &#40;scaling absorbed&#33;&#41;</p>
 <h3 id="general_rule"><a href="#general_rule" class="header-anchor">General Rule:</a></h3>
-<p>If \(f\) is \(k\)-homogeneous and \(g\) is \(m\)-homogeneous: \(h(\alpha x) = f(g(\alpha x)) = f(\alpha^m \cdot g(x)) = \alpha^{km} \cdot f(g(x)) = \alpha^{km} \cdot h(x)\)</p>
+<p>If \(f\) is \(k\)-homogeneous and \(g\) is \(m\)-homogeneous:</p>
+\[h(\alpha x) = f(g(\alpha x)) = f(\alpha^m \cdot g(x)) = \alpha^{km} \cdot f(g(x)) = \alpha^{km} \cdot h(x)\]
 <p>The composition is <strong>\((km)\)-homogeneous</strong>.</p>
 <h2 id="proof_why_all_functions_must_be_1-homogeneous"><a href="#proof_why_all_functions_must_be_1-homogeneous" class="header-anchor">Proof: Why ALL Functions Must Be 1-Homogeneous</a></h2>
 <p><strong>Theorem</strong>: For composition \(h = f_n \circ f_{n-1} \circ \cdots \circ f_1\) to be 1-homogeneous, <strong>every</strong> \(f_i\) must be 1-homogeneous.</p>
 <p><strong>Proof</strong>:</p>
 <p>Suppose \(f_i\) is \(k_i\)-homogeneous for each \(i\). Then:</p>
-\(\begin{align}
+\[\begin{align}
 h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 &= f_n(f_{n-1}(\cdots (\alpha^{k_1} f_1(x)))) \\
 &= f_n(f_{n-1}(\cdots (\alpha^{k_1 k_2} f_2(f_1(x))))) \\
 &= f_n(\alpha^{k_1 k_2 \cdots k_{n-1}} f_{n-1}(\cdots f_1(x))) \\
 &= \alpha^{k_1 k_2 \cdots k_n} f_n(f_{n-1}(\cdots f_1(x))) \\
 &= \alpha^{k_1 k_2 \cdots k_n} h(x)
-\end{align}\)
-<p>For 1-homogeneity, we need: \(\alpha^{k_1 k_2 \cdots k_n} = \alpha\)</p>
+\end{align}\]
+<p>For 1-homogeneity, we need:</p>
+\[\alpha^{k_1 k_2 \cdots k_n} = \alpha\]
 <p>This must hold for <strong>all</strong> \(\alpha > 0\). </p>
 <p>Taking logarithms: \(k_1 k_2 \cdots k_n = 1\)</p>
-<p><strong>Key insight</strong>: The only way the product equals 1 <strong>for all possible homogeneities</strong> is if: \(k_1 = k_2 = \cdots = k_n = 1\)</p>
+<p><strong>Key insight</strong>: The only way the product equals 1 <strong>for all possible homogeneities</strong> is if:</p>
+\[k_1 = k_2 = \cdots = k_n = 1\]
 <p><strong>Why?</strong></p>
 <ul>
 <li><p>If any \(k_i = 0\), then product &#61; 0 &#40;0-homogeneous composition&#41;</p>
@@ -98,10 +104,12 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 <p>❌ <strong>The entire network becomes 0-homogeneous</strong></p>
 <h2 id="skip_connections_residual_connections"><a href="#skip_connections_residual_connections" class="header-anchor">Skip Connections &#40;Residual Connections&#41;</a></h2>
 <h3 id="the_addition_problem"><a href="#the_addition_problem" class="header-anchor">The Addition Problem</a></h3>
-<p>Addition is <strong>NOT a homogeneous operation</strong> in general: \((f + g)(\alpha x) = f(\alpha x) + g(\alpha x)\)</p>
+<p>Addition is <strong>NOT a homogeneous operation</strong> in general:</p>
+\[(f + g)(\alpha x) = f(\alpha x) + g(\alpha x)\]
 <p>This only equals \(\alpha(f(x) + g(x))\) if <strong>both</strong> \(f\) and \(g\) have the same homogeneity.</p>
 <h3 id="residual_block_with_batchnorm"><a href="#residual_block_with_batchnorm" class="header-anchor">Residual Block with BatchNorm</a></h3>
-<p>Consider a typical ResNet block: \(y = x + F(x)\)</p>
+<p>Consider a typical ResNet block:</p>
+\[y = x + F(x)\]
 <p>where \(F(x) = W_2 \circ \text{BN} \circ \text{ReLU} \circ W_1(x)\)</p>
 <p><strong>What happens with scaling?</strong></p>
 <ul>
@@ -110,14 +118,15 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 <li><p><strong>Residual path</strong>: \(F(\alpha x) = F(x)\) &#40;0-homogeneous due to BN&#41;</p>
 </li>
 </ul>
-\(y(\alpha x) = \alpha x + F(\alpha x) = \alpha x + F(x)\)
-<p>But for 1-homogeneity we need: \(y(\alpha x) = \alpha(x + F(x))\)</p>
+\[y(\alpha x) = \alpha x + F(\alpha x) = \alpha x + F(x)\]
+<p>But for 1-homogeneity we need:</p>
+\[y(\alpha x) = \alpha(x + F(x))\]
 <p><strong>These are NOT equal&#33;</strong> ❌</p>
 <h3 id="the_mismatch"><a href="#the_mismatch" class="header-anchor">The Mismatch</a></h3>
-\(\begin{align}
+\[\begin{align}
 \text{Actual:} \quad & \alpha x + F(x) \\
 \text{Needed:} \quad & \alpha x + \alpha F(x)
-\end{align}\)
+\end{align}\]
 <p>The skip connection scales with \(\alpha\), but the BatchNorm path doesn&#39;t. This creates an <strong>imbalance</strong> that breaks homogeneity.</p>
 <h3 id="visual_example"><a href="#visual_example" class="header-anchor">Visual Example</a></h3>
 <p>With \(\alpha = 2\):</p>
@@ -130,6 +139,79 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 </li>
 </ul>
 <p><strong>The relative contribution of each path changes with input scale&#33;</strong></p>
+<h2 id="tricks_to_restore_1-homogeneity"><a href="#tricks_to_restore_1-homogeneity" class="header-anchor">Tricks to Restore 1-Homogeneity</a></h2>
+<h3 id="why_standard_batchnorm_fails"><a href="#why_standard_batchnorm_fails" class="header-anchor">Why Standard BatchNorm Fails</a></h3>
+<p>Standard BatchNorm with affine parameters:</p>
+\[\text{BN}(x) = \gamma \frac{x - \mu}{\sigma} + \beta\]
+<p>Two problems:</p>
+<ol>
+<li><p>The normalization \(\frac{x - \mu}{\sigma}\) is <strong>0-homogeneous</strong> &#40;absorbs scaling&#41;</p>
+</li>
+<li><p>The affine transform &#40;\(\gamma\), \(\beta\)&#41; makes it not even homogeneous at all</p>
+</li>
+</ol>
+<p>Removing \(\gamma\) and \(\beta\) doesn&#39;t help - you still have the 0-homogeneous normalization.</p>
+<h3 id="solution_1_remove_normalization_entirely"><a href="#solution_1_remove_normalization_entirely" class="header-anchor">Solution 1: Remove Normalization Entirely ✅</a></h3>
+<p>Use only 1-homogeneous operations:</p>
+\[y = x + W_2(\text{ReLU}(W_1(x)))\]
+<p><strong>Why it works:</strong></p>
+<ul>
+<li><p>Linear layers: 1-homogeneous</p>
+</li>
+<li><p>ReLU: 1-homogeneous  </p>
+</li>
+<li><p>Composition: 1-homogeneous</p>
+</li>
+<li><p>Addition of 1-homogeneous functions: 1-homogeneous</p>
+</li>
+</ul>
+<p><strong>Downside:</strong> Training instability without normalization</p>
+<h3 id="solution_2_weight_normalization"><a href="#solution_2_weight_normalization" class="header-anchor">Solution 2: Weight Normalization ✅</a></h3>
+<p><strong>Key idea:</strong> Normalize the <em>weights</em>, not the <em>activations</em>&#33;</p>
+\[W_{\text{norm}} = \frac{g}{\|w\|} w\]
+<p>Then: \(f(x) = W_{\text{norm}} \cdot x\)</p>
+<p><strong>Why it works:</strong></p>
+\[f(\alpha x) = \frac{g}{\|w\|} (w \cdot \alpha x) = \alpha \frac{g}{\|w\|} (w \cdot x) = \alpha f(x)\]
+<p>✅ <strong>1-homogeneous in \(x\)</strong> because we only normalized the parameters, not the activations&#33;</p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>Maintains 1-homogeneity</p>
+</li>
+<li><p>Provides training stability</p>
+</li>
+<li><p>Works well in practice</p>
+</li>
+</ul>
+<h3 id="solution_3_nfnet_normalizer-free_networks"><a href="#solution_3_nfnet_normalizer-free_networks" class="header-anchor">Solution 3: NFNet &#40;Normalizer-Free Networks&#41; ✅</a></h3>
+<p><strong>Key idea:</strong> Carefully scaled skip connections without any normalization</p>
+\[y = x + \alpha \cdot F(x)\]
+<p>where \(\alpha\) is a fixed scalar &#40;e.g., \(\alpha = 1/\sqrt{N}\) for \(N\) layers&#41;.</p>
+<p><strong>Why it works:</strong> If \(F\) is 1-homogeneous:</p>
+\[y(\beta x) = \beta x + \alpha F(\beta x) = \beta x + \alpha \beta F(x) = \beta(x + \alpha F(x)) = \beta \, y(x)\]
+<p>✅ <strong>1-homogeneous&#33;</strong></p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><p>No normalization layers needed</p>
+</li>
+<li><p>State-of-the-art results on ImageNet</p>
+</li>
+<li><p>Faster training &#40;no batch statistics&#41;</p>
+</li>
+</ul>
+<h3 id="solution_4_use_only_1-homogeneous_activations"><a href="#solution_4_use_only_1-homogeneous_activations" class="header-anchor">Solution 4: Use Only 1-Homogeneous Activations ✅</a></h3>
+<ul>
+<li><p>✅ ReLU: \(\text{ReLU}(\alpha x) = \alpha \cdot \text{ReLU}(x)\) for \(\alpha > 0\)</p>
+</li>
+<li><p>✅ Leaky ReLU: Also 1-homogeneous</p>
+</li>
+<li><p>❌ Sigmoid, Tanh: Not homogeneous</p>
+</li>
+<li><p>✅ Any piecewise linear function through origin: 1-homogeneous</p>
+</li>
+</ul>
+<h3 id="summary_table"><a href="#summary_table" class="header-anchor">Summary Table</a></h3>
+<table><tr><th align="right">Method</th><th align="right">1-Homogeneous?</th><th align="right">Training Stability</th><th align="right">Practical?</th></tr><tr><td align="right">Remove all normalization</td><td align="right">✅</td><td align="right">⚠️ Poor</td><td align="right">⚠️ Challenging</td></tr><tr><td align="right">Weight Normalization</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes</td></tr><tr><td align="right">NFNet &#40;scaled residuals&#41;</td><td align="right">✅</td><td align="right">✅ Good</td><td align="right">✅ Yes &#40;SOTA&#41;</td></tr><tr><td align="right">BatchNorm &#40;no affine&#41;</td><td align="right">❌ Still 0-homo</td><td align="right">✅ Good</td><td align="right">❌ No</td></tr><tr><td align="right">LayerNorm</td><td align="right">❌ Still 0-homo</td><td align="right">✅ Good</td><td align="right">❌ No</td></tr></table>
+<p><strong>Recommended approach:</strong> Use <strong>Weight Normalization</strong> or <strong>NFNet-style</strong> architectures for 1-homogeneous networks with good training stability.</p>
 <h2 id="conclusion"><a href="#conclusion" class="header-anchor">Conclusion</a></h2>
 <p><strong>To maintain 1-homogeneity through a composition:</strong></p>
 <ul>
@@ -144,6 +226,8 @@ h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
 <li><p>Addition requires <strong>matching homogeneity</strong> on both branches</p>
 </li>
 <li><p>Subsequent layers cannot recover what was lost</p>
+</li>
+<li><p><strong>Practical solutions exist:</strong> Weight Normalization and NFNet architectures</p>
 </li>
 </ul>
 <div class="page-foot">
