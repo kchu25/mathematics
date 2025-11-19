@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Function Composition and Homogeneity</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="function_composition_and_homogeneity"><a href="#function_composition_and_homogeneity" class="header-anchor">Function Composition and Homogeneity</a></h1>
+<h2 id="key_insight"><a href="#key_insight" class="header-anchor">Key Insight</a></h2>
+<p><strong>A composition of functions is 1-homogeneous if and only if NO function in the chain is 0-homogeneous.</strong></p>
+<h2 id="mathematical_definitions"><a href="#mathematical_definitions" class="header-anchor">Mathematical Definitions</a></h2>
+<h3 id="k-homogeneous_function"><a href="#k-homogeneous_function" class="header-anchor">k-Homogeneous Function</a></h3>
+<p>A function \(f\) is <strong>k-homogeneous</strong> &#40;or <strong>homogeneous of degree k</strong>&#41; if: \(f(\alpha x) = \alpha^k \cdot f(x)\)</p>
+<ul>
+<li><p><strong>1-homogeneous</strong>: \(f(\alpha x) = \alpha \cdot f(x)\) &#40;scales linearly&#41;</p>
+</li>
+<li><p><strong>0-homogeneous</strong>: \(f(\alpha x) = f(x)\) &#40;scale-invariant&#41;</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: This is the standard definition from mathematics. Formally, a function \(f: \mathbb{R}^n \to \mathbb{R}^m\) is homogeneous of degree \(k\) if \(f(tx) = t^k f(x)\) for all \(t > 0\) &#40;or sometimes for all \(t \in \mathbb{R}\) depending on context&#41;. Also called &quot;positive homogeneity&quot; or &quot;Euler homogeneity&quot;. In economics and physics, this concept describes how systems respond to scaling.</p>
+</blockquote>
+<h2 id="composition_rules"><a href="#composition_rules" class="header-anchor">Composition Rules</a></h2>
+<p>For a composition \(h(x) = f(g(x))\):</p>
+<h3 id="if_both_are_1-homogeneous"><a href="#if_both_are_1-homogeneous" class="header-anchor">If both are 1-homogeneous:</a></h3>
+<p>\(h(\alpha x) = f(g(\alpha x)) = f(\alpha \cdot g(x)) = \alpha \cdot f(g(x)) = \alpha \cdot h(x)\)  ✅ <strong>Result: 1-homogeneous</strong></p>
+<h3 id="if_g_is_0-homogeneous"><a href="#if_g_is_0-homogeneous" class="header-anchor">If g is 0-homogeneous:</a></h3>
+<p>\(h(\alpha x) = f(g(\alpha x)) = f(g(x)) = h(x)\) ❌ <strong>Result: 0-homogeneous</strong> &#40;scaling absorbed&#33;&#41;</p>
+<h3 id="general_rule"><a href="#general_rule" class="header-anchor">General Rule:</a></h3>
+<p>If \(f\) is \(k\)-homogeneous and \(g\) is \(m\)-homogeneous: \(h(\alpha x) = f(g(\alpha x)) = f(\alpha^m \cdot g(x)) = \alpha^{km} \cdot f(g(x)) = \alpha^{km} \cdot h(x)\)</p>
+<p>The composition is <strong>\((km)\)-homogeneous</strong>.</p>
+<h2 id="proof_why_all_functions_must_be_1-homogeneous"><a href="#proof_why_all_functions_must_be_1-homogeneous" class="header-anchor">Proof: Why ALL Functions Must Be 1-Homogeneous</a></h2>
+<p><strong>Theorem</strong>: For composition \(h = f_n \circ f_{n-1} \circ \cdots \circ f_1\) to be 1-homogeneous, <strong>every</strong> \(f_i\) must be 1-homogeneous.</p>
+<p><strong>Proof</strong>:</p>
+<p>Suppose \(f_i\) is \(k_i\)-homogeneous for each \(i\). Then:</p>
+\(\begin{align}
+h(\alpha x) &= f_n(f_{n-1}(\cdots f_1(\alpha x))) \\
+&= f_n(f_{n-1}(\cdots (\alpha^{k_1} f_1(x)))) \\
+&= f_n(f_{n-1}(\cdots (\alpha^{k_1 k_2} f_2(f_1(x))))) \\
+&= f_n(\alpha^{k_1 k_2 \cdots k_{n-1}} f_{n-1}(\cdots f_1(x))) \\
+&= \alpha^{k_1 k_2 \cdots k_n} f_n(f_{n-1}(\cdots f_1(x))) \\
+&= \alpha^{k_1 k_2 \cdots k_n} h(x)
+\end{align}\)
+<p>For 1-homogeneity, we need: \(\alpha^{k_1 k_2 \cdots k_n} = \alpha\)</p>
+<p>This must hold for <strong>all</strong> \(\alpha > 0\). </p>
+<p>Taking logarithms: \(k_1 k_2 \cdots k_n = 1\)</p>
+<p><strong>Key insight</strong>: The only way the product equals 1 <strong>for all possible homogeneities</strong> is if: \(k_1 = k_2 = \cdots = k_n = 1\)</p>
+<p><strong>Why?</strong></p>
+<ul>
+<li><p>If any \(k_i = 0\), then product &#61; 0 &#40;0-homogeneous composition&#41;</p>
+</li>
+<li><p>If any \(k_i \neq 1\), you need other \(k_j\) values to compensate, but this only works for specific choices</p>
+</li>
+<li><p>Only \(k_i = 1\) for all \(i\) works <strong>universally</strong></p>
+</li>
+</ul>
+<p>Therefore, <strong>every function in the composition must be 1-homogeneous</strong>. ∎</p>
+<h2 id="critical_observation"><a href="#critical_observation" class="header-anchor">Critical Observation</a></h2>
+<p><strong>Any 0-homogeneous function acts as a &quot;scaling absorber&quot;:</strong></p>
+<ul>
+<li><p>Input: \(\alpha x\)</p>
+</li>
+<li><p>Output: Same as \(f(x)\)</p>
+</li>
+<li><p>The factor \(\alpha\) is completely eliminated</p>
+</li>
+</ul>
+<p><strong>Once scaling is absorbed, it cannot be recovered by subsequent operations.</strong></p>
+<h2 id="batchnorm_example"><a href="#batchnorm_example" class="header-anchor">BatchNorm Example</a></h2>
+<h3 id="batchnorm_normalization"><a href="#batchnorm_normalization" class="header-anchor">BatchNorm Normalization</a></h3>
+\[\text{normalize}(x) = \frac{x - \mu}{\sigma}\]
+<p>This is <strong>0-homogeneous</strong>:</p>
+\[\text{normalize}(\alpha x) = \frac{\alpha x - \alpha \mu}{\alpha \sigma} = \frac{\alpha(x - \mu)}{\alpha \sigma} = \frac{x - \mu}{\sigma} = \text{normalize}(x)\]
+<h3 id="network_with_batchnorm"><a href="#network_with_batchnorm" class="header-anchor">Network with BatchNorm</a></h3>
+<p>For network \(N(x) = W_n \circ \text{BN} \circ W_{n-1} \circ \cdots \circ W_1(x)\):</p>
+\[N(\alpha x) = W_n(\text{BN}(W_{n-1}(\cdots \alpha x))) = W_n(\text{BN}(\text{something}))\]
+<p>Since BN is 0-homogeneous, regardless of what comes before:</p>
+\[N(\alpha x) = \text{does not scale with } \alpha\]
+<p>❌ <strong>The entire network becomes 0-homogeneous</strong></p>
+<h2 id="skip_connections_residual_connections"><a href="#skip_connections_residual_connections" class="header-anchor">Skip Connections &#40;Residual Connections&#41;</a></h2>
+<h3 id="the_addition_problem"><a href="#the_addition_problem" class="header-anchor">The Addition Problem</a></h3>
+<p>Addition is <strong>NOT a homogeneous operation</strong> in general: \((f + g)(\alpha x) = f(\alpha x) + g(\alpha x)\)</p>
+<p>This only equals \(\alpha(f(x) + g(x))\) if <strong>both</strong> \(f\) and \(g\) have the same homogeneity.</p>
+<h3 id="residual_block_with_batchnorm"><a href="#residual_block_with_batchnorm" class="header-anchor">Residual Block with BatchNorm</a></h3>
+<p>Consider a typical ResNet block: \(y = x + F(x)\)</p>
+<p>where \(F(x) = W_2 \circ \text{BN} \circ \text{ReLU} \circ W_1(x)\)</p>
+<p><strong>What happens with scaling?</strong></p>
+<ul>
+<li><p><strong>Skip path</strong>: \(x \to \alpha x\) &#40;1-homogeneous, just identity&#41;</p>
+</li>
+<li><p><strong>Residual path</strong>: \(F(\alpha x) = F(x)\) &#40;0-homogeneous due to BN&#41;</p>
+</li>
+</ul>
+\(y(\alpha x) = \alpha x + F(\alpha x) = \alpha x + F(x)\)
+<p>But for 1-homogeneity we need: \(y(\alpha x) = \alpha(x + F(x))\)</p>
+<p><strong>These are NOT equal&#33;</strong> ❌</p>
+<h3 id="the_mismatch"><a href="#the_mismatch" class="header-anchor">The Mismatch</a></h3>
+\(\begin{align}
+\text{Actual:} \quad & \alpha x + F(x) \\
+\text{Needed:} \quad & \alpha x + \alpha F(x)
+\end{align}\)
+<p>The skip connection scales with \(\alpha\), but the BatchNorm path doesn&#39;t. This creates an <strong>imbalance</strong> that breaks homogeneity.</p>
+<h3 id="visual_example"><a href="#visual_example" class="header-anchor">Visual Example</a></h3>
+<p>With \(\alpha = 2\):</p>
+<ul>
+<li><p>Skip: \(2x\) &#40;doubled&#41;</p>
+</li>
+<li><p>BN branch: \(F(x)\) &#40;unchanged&#41;</p>
+</li>
+<li><p>Sum: \(2x + F(x)\) &#40;not proportional to \(x + F(x)\)&#41;</p>
+</li>
+</ul>
+<p><strong>The relative contribution of each path changes with input scale&#33;</strong></p>
+<h2 id="conclusion"><a href="#conclusion" class="header-anchor">Conclusion</a></h2>
+<p><strong>To maintain 1-homogeneity through a composition:</strong></p>
+<ul>
+<li><p>✅ All functions must be 1-homogeneous</p>
+</li>
+<li><p>❌ Even ONE 0-homogeneous function breaks the chain</p>
+</li>
+<li><p>❌ Skip connections mixing different homogeneities break it too</p>
+</li>
+<li><p>The 0-homogeneous function &quot;absorbs&quot; all scaling information</p>
+</li>
+<li><p>Addition requires <strong>matching homogeneity</strong> on both branches</p>
+</li>
+<li><p>Subsequent layers cannot recover what was lost</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: November 19, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
