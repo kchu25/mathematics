@@ -1,12 +1,12 @@
-@def title = "Power Analysis for Mann-Whitney U Test"
+@def title = "Mann-Whitney U Test: Sample Size Planning and Effect Size Reporting"
 @def published = "12 December 2025"
 @def tags = ["statistics"]
 
-# Power Analysis for Mann-Whitney U Test
+# Mann-Whitney U Test: Sample Size Planning and Effect Size Reporting
 
-## Does This Apply to Mann-Whitney U Test?
+## Does Power Analysis Apply to Mann-Whitney U Test?
 
-**Yes, with modifications.** The principles of power analysis apply broadly to hypothesis tests comparing groups, but the Mann-Whitney U test (also known as the Wilcoxon rank-sum test) has important characteristics for independent samples:
+**Partially, with important caveats.** Formal power analysis is designed for parametric tests, but researchers often use approximations for planning Mann-Whitney U studies:
 
 ### Key Differences for Mann-Whitney U Test
 
@@ -25,7 +25,26 @@
 
 ---
 
-## Power Analysis Procedure for Mann-Whitney U Test
+## Sample Size Planning for Mann-Whitney U Test
+
+### Important Note on Power Analysis for Non-Parametric Tests
+
+**Limitation**: Formal power analysis for Mann-Whitney U test is not straightforward because:
+- Cohen's d is designed for parametric tests (comparing means)
+- Mann-Whitney compares distributions/ranks, not means
+- True non-parametric power analysis requires simulation
+
+**Common Practice**: In practice, researchers typically:
+1. Use **t-test power formulas as approximations** (as shown below)
+2. Apply the efficiency correction factor (~1.05)
+3. Acknowledge this is an approximation, not theoretically exact
+
+**Alternative approaches**:
+- Use simulation-based power analysis for your specific data distribution
+- Follow rules of thumb (minimum 20-30 per group)
+- Report post-hoc effect sizes (rank-biserial correlation) to help future studies
+
+The formulas below use Cohen's d as an approximation for planning purposes, but remember that the actual effect size you report should be rank-biserial correlation (r).
 
 ### Step 1: Determine Your Design
 
@@ -117,7 +136,7 @@ n1, n2 = length(x), length(y)
 r = 1 - (2 * u_statistic) / (n1 * n2)
 ```
 
-### 3. Calculate Power Post-Hoc
+### 3. Calculate Statistical Power (Post-Hoc)
 
 After collecting data, verify you had adequate power:
 
@@ -168,14 +187,16 @@ adjusted_power = mann_whitney_power(n_per_group * 0.955, observed_d)
 6. **Effect size**: Rank-biserial correlation (r) or probability of superiority
 7. **Descriptive statistics**: Medians and IQR (not means/SD)
 
-**For power analysis reporting:**
+**For sample size planning:**
 
 ```
-A priori: "Power analysis indicated that n = 50 per group 
-          provided 80% power to detect d ≥ 0.60."
+A priori: "Based on t-test approximations, n = 50 per group 
+          should provide 80% power to detect d ≥ 0.60, 
+          adjusted for Mann-Whitney efficiency."
 
-Post-hoc: "With n₁ = 45 and n₂ = 40, the study achieved 80% 
-          power to detect effects of d ≥ 0.65."
+Post-hoc: "With n₁ = 45 and n₂ = 40, the study had 
+          approximately 80% power to detect effects of d ≥ 0.65 
+          (based on t-test approximations)."
 
 Underpowered: "The sample (n = 20 per group) provided 80% 
               power only for large effects (d ≥ 0.95). 
