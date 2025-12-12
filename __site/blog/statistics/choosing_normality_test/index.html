@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Guide to Normality Testing and Robust Alternatives</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="guide_to_normality_testing_and_robust_alternatives"><a href="#guide_to_normality_testing_and_robust_alternatives" class="header-anchor">Guide to Normality Testing and Robust Alternatives</a></h1>
+<h2 id="should_you_use_the_kolmogorov-smirnov_test"><a href="#should_you_use_the_kolmogorov-smirnov_test" class="header-anchor">Should You Use the Kolmogorov-Smirnov Test?</a></h2>
+<p><strong>Generally, no.</strong> The Kolmogorov-Smirnov &#40;K-S&#41; test is often <strong>not</strong> the best choice for testing normality, especially when you don&#39;t know the population parameters &#40;mean and variance&#41; beforehand.</p>
+<h2 id="better_alternatives"><a href="#better_alternatives" class="header-anchor">Better Alternatives</a></h2>
+<h3 id="shapiro-wilk_test_most_recommended"><a href="#shapiro-wilk_test_most_recommended" class="header-anchor"><ol>
+<li><p><strong>Shapiro-Wilk Test</strong> &#40;Most Recommended&#41;</p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p><strong>Best for:</strong> Small to medium sample sizes &#40;n &lt; 2000&#41;</p>
+</li>
+<li><p><strong>Power:</strong> Highest statistical power among normality tests</p>
+</li>
+<li><p><strong>Why it&#39;s better:</strong> More sensitive at detecting departures from normality than K-S</p>
+</li>
+</ul>
+<p><strong>Test statistic:</strong></p>
+\[W = \frac{\left(\sum_{i=1}^{n} a_i x_{(i)}\right)^2}{\sum_{i=1}^{n} (x_i - \bar{x})^2}\]
+<p>where \(x_{(i)}\) are the ordered sample values and \(a_i\) are constants.</p>
+<p><strong>Interpretation:</strong> Small p-values &#40;typically p &lt; 0.05&#41; suggest non-normality.</p>
+<h3 id="ol_start2_anderson-darling_test"><a href="#ol_start2_anderson-darling_test" class="header-anchor"><ol start="2">
+<li><p><strong>Anderson-Darling Test</strong></p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p><strong>Best for:</strong> When you want more weight on tail deviations</p>
+</li>
+<li><p><strong>Power:</strong> Better than K-S, gives more weight to extreme values</p>
+</li>
+<li><p><strong>Why use it:</strong> Particularly good at detecting heavy-tailed or skewed distributions</p>
+</li>
+</ul>
+<p><strong>Test statistic:</strong></p>
+\[A^2 = -n - \sum_{i=1}^{n} \frac{2i-1}{n}\left[\ln F(x_i) + \ln(1-F(x_{n+1-i}))\right]\]
+<h3 id="ol_start3_kolmogorov-smirnov_test_with_lilliefors_correction"><a href="#ol_start3_kolmogorov-smirnov_test_with_lilliefors_correction" class="header-anchor"><ol start="3">
+<li><p><strong>Kolmogorov-Smirnov Test</strong> &#40;with Lilliefors correction&#41;</p>
+</li>
+</ol>
+</a></h3>
+<ul>
+<li><p><strong>When to use:</strong> Large sample sizes, or when comparing to a fully specified distribution</p>
+</li>
+<li><p><strong>Limitation:</strong> Low power compared to Shapiro-Wilk</p>
+</li>
+<li><p><strong>Important:</strong> Use the <strong>Lilliefors correction</strong> when estimating parameters from data</p>
+</li>
+</ul>
+<p><strong>Test statistic:</strong></p>
+\[D = \sup_x |F_n(x) - F(x)|\]
+<p>where \(F_n\) is the empirical CDF and \(F\) is the theoretical normal CDF.</p>
+<h2 id="practical_recommendations"><a href="#practical_recommendations" class="header-anchor">Practical Recommendations</a></h2>
+<h3 id="sample_size_matters"><a href="#sample_size_matters" class="header-anchor">Sample Size Matters</a></h3>
+<table><tr><th align="right">Sample Size</th><th align="right">Recommended Test</th></tr><tr><td align="right">n &lt; 50</td><td align="right">Shapiro-Wilk</td></tr><tr><td align="right">50 ≤ n &lt; 2000</td><td align="right">Shapiro-Wilk or Anderson-Darling</td></tr><tr><td align="right">n ≥ 2000</td><td align="right">Anderson-Darling or visual methods</td></tr></table>
+<h3 id="consider_visual_methods_too"><a href="#consider_visual_methods_too" class="header-anchor">Consider Visual Methods Too</a></h3>
+<p>Statistical tests alone aren&#39;t enough. Always use:</p>
+<ol>
+<li><p><strong>Q-Q plots</strong> &#40;quantile-quantile plots&#41; - most informative</p>
+</li>
+<li><p><strong>Histograms with normal overlay</strong></p>
+</li>
+<li><p><strong>Kernel density plots</strong></p>
+</li>
+</ol>
+<h2 id="understanding_q-q_plots_in_detail"><a href="#understanding_q-q_plots_in_detail" class="header-anchor">Understanding Q-Q Plots in Detail</a></h2>
+<h3 id="what_is_a_q-q_plot"><a href="#what_is_a_q-q_plot" class="header-anchor">What is a Q-Q Plot?</a></h3>
+<p>A <strong>quantile-quantile &#40;Q-Q&#41; plot</strong> compares the quantiles of your data against the quantiles of a theoretical normal distribution. If your data is normally distributed, the points should fall approximately on a straight diagonal line.</p>
+<h3 id="how_it_works"><a href="#how_it_works" class="header-anchor">How It Works</a></h3>
+<p><strong>The process:</strong></p>
+<ol>
+<li><p>Sort your data values from smallest to largest</p>
+</li>
+<li><p>Calculate the theoretical quantiles &#40;z-scores&#41; that a normal distribution would have at those positions</p>
+</li>
+<li><p>Plot: actual data values &#40;y-axis&#41; vs. theoretical normal quantiles &#40;x-axis&#41;</p>
+</li>
+</ol>
+<p><strong>Mathematical formulation:</strong></p>
+<p>For each data point \(x_i\) at position \(i\) in the sorted data:</p>
+<ul>
+<li><p>Plotting position: \(p_i = \frac{i - 0.5}{n}\) &#40;where \(n\) is sample size&#41;</p>
+</li>
+<li><p>Theoretical quantile: \(q_i = \Phi^{-1}(p_i)\) &#40;inverse normal CDF&#41;</p>
+</li>
+<li><p>Plot the point: \((q_i, x_i)\)</p>
+</li>
+</ul>
+<h3 id="interpreting_q-q_plots"><a href="#interpreting_q-q_plots" class="header-anchor">Interpreting Q-Q Plots</a></h3>
+<h4 id="perfect_normality"><a href="#perfect_normality" class="header-anchor">Perfect Normality</a></h4>
+<p>Points fall exactly on the diagonal reference line &#40;rarely happens with real data&#41;.</p>
+<h4 id="good_enough_normality"><a href="#good_enough_normality" class="header-anchor">Good Enough Normality</a></h4>
+<p>Points follow the line closely with minor, random deviations. Small departures, especially in the middle, are usually fine.</p>
+<h4 id="common_deviation_patterns"><a href="#common_deviation_patterns" class="header-anchor">Common Deviation Patterns</a></h4>
+<table><tr><th align="right">Pattern</th><th align="right">What It Means</th><th align="right">Visual Description</th></tr><tr><td align="right"><strong>S-shaped curve</strong></td><td align="right">Heavy tails &#40;leptokurtic&#41;</td><td align="right">Points curve above line at both ends</td></tr><tr><td align="right"><strong>Inverted S-curve</strong></td><td align="right">Light tails &#40;platykurtic&#41;</td><td align="right">Points curve below line at both ends</td></tr><tr><td align="right"><strong>Points above line on right</strong></td><td align="right">Right skew &#40;positive skew&#41;</td><td align="right">Upper tail deviates upward</td></tr><tr><td align="right"><strong>Points below line on left</strong></td><td align="right">Left skew &#40;negative skew&#41;</td><td align="right">Lower tail deviates downward</td></tr><tr><td align="right"><strong>Exponential curve</strong></td><td align="right">Exponential distribution</td><td align="right">Systematic upward curve</td></tr><tr><td align="right"><strong>Discrete steps</strong></td><td align="right">Discrete/grouped data</td><td align="right">Horizontal segments instead of smooth curve</td></tr></table>
+<h3 id="why_q-q_plots_are_most_informative"><a href="#why_q-q_plots_are_most_informative" class="header-anchor">Why Q-Q Plots are &quot;Most Informative&quot;</a></h3>
+<ol>
+<li><p><strong>Shows WHERE deviations occur</strong>: Unlike a single p-value, you can see if problems are in the tails, center, or throughout</p>
+</li>
+<li><p><strong>Magnitude of departure</strong>: The vertical distance from the line shows how far your data deviates from normality</p>
+</li>
+<li><p><strong>Type of non-normality</strong>: The pattern tells you what kind of distribution you might actually have</p>
+</li>
+<li><p><strong>Sample size insensitivity</strong>: Works well with any sample size, whereas statistical tests become oversensitive with large \(n\)</p>
+</li>
+<li><p><strong>Practical assessment</strong>: Helps you judge if departures are severe enough to matter for your analysis</p>
+</li>
+</ol>
+<h3 id="example_interpretation"><a href="#example_interpretation" class="header-anchor">Example Interpretation</a></h3>
+<p>Suppose your Q-Q plot shows:</p>
+<ul>
+<li><p>Points hug the line in the middle</p>
+</li>
+<li><p>Points curve upward at both ends</p>
+</li>
+</ul>
+<p><strong>Diagnosis:</strong> Your data has heavier tails than a normal distribution &#40;more extreme values than expected&#41;. This might indicate:</p>
+<ul>
+<li><p>Outliers or contamination</p>
+</li>
+<li><p>A t-distribution-like shape</p>
+</li>
+<li><p>The need for robust statistical methods</p>
+</li>
+</ul>
+<h3 id="when_to_be_concerned"><a href="#when_to_be_concerned" class="header-anchor">When to Be Concerned</a></h3>
+<p><strong>Minor concerns &#40;usually OK&#41;:</strong></p>
+<ul>
+<li><p>Slight waviness around the line</p>
+</li>
+<li><p>1-2 points slightly off at the extremes</p>
+</li>
+<li><p>Small sample size with some scatter</p>
+</li>
+</ul>
+<p><strong>Major concerns &#40;investigate further&#41;:</strong></p>
+<ul>
+<li><p>Systematic S-curve or inverted S-curve</p>
+</li>
+<li><p>Large gaps between points and line</p>
+</li>
+<li><p>Multiple outliers far from the line</p>
+</li>
+<li><p>Clear exponential or other non-linear pattern</p>
+</li>
+</ul>
+<h3 id="practical_tips"><a href="#practical_tips" class="header-anchor">Practical Tips</a></h3>
+<ul>
+<li><p><strong>Always plot it</strong>: Even if statistical tests say &quot;normal,&quot; look at the Q-Q plot</p>
+</li>
+<li><p><strong>Focus on the middle</strong>: Extreme quantiles are naturally more variable</p>
+</li>
+<li><p><strong>Add confidence bands</strong>: Some software adds confidence intervals around the reference line</p>
+</li>
+<li><p><strong>Compare to reference distributions</strong>: Create Q-Q plots for known normal data to calibrate your eye</p>
+</li>
+</ul>
+<h3 id="why_visual_methods_matter"><a href="#why_visual_methods_matter" class="header-anchor">Why Visual Methods Matter</a></h3>
+<ul>
+<li><p>Statistical tests can be <strong>oversensitive</strong> with large samples &#40;detecting trivial departures&#41;</p>
+</li>
+<li><p>They can be <strong>underpowered</strong> with small samples</p>
+</li>
+<li><p>Many statistical procedures are <strong>robust</strong> to mild violations of normality</p>
+</li>
+</ul>
+<h2 id="decision_framework"><a href="#decision_framework" class="header-anchor">Decision Framework</a></h2>
+<pre><code class="language-julia">Do you need to test normality?
+│
+├─ Small sample &#40;n &lt; 50&#41;
+│  └─ Use: Shapiro-Wilk &#43; Q-Q plot
+│
+├─ Medium sample &#40;50 ≤ n &lt; 2000&#41;
+│  └─ Use: Shapiro-Wilk or Anderson-Darling &#43; Q-Q plot
+│
+└─ Large sample &#40;n ≥ 2000&#41;
+   └─ Use: Visual methods primarily &#40;Q-Q plot&#41;
+      └─ If test needed: Anderson-Darling</code></pre>
+<h2 id="the_test-then-decide_approach_a_controversial_practice"><a href="#the_test-then-decide_approach_a_controversial_practice" class="header-anchor">The &quot;Test-Then-Decide&quot; Approach: A Controversial Practice</a></h2>
+<h3 id="is_shapiro-wilk_t-test_standard_practice"><a href="#is_shapiro-wilk_t-test_standard_practice" class="header-anchor">Is Shapiro-Wilk → t-test Standard Practice?</a></h3>
+<p><strong>Short answer:</strong> It&#39;s common, but <strong>statisticians generally advise against it</strong>.</p>
+<h3 id="why_its_problematic"><a href="#why_its_problematic" class="header-anchor">Why It&#39;s Problematic</a></h3>
+<h4 id="the_multiple_testing_problem"><a href="#the_multiple_testing_problem" class="header-anchor"><ol>
+<li><p><strong>The Multiple Testing Problem</strong></p>
+</li>
+</ol>
+</a></h4>
+<p>When you test normality first &#40;α &#61; 0.05&#41;, then perform a t-test &#40;α &#61; 0.05&#41;, your actual Type I error rate is <strong>not</strong> 5&#37; anymore. You&#39;re making two decisions, which compounds error rates.</p>
+<h4 id="ol_start2_mismatched_statistical_power"><a href="#ol_start2_mismatched_statistical_power" class="header-anchor"><ol start="2">
+<li><p><strong>Mismatched Statistical Power</strong></p>
+</li>
+</ol>
+</a></h4>
+<ul>
+<li><p>With <strong>small samples</strong>: Normality tests have low power &#40;often fail to detect non-normality when it exists&#41; → you use t-test even when assumptions are violated</p>
+</li>
+<li><p>With <strong>large samples</strong>: Normality tests have high power &#40;detect trivial departures&#41; → you abandon t-test even when it would work fine due to robustness</p>
+</li>
+</ul>
+<p>This is backwards from what you need&#33;</p>
+<h4 id="ol_start3_the_robustness_paradox"><a href="#ol_start3_the_robustness_paradox" class="header-anchor"><ol start="3">
+<li><p><strong>The Robustness Paradox</strong></p>
+</li>
+</ol>
+</a></h4>
+<p>The t-test is remarkably robust to violations of normality, especially when:</p>
+<ul>
+<li><p>Sample sizes are moderate to large &#40;n ≥ 30 per group&#41;</p>
+</li>
+<li><p>Sample sizes are roughly equal between groups</p>
+</li>
+<li><p>Distributions are not extremely skewed</p>
+</li>
+</ul>
+<p>So you might abandon a perfectly valid t-test based on a &quot;failed&quot; normality test.</p>
+<h3 id="what_statisticians_recommend_instead"><a href="#what_statisticians_recommend_instead" class="header-anchor">What Statisticians Recommend Instead</a></h3>
+<h4 id="option_1_assume_nothing_use_robust_methods_safest"><a href="#option_1_assume_nothing_use_robust_methods_safest" class="header-anchor"><strong>Option 1: Assume Nothing, Use Robust Methods</strong> &#40;Safest&#41;</a></h4>
+<p>Skip normality testing entirely and use methods that work regardless:</p>
+<ul>
+<li><p><strong>Welch&#39;s t-test</strong> &#40;doesn&#39;t assume equal variances&#41;</p>
+</li>
+<li><p><strong>Mann-Whitney U test</strong> &#40;non-parametric alternative&#41; - see detailed explanation below</p>
+</li>
+<li><p><strong>Permutation tests</strong> &#40;exact, no distributional assumptions&#41;</p>
+</li>
+<li><p><strong>Bootstrap methods</strong> &#40;resampling-based inference&#41;</p>
+</li>
+</ul>
+<h4 id="option_2_check_assumptions_dont_test_them_most_common"><a href="#option_2_check_assumptions_dont_test_them_most_common" class="header-anchor"><strong>Option 2: Check Assumptions, Don&#39;t Test Them</strong> &#40;Most Common&#41;</a></h4>
+<ul>
+<li><p>Use <strong>Q-Q plots</strong> and <strong>histograms</strong> to visually assess normality</p>
+</li>
+<li><p>Look for major violations &#40;extreme skewness, heavy outliers&#41;</p>
+</li>
+<li><p>Make an <strong>informed judgment</strong> rather than a mechanical p-value cutoff</p>
+</li>
+<li><p>Proceed with t-test if violations are minor</p>
+</li>
+</ul>
+<h4 id="option_3_let_theory_guide_you_best_practice"><a href="#option_3_let_theory_guide_you_best_practice" class="header-anchor"><strong>Option 3: Let Theory Guide You</strong> &#40;Best Practice&#41;</a></h4>
+<ul>
+<li><p>Consider what you know about the data generation process</p>
+</li>
+<li><p>Use domain knowledge about typical distributions</p>
+</li>
+<li><p>Choose methods based on study design, not mechanical testing</p>
+</li>
+</ul>
+<h3 id="a_better_decision_framework"><a href="#a_better_decision_framework" class="header-anchor">A Better Decision Framework</a></h3>
+<pre><code class="language-julia">Before analysis:
+│
+├─ Check sample size
+│  ├─ n &lt; 15 per group → Consider non-parametric tests
+│  └─ n ≥ 30 per group → t-test is robust
+│
+├─ Visualize data &#40;Q-Q plots, boxplots&#41;
+│  ├─ Extreme skewness or outliers? → Transform or use robust methods
+│  └─ Roughly symmetric? → t-test is fine
+│
+└─ Check equal variances &#40;more important than normality&#33;&#41;
+   ├─ Very unequal? → Use Welch&#39;s t-test
+   └─ Similar? → Standard t-test is fine</code></pre>
+<h3 id="what_to_do_instead"><a href="#what_to_do_instead" class="header-anchor">What to Do Instead</a></h3>
+<p><strong>Good workflow:</strong></p>
+<ol>
+<li><p><strong>Visualize first</strong> - make Q-Q plots, histograms, boxplots</p>
+</li>
+<li><p><strong>Think about context</strong> - what do you know about this type of data?</p>
+</li>
+<li><p><strong>Assess severity</strong> - are violations severe or trivial?</p>
+</li>
+<li><p><strong>Choose appropriate test</strong>:</p>
+<ul>
+<li><p>Minor issues &#43; n ≥ 30: Regular t-test</p>
+</li>
+<li><p>Moderate skewness: Welch&#39;s t-test or transform data</p>
+</li>
+<li><p>Severe violations: Non-parametric test or bootstrap</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Consider reporting both</strong> - parametric and non-parametric results</p>
+</li>
+</ol>
+<h2 id="understanding_the_mann-whitney_u_test"><a href="#understanding_the_mann-whitney_u_test" class="header-anchor">Understanding the Mann-Whitney U Test</a></h2>
+<h3 id="what_does_it_actually_test"><a href="#what_does_it_actually_test" class="header-anchor">What Does It Actually Test?</a></h3>
+<p>You&#39;re right - that formal definition is terrible&#33; Here&#39;s what the Mann-Whitney U test really does:</p>
+<p><strong>Simple version:</strong> It tests whether one group tends to have <strong>larger values</strong> than the other group.</p>
+<p><strong>More precisely:</strong> It tests whether the two groups come from populations with the same <strong>distribution</strong> &#40;location, spread, and shape&#41;.</p>
+<h3 id="the_intuitive_explanation"><a href="#the_intuitive_explanation" class="header-anchor">The Intuitive Explanation</a></h3>
+<p>Imagine you have two groups:</p>
+<ul>
+<li><p><strong>Group X:</strong> Reaction times for Drug A</p>
+</li>
+<li><p><strong>Group Y:</strong> Reaction times for Drug B</p>
+</li>
+</ul>
+<p>The Mann-Whitney U test asks: <strong>&quot;If I randomly pick one person from Group X and one from Group Y, what&#39;s the probability that X &gt; Y?&quot;</strong></p>
+<ul>
+<li><p>If the groups are identical, this probability should be 50&#37; &#40;like flipping a fair coin&#41;</p>
+</li>
+<li><p>If Group X tends to be larger, the probability will be &gt; 50&#37;</p>
+</li>
+<li><p>If Group Y tends to be larger, the probability will be &lt; 50&#37;</p>
+</li>
+</ul>
+<p><strong>Null hypothesis:</strong> \(P(X > Y) = 0.5\) &#40;no difference between groups&#41;</p>
+<p><strong>Alternative hypothesis:</strong> \(P(X > Y) \neq 0.5\) &#40;one group tends to be larger&#41;</p>
+<p><strong>Important note on symmetry:</strong> The test is completely symmetric - it doesn&#39;t matter which group you call X or Y. The null hypothesis \(P(X > Y) = 0.5\) is equivalent to \(P(X > Y) = P(Y > X)\), and both probabilities equal 0.5 when groups are identical. The alternative hypothesis \(P(X > Y) \neq 0.5\) captures both possibilities: either \(P(X > Y) > 0.5\) &#40;X tends larger&#41; or \(P(X > Y) < 0.5\) &#40;Y tends larger&#41;. You&#39;ll get the same p-value regardless of group labeling.</p>
+<h3 id="how_it_actually_works"><a href="#how_it_actually_works" class="header-anchor">How It Actually Works</a></h3>
+<p>The test uses <strong>ranks</strong> instead of raw values:</p>
+<ol>
+<li><p><strong>Combine all data</strong> from both groups</p>
+</li>
+<li><p><strong>Rank everything</strong> from smallest &#40;rank 1&#41; to largest &#40;rank n&#41;</p>
+</li>
+<li><p><strong>Sum the ranks</strong> for each group</p>
+</li>
+<li><p><strong>Compare the sums</strong> - if one group has much higher ranks, it tends to have larger values</p>
+</li>
+</ol>
+<p><strong>Example:</strong></p>
+<p>Group A: 12, 15, 18   Group B: 10, 14, 20</p>
+<p>Combined and ranked:</p>
+<ul>
+<li><p>10 &#40;B, rank 1&#41;</p>
+</li>
+<li><p>12 &#40;A, rank 2&#41;</p>
+</li>
+<li><p>14 &#40;B, rank 3&#41;</p>
+</li>
+<li><p>15 &#40;A, rank 4&#41;</p>
+</li>
+<li><p>18 &#40;A, rank 5&#41;</p>
+</li>
+<li><p>20 &#40;B, rank 6&#41;</p>
+</li>
+</ul>
+<p>Sum of ranks:</p>
+<ul>
+<li><p>Group A: 2 &#43; 4 &#43; 5 &#61; 11</p>
+</li>
+<li><p>Group B: 1 &#43; 3 &#43; 6 &#61; 10</p>
+</li>
+</ul>
+<p>Are these sums different enough to conclude the groups differ? The Mann-Whitney U statistic tells us.</p>
+<h3 id="what_its_really_testing"><a href="#what_its_really_testing" class="header-anchor">What It&#39;s Really Testing</a></h3>
+<p><strong>Most common interpretation:</strong> Tests if the <strong>medians</strong> differ between groups</p>
+<p><strong>More accurate interpretation:</strong> Tests if the entire <strong>distributions</strong> differ in location</p>
+<p><strong>Technical truth:</strong> Tests if values from one group are <strong>stochastically larger</strong> than the other</p>
+<h3 id="when_interpretations_matter"><a href="#when_interpretations_matter" class="header-anchor">When Interpretations Matter</a></h3>
+<h4 id="if_distributions_have_the_same_shape_just_shifted"><a href="#if_distributions_have_the_same_shape_just_shifted" class="header-anchor">If distributions have the same shape &#40;just shifted&#41;:</a></h4>
+<p>✓ You can say: &quot;Group A has a higher median than Group B&quot;   ✓ You can interpret it as a location shift</p>
+<h4 id="if_distributions_have_different_shapes"><a href="#if_distributions_have_different_shapes" class="header-anchor">If distributions have different shapes:</a></h4>
+<p>⚠️ Be careful saying &quot;medians differ&quot;   ✓ Better: &quot;Group A tends to have larger values than Group B&quot;   ✓ Or: &quot;The distributions differ&quot;</p>
+<h3 id="why_use_mann-whitney_instead_of_t-test"><a href="#why_use_mann-whitney_instead_of_t-test" class="header-anchor">Why Use Mann-Whitney Instead of t-test?</a></h3>
+<table><tr><th align="right">Situation</th><th align="right">Better Choice</th><th align="right">Reason</th></tr><tr><td align="right">Ordinal data &#40;rankings, Likert scales&#41;</td><td align="right">Mann-Whitney</td><td align="right">t-test requires interval/ratio data</td></tr><tr><td align="right">Severe skewness</td><td align="right">Mann-Whitney</td><td align="right">Not sensitive to outliers</td></tr><tr><td align="right">Small sample &#43; non-normal</td><td align="right">Mann-Whitney</td><td align="right">Fewer assumptions</td></tr><tr><td align="right">Outliers present</td><td align="right">Mann-Whitney</td><td align="right">Uses ranks, not raw values</td></tr><tr><td align="right">Normal-ish data, n ≥ 30</td><td align="right">t-test</td><td align="right">More statistical power</td></tr></table>
+<h3 id="the_u_statistic_formula"><a href="#the_u_statistic_formula" class="header-anchor">The U Statistic Formula</a></h3>
+<p>For Group X with size \(n_x\) and Group Y with size \(n_y\):</p>
+\(U_x = n_x n_y + \frac{n_x(n_x + 1)}{2} - R_x\)
+<p>where \(R_x\) is the sum of ranks for Group X.</p>
+<p>The test uses the <strong>smaller</strong> of \(U_x\) and \(U_y\).</p>
+<h3 id="common_misconceptions"><a href="#common_misconceptions" class="header-anchor">Common Misconceptions</a></h3>
+<p>❌ <strong>&quot;It tests if medians are different&quot;</strong> → Only true if distributions have the same shape   ❌ <strong>&quot;It&#39;s just a t-test on ranks&quot;</strong> → Close, but not exactly   ❌ <strong>&quot;It&#39;s always better than a t-test&quot;</strong> → No, t-test is more powerful when assumptions are met   ✓ <strong>&quot;It tests if one group stochastically dominates the other&quot;</strong> → Most accurate</p>
+<h3 id="practical_takeaway"><a href="#practical_takeaway" class="header-anchor">Practical Takeaway</a></h3>
+<p>Use Mann-Whitney when you want to test <strong>&quot;Does Group A tend to have larger/smaller values than Group B?&quot;</strong> without assuming anything about the shape of the distributions. It&#39;s your robust, assumption-free alternative to the t-test.</p>
+<h3 id="the_academic_reality"><a href="#the_academic_reality" class="header-anchor">The Academic Reality</a></h3>
+<p>Despite statisticians&#39; recommendations, many fields still use the &quot;test normality first&quot; approach because:</p>
+<ul>
+<li><p>It&#39;s taught in introductory courses</p>
+</li>
+<li><p>Reviewers sometimes expect it</p>
+</li>
+<li><p>It provides a &quot;defensive&quot; paper trail</p>
+</li>
+</ul>
+<p>If you&#39;re in a field where this is expected, consider:</p>
+<ul>
+<li><p>Reporting visual assessments alongside statistical tests</p>
+</li>
+<li><p>Using α &#61; 0.01 for normality tests &#40;more conservative&#41;</p>
+</li>
+<li><p>Noting the limitations in your methods section</p>
+</li>
+<li><p>Presenting both parametric and non-parametric results</p>
+</li>
+</ul>
+<h2 id="the_bottom_line"><a href="#the_bottom_line" class="header-anchor">The Bottom Line</a></h2>
+<p><strong>Avoid the standard Kolmogorov-Smirnov test for normality testing.</strong> If you must use it, use the Lilliefors-corrected version. The Shapiro-Wilk test is generally the gold standard for most applications, combined with visual inspection through Q-Q plots.</p>
+<p><strong>However</strong>, the best practice is typically to <strong>skip formal normality testing</strong> and instead: &#40;1&#41; visualize your data, &#40;2&#41; consider the robustness of your chosen test, and &#40;3&#41; use methods that don&#39;t require strict normality assumptions when in doubt.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

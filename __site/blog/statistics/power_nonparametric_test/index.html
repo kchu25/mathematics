@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Power Analysis for Non-Parametric Tests</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="power_analysis_for_non-parametric_tests"><a href="#power_analysis_for_non-parametric_tests" class="header-anchor">Power Analysis for Non-Parametric Tests</a></h1>
+<h2 id="does_this_apply_to_wilcoxon_signed-rank_test"><a href="#does_this_apply_to_wilcoxon_signed-rank_test" class="header-anchor">Does This Apply to Wilcoxon Signed-Rank Test?</a></h2>
+<p><strong>Yes, with modifications.</strong> The principles from the article apply broadly to hypothesis tests comparing groups, but non-parametric tests like the Wilcoxon signed-rank test have important differences:</p>
+<h3 id="key_differences_for_non-parametric_tests"><a href="#key_differences_for_non-parametric_tests" class="header-anchor">Key Differences for Non-Parametric Tests</a></h3>
+<ol>
+<li><p><strong>Efficiency Loss</strong>: Non-parametric tests are slightly less powerful than parametric tests &#40;t-tests&#41; when data is normally distributed</p>
+<ul>
+<li><p><strong>Rule of thumb</strong>: Non-parametric tests require ~5-15&#37; more samples than t-tests for the same power</p>
+</li>
+<li><p>The article mentions this: &quot;Non-parametric tests: Slightly less powerful than t-tests when data is normal; may need ~5-15&#37; more samples&quot;</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Effect Size Measures</strong>: </p>
+<ul>
+<li><p>t-tests use <strong>Cohen&#39;s d</strong> &#40;difference in means / pooled SD&#41;</p>
+</li>
+<li><p>Wilcoxon uses <strong>rank-biserial correlation</strong> or <strong>probability of superiority</strong></p>
+</li>
+<li><p>Approximate conversion: For large samples, Cohen&#39;s d ≈ effect size for Wilcoxon</p>
+</li>
+</ul>
+</li>
+<li><p><strong>When to Use Which Test</strong>:</p>
+<ul>
+<li><p><strong>Use t-test</strong> if: Data is approximately normal, or \(n \geq 30\) per group &#40;Central Limit Theorem&#41;</p>
+</li>
+<li><p><strong>Use Wilcoxon</strong> if: Data is heavily skewed, has outliers, or violates normality assumptions</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="power_analysis_procedure_for_wilcoxon_signed-rank_test"><a href="#power_analysis_procedure_for_wilcoxon_signed-rank_test" class="header-anchor">Power Analysis Procedure for Wilcoxon Signed-Rank Test</a></h2>
+<h3 id="step_1_determine_your_design"><a href="#step_1_determine_your_design" class="header-anchor">Step 1: Determine Your Design</a></h3>
+<p><strong>Wilcoxon signed-rank test</strong> is for:</p>
+<ul>
+<li><p><strong>Paired samples</strong> &#40;same subjects, two conditions&#41;</p>
+</li>
+<li><p><strong>Before-after measurements</strong></p>
+</li>
+<li><p><strong>Matched pairs</strong></p>
+</li>
+</ul>
+<p><em>Note: For independent groups, use Mann-Whitney U test instead.</em></p>
+<h3 id="step_2_calculate_required_sample_size"><a href="#step_2_calculate_required_sample_size" class="header-anchor">Step 2: Calculate Required Sample Size</a></h3>
+<p>For <strong>paired</strong> Wilcoxon test, use the paired t-test formula with adjustment:</p>
+\[n = \frac{(Z_{1-\alpha/2} + Z_{1-\beta})^2}{d^2} \times \text{ARE}\]
+<p>Where:</p>
+<ul>
+<li><p><strong>ARE</strong> &#40;Asymptotic Relative Efficiency&#41; ≈ 0.955 when data is normal</p>
+</li>
+<li><p>This means Wilcoxon needs about 5&#37; more samples than paired t-test</p>
+</li>
+<li><p>For α &#61; 0.05, 80&#37; power: \(n \approx \frac{7.84}{d^2} \times 1.05 \approx \frac{8.2}{d^2}\)</p>
+</li>
+</ul>
+<h3 id="step_3_calculate_effective_sample_size_for_paired_design"><a href="#step_3_calculate_effective_sample_size_for_paired_design" class="header-anchor">Step 3: Calculate Effective Sample Size for Paired Design</a></h3>
+<p>The article mentions paired tests are &quot;much more powerful&quot; due to correlation:</p>
+\[n_{\text{eff,paired}} = n \times (1 - \rho)\]
+<p>Where \(\rho\) is the correlation between paired measurements.</p>
+<p><strong>Example</strong>: If you have 30 paired measurements with correlation \(\rho = 0.6\):</p>
+<ul>
+<li><p>Effective unpaired sample size: \(n_{\text{eff}} = 30 \times (1 - 0.6) = 12\)</p>
+</li>
+<li><p>But for paired test, you only need 30 pairs &#40;not 30 per group&#33;&#41;</p>
+</li>
+</ul>
+<h3 id="step_4_check_minimum_detectable_effect"><a href="#step_4_check_minimum_detectable_effect" class="header-anchor">Step 4: Check Minimum Detectable Effect</a></h3>
+<p>For Wilcoxon with \(n\) pairs and α &#61; 0.05, 80&#37; power:</p>
+\[d_{\min} \approx \frac{2.8 \times 1.05}{\sqrt{n}} = \frac{2.94}{\sqrt{n}}\]
+<p><strong>Reference table for Wilcoxon:</strong></p>
+<table><tr><th align="right">Pairs &#40;n&#41;</th><th align="right">Min Detectable d</th><th align="right">Interpretation</th></tr><tr><td align="right">10</td><td align="right">0.93</td><td align="right">Very large effects only</td></tr><tr><td align="right">20</td><td align="right">0.66</td><td align="right">Large effects</td></tr><tr><td align="right">30</td><td align="right">0.54</td><td align="right">Medium-large effects</td></tr><tr><td align="right">50</td><td align="right">0.42</td><td align="right">Medium effects</td></tr><tr><td align="right">100</td><td align="right">0.29</td><td align="right">Small-medium effects</td></tr><tr><td align="right">200</td><td align="right">0.21</td><td align="right">Small effects</td></tr></table>
+<hr />
+<h2 id="complete_testing_procedure"><a href="#complete_testing_procedure" class="header-anchor">Complete Testing Procedure</a></h2>
+<h3 id="check_assumptions"><a href="#check_assumptions" class="header-anchor"><ol>
+<li><p>Check Assumptions</p>
+</li>
+</ol>
+</a></h3>
+<p><strong>Before choosing your test:</strong></p>
+<pre><code class="language-julia">Normality Check:
+├─ Shapiro-Wilk test &#40;for n &lt; 50&#41;
+├─ Visual: QQ-plot
+└─ If p &lt; 0.05 or clear skewness → Use Wilcoxon</code></pre>
+<h3 id="ol_start2_conduct_the_wilcoxon_test"><a href="#ol_start2_conduct_the_wilcoxon_test" class="header-anchor"><ol start="2">
+<li><p>Conduct the Wilcoxon Test</p>
+</li>
+</ol>
+</a></h3>
+<p><strong>In R:</strong></p>
+<pre><code class="language-r"># For paired samples
+wilcox.test&#40;x, y, paired &#61; TRUE, 
+            alternative &#61; &quot;two.sided&quot;&#41;
+
+# With effect size
+library&#40;effectsize&#41;
+rank_biserial&#40;x, y, paired &#61; TRUE&#41;</code></pre>
+<p><strong>In Python:</strong></p>
+<pre><code class="language-python">from scipy.stats import wilcoxon
+from scipy.stats import ranksums  # for independent
+
+# Paired test
+statistic, p_value &#61; wilcoxon&#40;x, y&#41;
+
+# Effect size &#40;rank-biserial&#41;
+from pingouin import wilcoxon
+result &#61; wilcoxon&#40;x, y&#41;
+print&#40;result&#91;&#39;RBC&#39;&#93;&#41;  # rank-biserial correlation</code></pre>
+<h3 id="ol_start3_calculate_power_post-hoc"><a href="#ol_start3_calculate_power_post-hoc" class="header-anchor"><ol start="3">
+<li><p>Calculate Power Post-Hoc</p>
+</li>
+</ol>
+</a></h3>
+<p>After collecting data, verify you had adequate power:</p>
+<pre><code class="language-r"># Install: install.packages&#40;&quot;pwr&quot;&#41;
+library&#40;pwr&#41;
+
+# For paired samples &#40;approximate&#41;
+pwr.t.test&#40;n &#61; 30,           # number of pairs
+           d &#61; 0.5,          # observed effect size
+           sig.level &#61; 0.05,
+           type &#61; &quot;paired&quot;,
+           alternative &#61; &quot;two.sided&quot;&#41;
+
+# Adjust by multiplying n by 0.955 for Wilcoxon</code></pre>
+<hr />
+<h2 id="reporting_your_results"><a href="#reporting_your_results" class="header-anchor">Reporting Your Results</a></h2>
+<h3 id="minimal_reporting_apa_style"><a href="#minimal_reporting_apa_style" class="header-anchor">Minimal Reporting &#40;APA Style&#41;</a></h3>
+<blockquote>
+<p>A Wilcoxon signed-rank test indicated that the post-treatment scores &#40;Mdn &#61; 85&#41; were significantly higher than pre-treatment scores &#40;Mdn &#61; 78&#41;, Z &#61; 3.24, p &#61; .001, r &#61; .42.</p>
+</blockquote>
+<h3 id="full_reporting_research_paper"><a href="#full_reporting_research_paper" class="header-anchor">Full Reporting &#40;Research Paper&#41;</a></h3>
+<blockquote>
+<p><strong>Statistical Analysis:</strong> A Wilcoxon signed-rank test was used to compare pre- and post-treatment scores due to non-normal distribution &#40;Shapiro-Wilk test, p &lt; .05&#41;. Based on a priori power analysis, 50 paired observations provided 80&#37; power to detect a medium effect size &#40;d ≥ 0.42&#41; at α &#61; 0.05 &#40;two-tailed&#41;.</p>
+<p><strong>Results:</strong> The Wilcoxon signed-rank test revealed a statistically significant increase in scores following treatment, Z &#61; 3.24, p &#61; .001. The effect size &#40;rank-biserial correlation r &#61; .42&#41; indicated a medium-to-large effect. Post-treatment scores &#40;Mdn &#61; 85, IQR &#61; 79-92&#41; were higher than pre-treatment scores &#40;Mdn &#61; 78, IQR &#61; 71-84&#41;.</p>
+</blockquote>
+<h3 id="what_to_include"><a href="#what_to_include" class="header-anchor">What to Include</a></h3>
+<p><strong>Essential elements:</strong></p>
+<ol>
+<li><p><strong>Test used</strong>: &quot;Wilcoxon signed-rank test&quot;</p>
+</li>
+<li><p><strong>Justification</strong>: Why not t-test? &#40;&quot;non-normal distribution&quot;&#41;</p>
+</li>
+<li><p><strong>Sample size</strong>: Number of pairs</p>
+</li>
+<li><p><strong>Test statistic</strong>: Z-value &#40;for large n&#41; or W-statistic</p>
+</li>
+<li><p><strong>P-value</strong>: Exact value when p &gt; .001</p>
+</li>
+<li><p><strong>Effect size</strong>: Rank-biserial correlation &#40;r&#41; or probability of superiority</p>
+</li>
+<li><p><strong>Descriptive statistics</strong>: Medians and IQR &#40;not means/SD&#41;</p>
+</li>
+</ol>
+<p><strong>For power analysis reporting:</strong></p>
+<pre><code class="language-julia">A priori: &quot;Power analysis indicated that n &#61; 50 pairs 
+          provided 80&#37; power to detect d ≥ 0.42.&quot;
+
+Post-hoc: &quot;With n &#61; 35 pairs, the study achieved 80&#37; 
+          power to detect effects of d ≥ 0.50.&quot;
+
+Underpowered: &quot;The sample &#40;n &#61; 20 pairs&#41; provided 80&#37; 
+              power only for large effects &#40;d ≥ 0.66&#41;. 
+              Smaller effects may have been missed.&quot;</code></pre>
+<hr />
+<h2 id="practical_example_complete_workflow"><a href="#practical_example_complete_workflow" class="header-anchor">Practical Example: Complete Workflow</a></h2>
+<h3 id="scenario"><a href="#scenario" class="header-anchor">Scenario</a></h3>
+<p>Testing whether a new meditation app reduces stress scores &#40;paired design, n &#61; 40 participants&#41;.</p>
+<h3 id="step-by-step"><a href="#step-by-step" class="header-anchor">Step-by-Step:</a></h3>
+<p><strong>1. Check if you have adequate power:</strong></p>
+<pre><code class="language-julia">n &#61; 40 pairs
+d_min &#61; 2.94/√40 &#61; 2.94/6.32 ≈ 0.47
+
+Expected effect from literature: d &#61; 0.6
+0.6 &gt; 0.47 → ✓ Adequate power&#33;</code></pre>
+<p><strong>2. Check normality:</strong></p>
+<pre><code class="language-julia">Shapiro-Wilk test: p &#61; 0.02 → Not normal
+QQ-plot shows heavy tails
+Decision: Use Wilcoxon &#40;not paired t-test&#41;</code></pre>
+<p><strong>3. Run the test:</strong></p>
+<pre><code class="language-r"># Calculate differences
+diff &lt;- post_stress - pre_stress
+
+# Wilcoxon test
+result &lt;- wilcox.test&#40;post_stress, pre_stress, 
+                      paired &#61; TRUE&#41;
+
+# Effect size
+library&#40;effectsize&#41;
+r &lt;- rank_biserial&#40;post_stress, pre_stress, 
+                   paired &#61; TRUE&#41;</code></pre>
+<p><strong>4. Report:</strong></p>
+<blockquote>
+<p>&quot;A Wilcoxon signed-rank test &#40;chosen due to non-normal distribution, p &#61; .02&#41; indicated significant stress reduction following the 8-week meditation program &#40;Z &#61; -3.89, p &lt; .001, r &#61; -.45&#41;. Pre-intervention stress scores &#40;Mdn &#61; 72, IQR &#61; 65-78&#41; decreased to post-intervention scores &#40;Mdn &#61; 58, IQR &#61; 52-64&#41;. With n &#61; 40 pairs, this study achieved 80&#37; power to detect effects of d ≥ 0.47, confirming adequate statistical power for the observed medium-to-large effect.&quot;</p>
+</blockquote>
+<hr />
+<h2 id="quick_decision_tree"><a href="#quick_decision_tree" class="header-anchor">Quick Decision Tree</a></h2>
+<pre><code class="language-julia">Start: Do you have paired or independent data?
+    ↓
+PAIRED → Check normality
+    ↓
+Normal? → YES: Use paired t-test
+        → NO: Use Wilcoxon signed-rank test
+    ↓
+Calculate: d_min &#61; 2.94/√n
+    ↓
+Compare: Expected d &gt; d_min?
+    ↓
+YES → ✓ Adequate power, proceed
+NO  → ✗ Need more participants</code></pre>
+<hr />
+<h2 id="common_mistakes_to_avoid"><a href="#common_mistakes_to_avoid" class="header-anchor">Common Mistakes to Avoid</a></h2>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll use the exact same sample size formula as t-tests&quot;</p>
+<ul>
+<li><p>Wilcoxon needs ~5-15&#37; more samples</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Multiply required n by 1.05-1.15 adjustment factor</p>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll report means and standard deviations&quot;</p>
+<ul>
+<li><p>Non-parametric tests compare medians, not means</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Report medians and interquartile ranges &#40;IQR&#41;</p>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll use Cohen&#39;s d directly from my data&quot;</p>
+<ul>
+<li><p>Use rank-biserial correlation for Wilcoxon</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Calculate and report rank-biserial r</p>
+<hr />
+<h2 id="additional_resources"><a href="#additional_resources" class="header-anchor">Additional Resources</a></h2>
+<p><strong>Effect Size Conversions</strong> &#40;approximate&#41;:</p>
+<ul>
+<li><p>Cohen&#39;s d &#61; 0.2 ≈ r &#61; 0.10 &#40;small&#41;</p>
+</li>
+<li><p>Cohen&#39;s d &#61; 0.5 ≈ r &#61; 0.24 &#40;medium&#41;  </p>
+</li>
+<li><p>Cohen&#39;s d &#61; 0.8 ≈ r &#61; 0.37 &#40;large&#41;</p>
+</li>
+</ul>
+<p><strong>When sample size &lt; 30:</strong></p>
+<ul>
+<li><p>Consider exact p-values instead of Z-approximation</p>
+</li>
+<li><p>Use W-statistic &#40;sum of positive ranks&#41; instead of Z</p>
+</li>
+<li><p>Be more cautious about power—non-parametric tests lose more efficiency with small samples</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

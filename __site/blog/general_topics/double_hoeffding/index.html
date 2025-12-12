@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Hoeffding Bound for Banzhaf with Noisy Player Values</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="hoeffding_bound_for_banzhaf_with_noisy_player_values"><a href="#hoeffding_bound_for_banzhaf_with_noisy_player_values" class="header-anchor">Hoeffding Bound for Banzhaf with Noisy Player Values</a></h1>
+<h2 id="problem_setup"><a href="#problem_setup" class="header-anchor">Problem Setup</a></h2>
+<p><strong>Given:</strong></p>
+<ul>
+<li><p>True player values \(v_1^*, v_2^*, \ldots, v_n^*\) &#40;unknown&#41;</p>
+</li>
+<li><p>Observed player values \(v_1, v_2, \ldots, v_n\) &#40;known, but noisy&#41;</p>
+</li>
+<li><p>Error bound: \(\left|\sum_{i=1}^n v_i - \sum_{i=1}^n v_i^*\right| \leq \epsilon_1\)</p>
+</li>
+<li><p>Want to approximate Banzhaf power index by sampling</p>
+</li>
+</ul>
+<p><strong>Question:</strong> How does the noise in player values affect the error bound when approximating Banzhaf?</p>
+<hr />
+<h2 id="key_insight"><a href="#key_insight" class="header-anchor">Key Insight</a></h2>
+<p>The error in approximating Banzhaf comes from <strong>two independent sources</strong>:</p>
+<ol>
+<li><p><strong>Value noise</strong>: Using noisy \(v_i\) instead of true \(v_i^*\)</p>
+</li>
+<li><p><strong>Sampling error</strong>: Using finite samples instead of all \(2^{n-1}\) coalitions</p>
+</li>
+</ol>
+<p>These errors <strong>compound</strong>, and we need to bound both.</p>
+<hr />
+<h2 id="notation"><a href="#notation" class="header-anchor">Notation</a></h2>
+<ul>
+<li><p><strong>True Banzhaf index</strong>: \(\beta_i^* = \frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [v^*(S \cup \{i\}) - v^*(S)]\)</p>
+</li>
+<li><p><strong>Noisy Banzhaf index</strong>: \(\beta_i = \frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)]\)</p>
+</li>
+<li><p><strong>Sampled estimator</strong>: \(\hat{\beta}_i = \frac{1}{m} \sum_{j=1}^{m} [v(S_j \cup \{i\}) - v(S_j)]\)</p>
+</li>
+</ul>
+<p>where \(v(S) = \sum_{k \in S} v_k\) and \(v^*(S) = \sum_{k \in S} v_k^*\).</p>
+<hr />
+<h2 id="error_decomposition"><a href="#error_decomposition" class="header-anchor">Error Decomposition</a></h2>
+<p>By triangle inequality:</p>
+\[|\hat{\beta}_i - \beta_i^*| \leq |\hat{\beta}_i - \beta_i| + |\beta_i - \beta_i^*|\]
+<p><strong>Two error terms:</strong></p>
+<ol>
+<li><p>\(|\hat{\beta}_i - \beta_i|\) &#61; sampling error &#40;using noisy values&#41;</p>
+</li>
+<li><p>\(|\beta_i - \beta_i^*|\) &#61; value noise bias</p>
+</li>
+</ol>
+<hr />
+<h2 id="part_1_bounding_value_noise_bias"><a href="#part_1_bounding_value_noise_bias" class="header-anchor">Part 1: Bounding Value Noise Bias</a></h2>
+<p><strong>Theorem 1:</strong> If \(\left|\sum_{i=1}^n v_i - \sum_{i=1}^n v_i^*\right| \leq \epsilon_1\), then:</p>
+\[|\beta_i - \beta_i^*| \leq \epsilon_1\]
+<p><strong>Proof:</strong></p>
+<p>For any coalition \(S\):</p>
+\[v(S) - v^*(S) = \sum_{k \in S} v_k - \sum_{k \in S} v_k^* = \sum_{k \in S} (v_k - v_k^*)\]
+<p>Therefore, for any marginal contribution:</p>
+\[[v(S \cup \{i\}) - v(S)] - [v^*(S \cup \{i\}) - v^*(S)]\]
+\[= [v(S \cup \{i\}) - v^*(S \cup \{i\})] - [v(S) - v^*(S)]\]
+\[= \sum_{k \in S \cup \{i\}} (v_k - v_k^*) - \sum_{k \in S} (v_k - v_k^*)\]
+\[= v_i - v_i^*\]
+<p>Now, the difference in Banzhaf indices:</p>
+\[\beta_i - \beta_i^* = \frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [(v_i - v_i^*)]\]
+\[= \frac{1}{2^{n-1}} \cdot 2^{n-1} \cdot (v_i - v_i^*)\]
+\[= v_i - v_i^*\]
+<p>Therefore:</p>
+\[|\beta_i - \beta_i^*| = |v_i - v_i^*| \leq \sum_{j=1}^n |v_j - v_j^*| \leq \left|\sum_{j=1}^n (v_j - v_j^*)\right| = \epsilon_1\]
+<p><strong>Wait, this bound is too loose&#33;</strong> We can do better.</p>
+<h3 id="improved_bound"><a href="#improved_bound" class="header-anchor">Improved Bound</a></h3>
+<p>Since \(\beta_i - \beta_i^* = v_i - v_i^*\), we actually have:</p>
+\[|\beta_i - \beta_i^*| = |v_i - v_i^*|\]
+<p><strong>But we only know the sum has bounded error, not individual values&#33;</strong></p>
+<p>In the worst case, all error could be in one player:</p>
+\[|\beta_i - \beta_i^*| \leq \epsilon_1\]
+<p>In typical cases with distributed error:</p>
+\[|\beta_i - \beta_i^*| \ll \epsilon_1\]
+\(\square\)
+<hr />
+<h2 id="part_2_bounding_sampling_error"><a href="#part_2_bounding_sampling_error" class="header-anchor">Part 2: Bounding Sampling Error</a></h2>
+<p><strong>Theorem 2:</strong> When sampling \(m\) coalitions using noisy values \(v_i\), with probability at least \(1 - \delta\):</p>
+\[|\hat{\beta}_i - \beta_i| \leq (v_{max} - v_{min})\sqrt{\frac{\ln(2/\delta)}{2m}}\]
+<p>where \(v_{max}\) and \(v_{min}\) are bounds on the noisy coalition values.</p>
+<p><strong>Proof:</strong></p>
+<p>This is standard Hoeffding as before. Define:</p>
+\[X_j = v(S_j \cup \{i\}) - v(S_j)\]
+<p>These are i.i.d. with \(\mathbb{E}[X_j] = \beta_i\) &#40;the noisy Banzhaf index&#41;.</p>
+<p>Since \(v(S) \in [v_{min}, v_{max}]\), we have \(X_j \in [-(v_{max} - v_{min}), v_{max} - v_{min}]\).</p>
+<p>By Hoeffding&#39;s inequality:</p>
+\[\Pr[|\hat{\beta}_i - \beta_i| \geq \epsilon_2] \leq 2\exp\left(-\frac{2m\epsilon_2^2}{(2(v_{max} - v_{min}))^2}\right)\]
+<p>Setting the right side to \(\delta\) and solving:</p>
+\[\epsilon_2 = (v_{max} - v_{min})\sqrt{\frac{\ln(2/\delta)}{2m}}\]
+\(\square\)
+<hr />
+<h2 id="combined_error_bound"><a href="#combined_error_bound" class="header-anchor">Combined Error Bound</a></h2>
+<p><strong>Main Result:</strong></p>
+<p>Given noisy player values with \(\left|\sum_{i=1}^n v_i - \sum_{i=1}^n v_i^*\right| \leq \epsilon_1\), and sampling \(m\) coalitions, with probability at least \(1 - \delta\):</p>
+\[|\hat{\beta}_i - \beta_i^*| \leq \epsilon_1 + (v_{max} - v_{min})\sqrt{\frac{\ln(2/\delta)}{2m}}\]
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p><strong>Bias term</strong> \(\epsilon_1\): unavoidable error from noisy values &#40;worst-case per player&#41;</p>
+</li>
+<li><p><strong>Variance term</strong> \((v_{max} - v_{min})\sqrt{\frac{\ln(2/\delta)}{2m}}\): sampling error, decreases with \(m\)</p>
+</li>
+</ul>
+<p><strong>Key observation:</strong> The bias \(\epsilon_1\) is actually just \(|v_i - v_i^*|\), so if your constraint on the sum is tight and errors are distributed across players, the actual bias for any single player could be much smaller than \(\epsilon_1\).</p>
+<hr />
+<h2 id="practical_implications"><a href="#practical_implications" class="header-anchor">Practical Implications</a></h2>
+<h3 id="choosing_sample_size"><a href="#choosing_sample_size" class="header-anchor">Choosing Sample Size</a></h3>
+<p>To achieve total error at most \(\epsilon_{total}\) with confidence \(1 - \delta\):</p>
+<ol>
+<li><p>Set sampling error target: \(\epsilon_2 = \epsilon_{total} - \epsilon_1\)</p>
+</li>
+<li><p>Sample size needed:</p>
+</li>
+</ol>
+\[m \geq \frac{(v_{max} - v_{min})^2 \ln(2/\delta)}{2\epsilon_2^2}\]
+<h3 id="when_does_noise_dominate"><a href="#when_does_noise_dominate" class="header-anchor">When Does Noise Dominate?</a></h3>
+<ul>
+<li><p>If \(\epsilon_1\) is large relative to \(\epsilon_{total}\), <strong>more sampling doesn&#39;t help much</strong></p>
+</li>
+<li><p>If \(\epsilon_1\) is small, you can achieve high accuracy by sampling more</p>
+</li>
+</ul>
+<h3 id="example"><a href="#example" class="header-anchor">Example</a></h3>
+<p>Suppose:</p>
+<ul>
+<li><p>\(v_i \in [0, 1]\) for all \(i\), so \(v(S) \in [0, n]\)</p>
+</li>
+<li><p>Value noise: \(\epsilon_1 = 0.05\)</p>
+</li>
+<li><p>Desired total error: \(\epsilon_{total} = 0.1\)</p>
+</li>
+<li><p>Confidence: \(\delta = 0.05\)</p>
+</li>
+</ul>
+<p>Then:</p>
+<ul>
+<li><p>Sampling error budget: \(\epsilon_2 = 0.1 - 0.05 = 0.05\)</p>
+</li>
+<li><p>Sample size: \(m \geq \frac{n^2 \ln(40)}{2(0.05)^2} = \frac{3.69n^2}{0.005} \approx 738n^2\)</p>
+</li>
+</ul>
+<hr />
+<h2 id="important_note_on_the_constraint"><a href="#important_note_on_the_constraint" class="header-anchor">Important Note on the Constraint</a></h2>
+<p>Your constraint \(\left|\sum_{i=1}^n v_i - \sum_{i=1}^n v_i^*\right| \leq \epsilon_1\) is relatively <strong>weak</strong> for bounding individual player errors.</p>
+<p><strong>Why?</strong> In the worst case:</p>
+<ul>
+<li><p>Player 1: \(v_1 = v_1^* + \epsilon_1\)</p>
+</li>
+<li><p>All others: \(v_j = v_j^*\) for \(j \neq 1\)</p>
+</li>
+<li><p>Sum constraint: \(|(v_1 + \sum_{j\neq 1} v_j) - (v_1^* + \sum_{j\neq 1} v_j^*)| = \epsilon_1\) ✓</p>
+</li>
+<li><p>But: \(|v_1 - v_1^*| = \epsilon_1\)</p>
+</li>
+</ul>
+<p>So the bound \(|\beta_i - \beta_i^*| \leq \epsilon_1\) is tight in worst case.</p>
+<p><strong>If you have stronger constraints</strong> &#40;e.g., \(|v_i - v_i^*| \leq \epsilon_0\) for all \(i\)&#41;, then:</p>
+\[|\beta_i - \beta_i^*| = |v_i - v_i^*| \leq \epsilon_0\]
+<p>which could be much better&#33;</p>
+<hr />
+<h2 id="summary"><a href="#summary" class="header-anchor">Summary</a></h2>
+<p><strong>Yes, you can still use Hoeffding for sampling</strong>, and the total error is:</p>
+\[\boxed{|\hat{\beta}_i - \beta_i^*| \leq \epsilon_1 + (v_{max} - v_{min})\sqrt{\frac{\ln(2/\delta)}{2m}}}\]
+<p>The noise in player values adds a <strong>bias term</strong> that doesn&#39;t decrease with more samples, while the sampling error decreases as \(O(1/\sqrt{m})\).</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
