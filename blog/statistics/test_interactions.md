@@ -1,4 +1,4 @@
-@def title = "Principled Approaches to Handle Sample Size and Power Issues in ANOVA"
+@def title = "Testing for Interactive Effects"
 @def published = "8 January 2026"
 @def tags = ["statistics"]
 
