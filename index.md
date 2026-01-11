@@ -15,6 +15,7 @@
 - [statistics](tag/statistics)
 - [causal-inference](tag/causal-inference)
 - [ODE](tag/ODE)
+- [game-theory](tag/game-theory)
 
 
 
