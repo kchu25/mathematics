@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>The Fundamental Theorem of Calculus: From 1D to Many Dimensions</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="the_fundamental_theorem_of_calculus_from_1d_to_many_dimensions"><a href="#the_fundamental_theorem_of_calculus_from_1d_to_many_dimensions" class="header-anchor">The Fundamental Theorem of Calculus: From 1D to Many Dimensions</a></h1>
+<h2 id="the_single-variable_version_the_classic"><a href="#the_single-variable_version_the_classic" class="header-anchor">The Single-Variable Version &#40;The Classic&#41;</a></h2>
+<p>You know how derivatives and integrals are &quot;opposite&quot; operations? That&#39;s the FTC in a nutshell.</p>
+<p><strong>Part 1 &#40;The &quot;Accumulation&quot; Version&#41;:</strong></p>
+<p>If you have a function \(f(x)\) and you define:</p>
+\[F(x) = \int_a^x f(t) \, dt\]
+<p>Then \(F'(x) = f(x)\). In other words, if you accumulate \(f\) from some starting point \(a\) up to \(x\), then the rate of change of that accumulation is just \(f\) itself&#33;</p>
+<p><strong>Part 2 &#40;The &quot;Evaluation&quot; Version - The One We Care About&#41;:</strong></p>
+<p>If \(F(x)\) is an antiderivative of \(f(x)\) &#40;meaning \(F'(x) = f(x)\)&#41;, then:</p>
+\[\int_a^b f(x) \, dx = F(b) - F(a)\]
+<p>This is beautiful&#33; To find the total change from \(a\) to \(b\), you just evaluate the antiderivative at the endpoints.</p>
+<h3 id="the_intuitive_picture"><a href="#the_intuitive_picture" class="header-anchor">The Intuitive Picture</a></h3>
+<p>Imagine you&#39;re driving a car. Your speedometer shows \(f(t)\) &#40;speed at time \(t\)&#41;. The FTC says:</p>
+<ul>
+<li><p><strong>Integral</strong> \(\int_0^T f(t) \, dt\) &#61; total distance traveled</p>
+</li>
+<li><p><strong>Derivative</strong> \(F'(t)\) &#61; instantaneous speed</p>
+</li>
+<li><p><strong>Connection</strong>: Distance change &#61; \(F(T) - F(0)\) &#61; integral of speed</p>
+</li>
+</ul>
+<p>The FTC connects these two perspectives&#33;</p>
+<hr />
+<h2 id="why_this_matters_for_the_shap_paper"><a href="#why_this_matters_for_the_shap_paper" class="header-anchor">Why This Matters for the SHAP Paper</a></h2>
+<p>The key insight in that blog post is using FTC to write:</p>
+\[f(x_i) - f(r_i) = \int_{r_i}^{x_i} \frac{df}{dz} \, dz\]
+<p>where we&#39;re integrating along a path from reference \(r_i\) to input \(x_i\).</p>
+<p>But here&#39;s the thing: <strong>neural networks have many inputs</strong>, not just one&#33; So we need the <strong>multivariate version</strong> of FTC.</p>
+<hr />
+<h2 id="the_multivariate_version_line_integrals"><a href="#the_multivariate_version_line_integrals" class="header-anchor">The Multivariate Version &#40;Line Integrals&#41;</a></h2>
+<p>When you have a function \(f(x_1, x_2, \ldots, x_n)\) that depends on multiple variables, things get more interesting.</p>
+<h3 id="the_setup"><a href="#the_setup" class="header-anchor">The Setup</a></h3>
+<p>Suppose we want to go from a reference point \(\mathbf{r} = (r_1, r_2, \ldots, r_n)\) to our input \(\mathbf{x} = (x_1, x_2, \ldots, x_n)\).</p>
+<p>We can parameterize a straight-line path:</p>
+\[\mathbf{\gamma}(t) = \mathbf{r} + t(\mathbf{x} - \mathbf{r}) = (1-t)\mathbf{r} + t\mathbf{x}, \quad t \in [0,1]\]
+<p>When \(t=0\), we&#39;re at \(\mathbf{r}\). When \(t=1\), we&#39;re at \(\mathbf{x}\).</p>
+<h3 id="the_multivariate_ftc_line_integral_version"><a href="#the_multivariate_ftc_line_integral_version" class="header-anchor">The Multivariate FTC &#40;Line Integral Version&#41;</a></h3>
+\[f(\mathbf{x}) - f(\mathbf{r}) = \int_0^1 \frac{d}{dt} f(\mathbf{\gamma}(t)) \, dt\]
+<p>By the chain rule:</p>
+\[\frac{d}{dt} f(\mathbf{\gamma}(t)) = \nabla f \cdot \frac{d\mathbf{\gamma}}{dt} = \sum_{i=1}^n \frac{\partial f}{\partial x_i} \cdot (x_i - r_i)\]
+<p>So we get:</p>
+\[f(\mathbf{x}) - f(\mathbf{r}) = \int_0^1 \left( \sum_{i=1}^n \frac{\partial f}{\partial x_i}(\mathbf{\gamma}(t)) \cdot (x_i - r_i) \right) dt\]
+<p>Rearranging:</p>
+\[f(\mathbf{x}) - f(\mathbf{r}) = \sum_{i=1}^n \left( \int_0^1 \frac{\partial f}{\partial x_i}(\mathbf{r} + t(\mathbf{x} - \mathbf{r})) \, dt \right) (x_i - r_i)\]
+<h3 id="what_this_means"><a href="#what_this_means" class="header-anchor">What This Means</a></h3>
+<p>Each feature \(i\) gets an <strong>attribution coefficient</strong>:</p>
+\[\phi_i(\mathbf{x}, \mathbf{r}) = \int_0^1 \frac{\partial f}{\partial x_i}(\mathbf{r} + t(\mathbf{x} - \mathbf{r})) \, dt\]
+<p>And these satisfy:</p>
+\[f(\mathbf{x}) - f(\mathbf{r}) = \sum_{i=1}^n \phi_i(\mathbf{x}, \mathbf{r}) \cdot (x_i - r_i)\]
+<p>This is <strong>exactly the DeepLIFT decomposition</strong>&#33;</p>
+<hr />
+<h2 id="the_connection_to_shaps_independence_assumption"><a href="#the_connection_to_shaps_independence_assumption" class="header-anchor">The Connection to SHAP&#39;s Independence Assumption</a></h2>
+<p>Here&#39;s where it gets subtle. The blog post shows:</p>
+\[\mathbb{E}_{S \sim \pi}[f(\mathbf{x}_S, \mathbf{r}_{\bar{S}}) - f(\mathbf{x}_{S \setminus \{i\}}, \mathbf{r}_{\overline{S \setminus \{i\}}})] \approx \phi_i(\mathbf{x}, \mathbf{r}) \cdot (x_i - r_i)\]
+<p>The <strong>left side</strong> is the true Shapley value: average over all coalitions.</p>
+<p>The <strong>right side</strong> is what DeepLIFT computes: integrate gradients along a single path.</p>
+<h3 id="why_are_these_equal"><a href="#why_are_these_equal" class="header-anchor">Why Are These &quot;Equal&quot;?</a></h3>
+<p>The multivariate FTC tells us how to decompose \(f(\mathbf{x}) - f(\mathbf{r})\) along ONE specific path &#40;the straight line from \(\mathbf{r}\) to \(\mathbf{x}\)&#41;.</p>
+<p>But the Shapley value wants us to average over ALL possible paths &#40;all coalitions \(S\)&#41;.</p>
+<p><strong>The independence assumption says</strong>: &quot;The gradient \(\frac{\partial f}{\partial x_i}\) doesn&#39;t depend on which other features are at \(\mathbf{x}\) vs \(\mathbf{r}\).&quot;</p>
+<p>If this is true, then:</p>
+<ul>
+<li><p>Integrating along the straight path &#40;DeepLIFT&#41;</p>
+</li>
+<li><p>Averaging over all coalition paths &#40;Shapley&#41;</p>
+</li>
+</ul>
+<p>...give the same answer&#33;</p>
+<h3 id="the_math"><a href="#the_math" class="header-anchor">The Math</a></h3>
+<p>For any coalition \(S\), the marginal contribution of feature \(i\) is:</p>
+\[f(\mathbf{x}_{S \cup \{i\}}, \mathbf{r}_{\overline{S \cup \{i\}}}) - f(\mathbf{x}_S, \mathbf{r}_{\bar{S}}) = \int_0^1 \frac{\partial f}{\partial x_i}(\mathbf{x}_S, r_i + t(x_i - r_i), \mathbf{r}_{\overline{S \cup \{i\}}}) \, dt \cdot (x_i - r_i)\]
+<p><strong>Under independence</strong>, the gradient doesn&#39;t depend on \(S\):</p>
+\[\frac{\partial f}{\partial x_i}(\mathbf{x}_S, z_i, \mathbf{r}_{\overline{S \cup \{i\}}}) \approx \frac{\partial f}{\partial x_i}(\mathbf{r} + (z_i - r_i)\mathbf{e}_i)\]
+<p>So averaging over coalitions gives:</p>
+\[\mathbb{E}_S[\text{marginal}] \approx \int_0^1 \frac{\partial f}{\partial x_i}(\mathbf{r} + t(\mathbf{x} - \mathbf{r})) \, dt \cdot (x_i - r_i) = \phi_i(\mathbf{x}, \mathbf{r}) \cdot (x_i - r_i)\]
+<p>Which is exactly what the multivariate FTC gave us&#33;</p>
+<hr />
+<h2 id="the_big_picture"><a href="#the_big_picture" class="header-anchor">The Big Picture</a></h2>
+<ol>
+<li><p><strong>Single-variable FTC</strong>: \(f(b) - f(a) = \int_a^b f'(x) \, dx\)</p>
+</li>
+<li><p><strong>Multivariate FTC</strong>: \(f(\mathbf{x}) - f(\mathbf{r}) = \sum_i \left(\int_0^1 \frac{\partial f}{\partial x_i}(\mathbf{\gamma}(t)) \, dt\right) (x_i - r_i)\)</p>
+</li>
+<li><p><strong>DeepLIFT</strong>: Uses this to decompose output changes into feature contributions</p>
+</li>
+<li><p><strong>SHAP</strong>: Claims this approximates Shapley values under independence</p>
+</li>
+<li><p><strong>The Catch</strong>: Independence rarely holds in practice&#33;</p>
+</li>
+</ol>
+<p>The FTC bridges <strong>local information</strong> &#40;gradients&#41; and <strong>global change</strong> &#40;output difference&#41;. DeepLIFT extends this from 1D to multi-D, then SHAP claims it approximates the coalition-averaged Shapley value when features don&#39;t interact.</p>
+<p>Pretty neat, right? Though as the blog notes... it&#39;s more of a useful approximation than a rigorous equality&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 19, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

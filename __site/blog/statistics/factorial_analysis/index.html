@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Method 2: Factorial Design Analysis - Step by Step</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="method_2_factorial_design_analysis_-_step_by_step"><a href="#method_2_factorial_design_analysis_-_step_by_step" class="header-anchor">Method 2: Factorial Design Analysis - Step by Step</a></h1>
+<h2 id="what_youre_testing"><a href="#what_youre_testing" class="header-anchor">What You&#39;re Testing</a></h2>
+<p>You&#39;ve got three groups: x1 alone, x2 alone, and both together. You&#39;re asking: <strong>&quot;Is there something special happening when x1 and x2 are combined, beyond just their individual effects?&quot;</strong></p>
+<p>The interaction term &#40;β₃&#41; captures this &quot;extra&quot; effect.</p>
+<hr />
+<h2 id="step_1_set_up_your_data"><a href="#step_1_set_up_your_data" class="header-anchor">Step 1: Set Up Your Data</a></h2>
+<p>First, code your groups with binary indicators:</p>
+<table><tr><th align="right">Group</th><th align="right">x1</th><th align="right">x2</th></tr><tr><td align="right">x1 only</td><td align="right">1</td><td align="right">0</td></tr><tr><td align="right">x2 only</td><td align="right">0</td><td align="right">1</td></tr><tr><td align="right">Both</td><td align="right">1</td><td align="right">1</td></tr></table>
+<p>Each row in your dataset should have:</p>
+<ul>
+<li><p>Your outcome measurement &#40;Y&#41;</p>
+</li>
+<li><p>An x1 indicator &#40;1 if x1 is present, 0 if not&#41;</p>
+</li>
+<li><p>An x2 indicator &#40;1 if x2 is present, 0 if not&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="step_2_create_the_interaction_term"><a href="#step_2_create_the_interaction_term" class="header-anchor">Step 2: Create the Interaction Term</a></h2>
+<p>Calculate x1 × x2 for each observation:</p>
+<ul>
+<li><p>x1 only group: 1 × 0 &#61; 0</p>
+</li>
+<li><p>x2 only group: 0 × 1 &#61; 0</p>
+</li>
+<li><p>Both group: 1 × 1 &#61; 1</p>
+</li>
+</ul>
+<p>This interaction term is zero unless both factors are present.</p>
+<hr />
+<h2 id="step_3_fit_the_linear_model"><a href="#step_3_fit_the_linear_model" class="header-anchor">Step 3: Fit the Linear Model</a></h2>
+<p>Run a linear regression with this model:</p>
+\(Y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 \times x_2) + \epsilon\)
+<p>Where:</p>
+<ul>
+<li><p>\(\beta_0\) &#61; baseline &#40;intercept&#41;</p>
+</li>
+<li><p>\(\beta_1\) &#61; effect of x1 alone</p>
+</li>
+<li><p>\(\beta_2\) &#61; effect of x2 alone</p>
+</li>
+<li><p>\(\beta_3\) &#61; <strong>interaction effect</strong> &#40;the extra bit when both are present&#41;</p>
+</li>
+<li><p>\(\epsilon\) &#61; random error</p>
+</li>
+</ul>
+<hr />
+<h2 id="step_4_understand_what_each_β_means"><a href="#step_4_understand_what_each_β_means" class="header-anchor">Step 4: Understand What Each β Means</a></h2>
+<p><strong>When \(x_1 = 1, x_2 = 0\) &#40;x1 only&#41;:</strong> \(Y = \beta_0 + \beta_1\)</p>
+<p><strong>When \(x_1 = 0, x_2 = 1\) &#40;x2 only&#41;:</strong> \(Y = \beta_0 + \beta_2\)</p>
+<p><strong>When \(x_1 = 1, x_2 = 1\) &#40;both together&#41;:</strong> \(Y = \beta_0 + \beta_1 + \beta_2 + \beta_3\)</p>
+<p>That <strong>\(\beta_3\)</strong> is the key. It&#39;s the deviation from simple addition:</p>
+<ul>
+<li><p>If \(\beta_3 = 0\) → perfectly additive &#40;no interaction&#41;</p>
+</li>
+<li><p>If \(\beta_3 > 0\) → synergy &#40;1&#43;1&#61;3&#41;</p>
+</li>
+<li><p>If \(\beta_3 < 0\) → antagonism &#40;1&#43;1&#61;1.5&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="step_5_look_at_the_t-test_for_β"><a href="#step_5_look_at_the_t-test_for_β" class="header-anchor">Step 5: Look at the t-test for β₃</a></h2>
+<p>Your regression output will include a t-test for each coefficient. Find the row for the interaction term \((x_1 \times x_2)\).</p>
+<p>Check the p-value:</p>
+<ul>
+<li><p><strong>p &lt; 0.05</strong>: The interaction is statistically significant</p>
+</li>
+<li><p><strong>p ≥ 0.05</strong>: No evidence of interaction &#40;effects are additive&#41;</p>
+</li>
+</ul>
+<p>The t-statistic tells you how many standard errors \(\beta_3\) is from zero. Larger absolute values &#61; stronger evidence of interaction.</p>
+<hr />
+<h2 id="step_6_interpret_the_results"><a href="#step_6_interpret_the_results" class="header-anchor">Step 6: Interpret the Results</a></h2>
+<p><strong>If p &lt; 0.05 &#40;significant interaction&#41;:</strong></p>
+<p>Look at the <strong>sign of \(\beta_3\)</strong>:</p>
+<ul>
+<li><p><strong>Positive \(\beta_3\)</strong>: Synergistic effect</p>
+<ul>
+<li><p>The combined effect is greater than the sum of individual effects</p>
+</li>
+<li><p>Example: \(\beta_3 = +3\) means the combo gives 3 units MORE than just adding x1 and x2</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Negative \(\beta_3\)</strong>: Antagonistic effect</p>
+<ul>
+<li><p>The combined effect is less than the sum of individual effects</p>
+</li>
+<li><p>Example: \(\beta_3 = -2\) means the combo gives 2 units LESS than expected</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>If p ≥ 0.05 &#40;no significant interaction&#41;:</strong></p>
+<ul>
+<li><p>The effects are approximately additive</p>
+</li>
+<li><p>\(Y_{both} \approx Y_{x1} + Y_{x2}\) &#40;within random noise&#41;</p>
+</li>
+</ul>
+<hr />
+<h2 id="step_7_check_your_model_assumptions"><a href="#step_7_check_your_model_assumptions" class="header-anchor">Step 7: Check Your Model Assumptions</a></h2>
+<p>Before trusting your results, verify:</p>
+<p><strong>1. Linearity</strong>: The relationship between predictors and outcome is linear</p>
+<ul>
+<li><p>Plot residuals vs. fitted values &#40;should look random&#41;</p>
+</li>
+</ul>
+<p><strong>2. Independence</strong>: Observations are independent of each other</p>
+<ul>
+<li><p>No repeated measurements without accounting for them</p>
+</li>
+</ul>
+<p><strong>3. Normality</strong>: Residuals are approximately normally distributed</p>
+<ul>
+<li><p>QQ plot should be roughly straight</p>
+</li>
+<li><p>More important with small samples</p>
+</li>
+</ul>
+<p><strong>4. Equal variance</strong> &#40;homoscedasticity&#41;: Error variance is constant</p>
+<ul>
+<li><p>Residuals shouldn&#39;t fan out in plots</p>
+</li>
+</ul>
+<p>If assumptions are violated, consider transforming your outcome variable or using robust regression methods.</p>
+<hr />
+<h2 id="step_8_report_your_findings"><a href="#step_8_report_your_findings" class="header-anchor">Step 8: Report Your Findings</a></h2>
+<p>Include these elements:</p>
+<p><strong>Effect size</strong>: Report β₃ with confidence intervals</p>
+<ul>
+<li><p>Example: &quot;β₃ &#61; 4.2 &#40;95&#37; CI: 1.8, 6.6&#41;&quot;</p>
+</li>
+</ul>
+<p><strong>Statistical significance</strong>: Report the p-value</p>
+<ul>
+<li><p>Example: &quot;t&#40;87&#41; &#61; 3.45, p &#61; 0.001&quot;</p>
+</li>
+</ul>
+<p><strong>Direction</strong>: State whether it&#39;s synergistic or antagonistic</p>
+<ul>
+<li><p>Example: &quot;The interaction was significantly synergistic&quot;</p>
+</li>
+</ul>
+<p><strong>Context</strong>: Relate it back to the biological/practical meaning</p>
+<ul>
+<li><p>Example: &quot;The combined treatment produced 4.2 units more improvement than expected from individual treatments alone&quot;</p>
+</li>
+</ul>
+<hr />
+<h2 id="important_notes"><a href="#important_notes" class="header-anchor">Important Notes</a></h2>
+<p><strong>If x1 and x2 are continuous variables</strong> &#40;not separate experimental groups&#41;:</p>
+<ul>
+<li><p>This approach is still correct and standard</p>
+</li>
+<li><p>Consider <strong>centering</strong> your variables &#40;subtract the mean&#41; before creating the interaction term to reduce multicollinearity</p>
+</li>
+<li><p>Be aware that interaction effects typically require <strong>4× the sample size</strong> to detect compared to main effects of the same magnitude</p>
+</li>
+</ul>
+<p><strong>Sample size matters</strong>:</p>
+<ul>
+<li><p>Detecting interactions requires more data than detecting main effects</p>
+</li>
+<li><p>With N &lt; 50, you can only reliably detect very large interactions &#40;d ≥ 0.8&#41;</p>
+</li>
+<li><p>For medium interactions &#40;d ≈ 0.5&#41;, aim for N ≥ 100-150</p>
+</li>
+</ul>
+<p><strong>Multicollinearity check</strong>:</p>
+<ul>
+<li><p>If x1 and x2 are correlated, standard errors may inflate</p>
+</li>
+<li><p>Check variance inflation factors &#40;VIF &lt; 10 is generally okay&#41;</p>
+</li>
+<li><p>Centering variables helps reduce this issue</p>
+</li>
+</ul>
+<hr />
+<h2 id="quick_troubleshooting"><a href="#quick_troubleshooting" class="header-anchor">Quick Troubleshooting</a></h2>
+<p><strong>&quot;My interaction term isn&#39;t significant, but I expected one&quot;</strong></p>
+<ul>
+<li><p>Check your sample size - you might be underpowered</p>
+</li>
+<li><p>Verify your data coding is correct</p>
+</li>
+<li><p>Consider if your expected effect size is realistic</p>
+</li>
+</ul>
+<p><strong>&quot;All my coefficients are correlated&quot;</strong></p>
+<ul>
+<li><p>Try centering your x1 and x2 variables</p>
+</li>
+<li><p>This often improves interpretation without changing the interaction test</p>
+</li>
+</ul>
+<p><strong>&quot;My residuals look weird&quot;</strong></p>
+<ul>
+<li><p>Check for outliers</p>
+</li>
+<li><p>Consider transforming Y &#40;log, sqrt&#41;</p>
+</li>
+<li><p>Try robust regression methods</p>
+</li>
+</ul>
+<hr />
+<h2 id="julia_code_example"><a href="#julia_code_example" class="header-anchor">Julia Code Example</a></h2>
+<p>Here&#39;s how to run this analysis in Julia:</p>
+<pre><code class="language-julia">using GLM, DataFrames, Statistics
+
+# Create your data
+# Assume you have measurements y for each group
+data &#61; DataFrame&#40;
+    y &#61; &#91;y_x1_only..., y_x2_only..., y_both...&#93;,  # your measurements
+    x1 &#61; &#91;ones&#40;n1&#41;..., zeros&#40;n2&#41;..., ones&#40;n_both&#41;...&#93;,
+    x2 &#61; &#91;zeros&#40;n1&#41;..., ones&#40;n2&#41;..., ones&#40;n_both&#41;...&#93;
+&#41;
+
+# Fit the linear model with interaction
+model &#61; lm&#40;@formula&#40;y ~ x1 &#43; x2 &#43; x1&amp;x2&#41;, data&#41;
+
+# Display results
+println&#40;model&#41;
+
+# Extract the interaction coefficient and p-value
+β3 &#61; coef&#40;model&#41;&#91;4&#93;  # interaction term coefficient
+p_value &#61; coeftable&#40;model&#41;.cols&#91;4&#93;&#91;4&#93;  # p-value for interaction
+
+println&#40;&quot;\nInteraction effect &#40;β₃&#41;: &quot;, round&#40;β3, digits&#61;3&#41;&#41;
+println&#40;&quot;P-value: &quot;, round&#40;p_value, digits&#61;4&#41;&#41;
+
+# Interpret the result
+if p_value &lt; 0.05
+    if β3 &gt; 0
+        println&#40;&quot;Significant SYNERGISTIC interaction detected&#33;&quot;&#41;
+    else
+        println&#40;&quot;Significant ANTAGONISTIC interaction detected&#33;&quot;&#41;
+    end
+else
+    println&#40;&quot;No significant interaction - effects are additive&quot;&#41;
+end
+
+# Get confidence intervals
+ci &#61; confint&#40;model&#41;
+println&#40;&quot;\n95&#37; CI for β₃: &#91;&quot;, round&#40;ci&#91;4,1&#93;, digits&#61;3&#41;, &quot;, &quot;, 
+        round&#40;ci&#91;4,2&#93;, digits&#61;3&#41;, &quot;&#93;&quot;&#41;</code></pre>
+<p><strong>Example with concrete data:</strong></p>
+<pre><code class="language-julia">using GLM, DataFrames
+
+# Example: Drug interaction study
+# x1 only group &#40;n&#61;10&#41;: drug A alone
+y_x1 &#61; &#91;12.3, 14.1, 13.5, 15.2, 12.8, 14.6, 13.9, 15.1, 13.2, 14.3&#93;
+
+# x2 only group &#40;n&#61;10&#41;: drug B alone  
+y_x2 &#61; &#91;11.8, 13.2, 12.5, 13.9, 12.1, 13.7, 12.9, 13.5, 12.3, 13.1&#93;
+
+# Both group &#40;n&#61;10&#41;: drugs A &#43; B together
+y_both &#61; &#91;28.5, 31.2, 29.8, 32.1, 28.9, 30.5, 29.3, 31.8, 29.1, 30.2&#93;
+
+# Combine into dataframe
+data &#61; DataFrame&#40;
+    y &#61; vcat&#40;y_x1, y_x2, y_both&#41;,
+    x1 &#61; vcat&#40;ones&#40;10&#41;, zeros&#40;10&#41;, ones&#40;10&#41;&#41;,
+    x2 &#61; vcat&#40;zeros&#40;10&#41;, ones&#40;10&#41;, ones&#40;10&#41;&#41;
+&#41;
+
+# Fit model
+model &#61; lm&#40;@formula&#40;y ~ x1 &#43; x2 &#43; x1&amp;x2&#41;, data&#41;
+println&#40;model&#41;
+
+# The output will show:
+# β₀ ≈ 11.8 &#40;baseline&#41;
+# β₁ ≈ 1.6 &#40;effect of drug A alone&#41;
+# β₂ ≈ 1.3 &#40;effect of drug B alone&#41;  
+# β₃ ≈ 16.2 &#40;interaction - the extra effect&#33;&#41;</code></pre>
+<p><strong>What you&#39;re testing:</strong></p>
+<ul>
+<li><p>Null hypothesis: \(\beta_3 = 0\) &#40;no interaction, perfectly additive&#41;</p>
+</li>
+<li><p>Alternative: \(\beta_3 \neq 0\) &#40;synergy or antagonism&#41;</p>
+</li>
+</ul>
+<p>In this example, you&#39;d expect \(Y_{both} = 11.8 + 1.6 + 1.3 = 14.7\) if additive, but you actually observe ~30. That extra ~16 units is your synergistic interaction&#33;</p>
+<hr />
+<h2 id="the_bottom_line"><a href="#the_bottom_line" class="header-anchor">The Bottom Line</a></h2>
+<p>This method tests the same thing as Method 1 &#40;direct comparison&#41;, just dressed up in regression language. The benefit? You get standard errors, confidence intervals, and p-values automatically. Plus, you can easily add covariates if needed later.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: January 08, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

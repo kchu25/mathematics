@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Independence Assumption in Mann-Whitney U Test</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="independence_assumption_in_mann-whitney_u_test"><a href="#independence_assumption_in_mann-whitney_u_test" class="header-anchor">Independence Assumption in Mann-Whitney U Test</a></h1>
+<h2 id="the_question"><a href="#the_question" class="header-anchor">The Question</a></h2>
+<p><strong>Is the Mann-Whitney U test valid when comparing two samples where one is from a conditional/subpopulation distribution?</strong></p>
+<p><strong>Answer: Yes</strong>, as long as the sampling is done independently.</p>
+<h2 id="what_the_independence_assumption_actually_requires"><a href="#what_the_independence_assumption_actually_requires" class="header-anchor">What the Independence Assumption Actually Requires</a></h2>
+<p>The Mann-Whitney U test requires that observations are <strong>independently sampled</strong>. Specifically:</p>
+<ol>
+<li><p>Observations within Sample A are independent of each other</p>
+</li>
+<li><p>Observations within Sample B are independent of each other  </p>
+</li>
+<li><p>Observations in Sample A are independent of those in Sample B</p>
+</li>
+</ol>
+<p>The test does <strong>not</strong> require that both samples come from the same population or that one cannot be a conditional distribution.</p>
+<h2 id="valid_scenario_conditional_distributions"><a href="#valid_scenario_conditional_distributions" class="header-anchor">Valid Scenario: Conditional Distributions</a></h2>
+<p>Let&#39;s say you have two populations:</p>
+\[P_A = \text{Distribution of variable } X \text{ in population } A\]
+\[P_B = \text{Distribution of variable } X \text{ in population } A \mid \text{condition}\]
+<p>If you independently sample:</p>
+<ul>
+<li><p>\(n_1\) observations from \(P_A\)</p>
+</li>
+<li><p>\(n_2\) observations from \(P_B\)</p>
+</li>
+</ul>
+<p>Then the Mann-Whitney U test is <strong>valid</strong>.</p>
+<h2 id="example"><a href="#example" class="header-anchor">Example</a></h2>
+<p><strong>Sample A</strong>: Heights of 100 randomly sampled adults from a city</p>
+<p><strong>Sample B</strong>: Heights of 100 randomly sampled adults from the same city who are over 6 feet tall</p>
+<p>Even though Sample B is a conditional subpopulation &#40;\(P(\text{height} \mid \text{height} > 6\text{ft})\)&#41;, the U test is valid because:</p>
+<ul>
+<li><p>Each person in Sample A was sampled independently</p>
+</li>
+<li><p>Each person in Sample B was sampled independently  </p>
+</li>
+<li><p>No person appears in both samples</p>
+</li>
+<li><p>Measuring one person doesn&#39;t affect another person&#39;s measurement</p>
+</li>
+</ul>
+<h2 id="what_would_violate_independence"><a href="#what_would_violate_independence" class="header-anchor">What Would Violate Independence</a></h2>
+<h3 id="pairedmatched_data"><a href="#pairedmatched_data" class="header-anchor">❌ Paired/Matched Data</a></h3>
+<ul>
+<li><p>Measuring the <strong>same individuals</strong> twice &#40;before/after&#41;</p>
+</li>
+<li><p><strong>Solution</strong>: Use Wilcoxon signed-rank test instead</p>
+</li>
+</ul>
+<h3 id="clustered_sampling"><a href="#clustered_sampling" class="header-anchor">❌ Clustered Sampling</a></h3>
+<ul>
+<li><p>Sampling students from the same classrooms</p>
+</li>
+<li><p>Sampling patients from the same hospitals</p>
+</li>
+<li><p>Family members in the same household</p>
+</li>
+<li><p><strong>Solution</strong>: Use mixed-effects models or account for clustering</p>
+</li>
+</ul>
+<h3 id="time_series"><a href="#time_series" class="header-anchor">❌ Time Series</a></h3>
+<ul>
+<li><p>Repeated measurements over time on the same units</p>
+</li>
+<li><p><strong>Solution</strong>: Use time series methods or repeated measures ANOVA</p>
+</li>
+</ul>
+<h3 id="spatial_correlation"><a href="#spatial_correlation" class="header-anchor">❌ Spatial Correlation</a></h3>
+<ul>
+<li><p>Measurements from geographically close locations</p>
+</li>
+<li><p><strong>Solution</strong>: Use spatial statistics methods</p>
+</li>
+</ul>
+<h2 id="the_mathematical_requirement"><a href="#the_mathematical_requirement" class="header-anchor">The Mathematical Requirement</a></h2>
+<p>For the Mann-Whitney U test, we need:</p>
+\[P(X_i, X_j) = P(X_i) \cdot P(X_j) \quad \forall i \neq j\]
+<p>This holds when:</p>
+<ul>
+<li><p>Samples are randomly drawn</p>
+</li>
+<li><p>No individual appears in both samples</p>
+</li>
+<li><p>No measurement dependencies exist</p>
+</li>
+</ul>
+<p>It does <strong>not</strong> require that \(X_i\) and \(Y_j\) come from the same marginal distribution.</p>
+<h2 id="key_takeaway"><a href="#key_takeaway" class="header-anchor">Key Takeaway</a></h2>
+<p>The Mann-Whitney U test compares <strong>two distributions</strong>, regardless of whether:</p>
+<ul>
+<li><p>One is conditional on the other</p>
+</li>
+<li><p>They come from related populations</p>
+</li>
+<li><p>One is a subpopulation of the other</p>
+</li>
+</ul>
+<p>What matters is that the <strong>sampling process</strong> maintains independence, not the relationship between the population distributions themselves.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

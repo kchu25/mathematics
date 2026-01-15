@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Feature Importance vs Counterfactuals: The Nuances</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="feature_importance_vs_counterfactuals_the_nuances"><a href="#feature_importance_vs_counterfactuals_the_nuances" class="header-anchor">Feature Importance vs Counterfactuals: The Nuances</a></h1>
+<p>You&#39;re touching on something really important that trips up a lot of people in ML and causal inference&#33;</p>
+<h2 id="the_core_distinction"><a href="#the_core_distinction" class="header-anchor">The Core Distinction</a></h2>
+<p><strong>Feature Importance</strong> tells you: &quot;How much does this feature help predict the outcome <em>in the current data distribution</em>?&quot;</p>
+<p><strong>Counterfactuals</strong> tell you: &quot;What would happen to the outcome if I <em>intervened</em> and changed this feature?&quot;</p>
+<p>These are fundamentally different questions.</p>
+<h2 id="mathematical_nuances"><a href="#mathematical_nuances" class="header-anchor">Mathematical Nuances</a></h2>
+<h3 id="association_vs_causation"><a href="#association_vs_causation" class="header-anchor"><ol>
+<li><p>Association vs Causation</p>
+</li>
+</ol>
+</a></h3>
+<p>Feature importance captures association:</p>
+\(I(X_j) \propto \text{how much } X_j \text{ correlates with } Y\)
+<p>Counterfactual asks about intervention:</p>
+\(Y | \text{do}(X_j = x') - Y | \text{do}(X_j = x)\)
+<p>The &quot;do&quot; operator &#40;from causal inference&#41; means we&#39;re forcing \(X_j\) to take a value, breaking its natural relationship with other variables.</p>
+<p><strong>Graph surgery interpretation</strong>: In a causal graph, \(\text{do}(X_j = x)\) is equivalent to:</p>
+<ol>
+<li><p><strong>Cutting all incoming edges</strong> to \(X_j\) &#40;severing relationships with its parents&#41;</p>
+</li>
+<li><p>Setting \(X_j = x\) as a constant</p>
+</li>
+<li><p>Keeping all outgoing edges from \(X_j\) intact &#40;its effects on children remain&#41;</p>
+</li>
+</ol>
+<p>This is why \(\text{do}(X_j)\) breaks the dependence: \(X_j \perp\!\!\!\perp \text{Parents}(X_j)\) after intervention.</p>
+<blockquote>
+<p><strong>Intuition about cutting incoming edges:</strong> The incoming edges represent &quot;what causes \(X_j\)&quot; in the natural world. When you intervene, <strong>you become the cause</strong> of \(X_j\)—you&#39;ve overridden the natural mechanism. The old causes don&#39;t matter anymore because you&#39;ve replaced them with your experimental manipulation.</p>
+<p>Think of it like disconnecting a light from its switch and plugging it directly into a battery. The switch &#40;parent&#41; no longer controls the light &#40;\(X_j\)&#41;, even though it used to. You&#39;ve literally cut that wire.</p>
+<p>The outgoing edges stay because you&#39;re not changing how \(X_j\) affects other things—you&#39;re just changing what determines \(X_j\) itself.</p>
+</blockquote>
+<h3 id="ol_start2_the_confounding_problem"><a href="#ol_start2_the_confounding_problem" class="header-anchor"><ol start="2">
+<li><p>The Confounding Problem</p>
+</li>
+</ol>
+</a></h3>
+<p>Consider:</p>
+<ul>
+<li><p>\(Z\) &#40;genes&#41; causes both \(X\) &#40;exercise&#41; and \(Y\) &#40;health&#41;</p>
+</li>
+<li><p>Exercise appears important for predicting health</p>
+</li>
+<li><p>But if you force someone to exercise &#40;intervention&#41;, the effect might be smaller</p>
+</li>
+</ul>
+<p>Why? The model learned:</p>
+\(P(Y | X, Z) \text{ where } X \text{ and } Z \text{ are correlated}\)
+<p>But intervention gives:</p>
+\(P(Y | \text{do}(X)) \neq P(Y | X)\)
+<h3 id="ol_start3_feature_dependencies_matter"><a href="#ol_start3_feature_dependencies_matter" class="header-anchor"><ol start="3">
+<li><p>Feature Dependencies Matter</p>
+</li>
+</ol>
+</a></h3>
+<p>When you &quot;knock down&quot; feature \(X_j\), what happens to other features?</p>
+<p><strong>In observational data:</strong> Features co-vary naturally</p>
+\(X_1, X_2, ..., X_p \sim P(X_1, ..., X_p)\)
+<p><strong>In intervention:</strong> You break those relationships</p>
+\(\text{do}(X_j = x') \implies X_j \perp\!\!\!\perp \text{Parents}(X_j)\)
+<p>The model never saw data in this intervened distribution&#33;</p>
+<h3 id="ol_start4_out-of-distribution_problem"><a href="#ol_start4_out-of-distribution_problem" class="header-anchor"><ol start="4">
+<li><p>Out-of-Distribution Problem</p>
+</li>
+</ol>
+</a></h3>
+<p>Your model learned:</p>
+\(f: X \to Y \text{ where } X \sim P_{\text{train}}(X)\)
+<p>After knockout:</p>
+\(X \sim P_{\text{intervention}}(X) \neq P_{\text{train}}(X)\)
+<p>The model might extrapolate poorly in this new regime.</p>
+<h2 id="why_knockdowns_sometimes_work"><a href="#why_knockdowns_sometimes_work" class="header-anchor">Why Knockdowns Sometimes Work</a></h2>
+<p>They work when:</p>
+<ol>
+<li><p><strong>Feature is truly causal</strong> &#40;no confounding&#41;</p>
+</li>
+<li><p><strong>Independence holds</strong>: Other features don&#39;t drastically shift when you intervene</p>
+</li>
+<li><p><strong>Lucky interpolation</strong>: The intervened distribution isn&#39;t too far from training data</p>
+</li>
+</ol>
+<h2 id="a_concrete_example"><a href="#a_concrete_example" class="header-anchor">A Concrete Example</a></h2>
+<p>Imagine predicting house prices:</p>
+<p><strong>Scenario 1: Square footage is important</strong></p>
+<ul>
+<li><p>Knockout: Set all houses to 1000 sq ft</p>
+</li>
+<li><p>Effect: Prices likely drop &#40;works&#33; it&#39;s causal&#41;</p>
+</li>
+</ul>
+<p><strong>Scenario 2: ZIP code is important</strong></p>
+<ul>
+<li><p>Knockout: Move all houses to ZIP 90210</p>
+</li>
+<li><p>Effect: ??? You can&#39;t actually move houses, and if you could, you&#39;d change neighborhood, schools, etc.</p>
+</li>
+<li><p>The prediction assumes all those correlated features stay the same &#40;they won&#39;t&#41;</p>
+</li>
+</ul>
+<p><strong>Scenario 3: Month listed is important</strong> &#40;confounder&#41;</p>
+<ul>
+<li><p>Model learned: Houses listed in spring sell for more</p>
+</li>
+<li><p>But WHY? Better houses are strategically listed then</p>
+</li>
+<li><p>Knockout: List a bad house in spring</p>
+</li>
+<li><p>Effect: Won&#39;t magically make it valuable</p>
+</li>
+</ul>
+<h2 id="the_math_of_what_can_go_wrong"><a href="#the_math_of_what_can_go_wrong" class="header-anchor">The Math of What Can Go Wrong</a></h2>
+<p>If \(X_j\) is important with weight \(\beta_j\) in a linear model: \(Y = \beta_0 + \beta_j X_j + \sum_{i \neq j} \beta_i X_i + \epsilon\)</p>
+<p>But \(X_j = g(X_{-j}, U)\) where \(U\) is unobserved: \(\mathbb{E}[Y | \text{do}(X_j = x')] \neq \mathbb{E}[Y | X_j = x']\)</p>
+<p>The intervention effect is: \(\frac{\partial}{\partial x_j} \mathbb{E}[Y | \text{do}(X_j = x_j)] = \beta_j + \sum_{i \neq j} \beta_i \frac{\partial x_i}{\partial x_j}\)</p>
+<p>That second term is the <strong>confounding bias</strong> – it&#39;s zero only if features are independent.</p>
+<blockquote>
+<p><strong>Important caveat about linear models:</strong> Yes, <em>if</em> you know the true linear model and <em>if</em> you&#39;ve measured all the relevant variables, then you can compute the intervention effect. The formula above shows you exactly how&#33;</p>
+<p>BUT the big &quot;ifs&quot; are:</p>
+<ol>
+<li><p><strong>Do you have the right model structure?</strong> &#40;Is it actually linear? Do you know which variables to include?&#41;</p>
+</li>
+<li><p><strong>Have you measured all confounders?</strong> &#40;If there&#39;s an unmeasured \(U\) that affects both \(X_j\) and \(Y\), you&#39;re in trouble&#41;</p>
+</li>
+<li><p><strong>Do you know the dependencies \(\frac{\partial x_i}{\partial x_j}\)?</strong> &#40;How do other features change when you intervene on \(X_j\)?&#41;</p>
+</li>
+</ol>
+<p>In practice, you rarely know these things with certainty. That&#39;s why even with linear models, causal inference requires careful thought about what variables to adjust for &#40;the &quot;adjustment set&quot; problem&#41; and strong assumptions about what&#39;s unmeasured.</p>
+</blockquote>
+<blockquote>
+<p><strong>What does \(\frac{\partial x_i}{\partial x_j}\) mean in the linear model case?</strong></p>
+<p>This captures how feature \(x_i\)<strong>causally depends</strong> on feature \(x_j\). It&#39;s NOT just the correlation from your regression—it&#39;s about the structural relationships between features.</p>
+<p><strong>Example:</strong> Suppose \(x_1\) &#61; exercise, \(x_2\) &#61; calorie intake, \(Y\) &#61; weight loss</p>
+<p>If the causal structure is: Exercise → Calorie Intake &#40;people who exercise eat more to compensate&#41;, then:</p>
+<ul>
+<li><p>When you <strong>intervene</strong> to increase exercise by 1 hour, calorie intake might increase by 200 calories</p>
+</li>
+<li><p>So \(\frac{\partial x_2}{\partial x_1} = 200\) &#40;calories per hour&#41;</p>
+</li>
+</ul>
+<p>This means when you force \(x_1\) up, \(x_2\) mechanistically responds. The intervention effect on \(Y\) includes both:</p>
+<ul>
+<li><p>Direct effect of exercise: \(\beta_1\)</p>
+</li>
+<li><p>Indirect effect through induced calorie change: \(\beta_2 \cdot \frac{\partial x_2}{\partial x_1} = \beta_2 \cdot 200\)</p>
+</li>
+</ul>
+<p><strong>The problem:</strong> You need to know this causal structure between features&#33; If there&#39;s no causal relationship &#40;\(X_j\) doesn&#39;t cause \(X_i\)&#41;, then \(\frac{\partial x_i}{\partial x_j} = 0\). But figuring out which features cause which other features requires... you guessed it... more causal inference&#33;</p>
+</blockquote>
+<blockquote>
+<p><strong>How do people actually figure out \(\frac{\partial x_i}{\partial x_j}\) in practice?</strong></p>
+<p>Honestly? It&#39;s hard, and people use different strategies depending on their situation:</p>
+<p><strong>1. Domain knowledge / Expert judgment</strong></p>
+<ul>
+<li><p>Most common approach: Subject matter experts draw the causal graph</p>
+</li>
+<li><p>&quot;We know that education affects income, but income doesn&#39;t affect your past education&quot;</p>
+</li>
+<li><p>Problem: Experts can be wrong, and it&#39;s subjective</p>
+</li>
+</ul>
+<p><strong>2. Randomized experiments on features</strong></p>
+<ul>
+<li><p>Gold standard: Run experiments varying \(X_j\) and measure how \(X_i\) responds</p>
+</li>
+<li><p>Example: A/B test showing price changes to see how customer browsing time changes</p>
+</li>
+<li><p>Problem: Expensive, sometimes unethical/impossible</p>
+</li>
+</ul>
+<p><strong>3. Structural equation modeling &#40;SEM&#41;</strong></p>
+<ul>
+<li><p>Assume a specific causal structure, estimate all relationships simultaneously</p>
+</li>
+<li><p>Fit equations like \(X_2 = \alpha X_1 + \epsilon_2\) alongside \(Y = \beta_1 X_1 + \beta_2 X_2 + \epsilon_Y\)</p>
+</li>
+<li><p>Problem: Results are only as good as your structural assumptions</p>
+</li>
+</ul>
+<p><strong>4. Causal discovery algorithms</strong></p>
+<ul>
+<li><p>Algorithms like PC, GES, or constraint-based methods try to learn the graph from data</p>
+</li>
+<li><p>Use conditional independence tests to infer causal directions</p>
+</li>
+<li><p>Problem: Requires strong assumptions &#40;faithfulness, causal sufficiency&#41;, often can&#39;t distinguish causal direction</p>
+</li>
+</ul>
+<p><strong>5. Instrumental variables</strong></p>
+<ul>
+<li><p>Find a variable that affects \(X_j\) but only affects \(Y\) through \(X_j\)</p>
+</li>
+<li><p>Can sometimes identify causal effects without knowing all the dependencies</p>
+</li>
+<li><p>Problem: Finding valid instruments is incredibly hard</p>
+</li>
+</ul>
+<p><strong>6. The &quot;dodge&quot; approach: Target the total effect</strong></p>
+<ul>
+<li><p>Instead of decomposing \(\beta_j + \sum_i \beta_i \frac{\partial x_i}{\partial x_j}\), just estimate the total effect directly</p>
+</li>
+<li><p>Block all backdoor paths &#40;confounders&#41; but leave mediation paths open</p>
+</li>
+<li><p>Problem: You get the total effect, not the direct effect—might not be what you want</p>
+</li>
+</ul>
+<p><strong>Reality check:</strong> In most ML/industry settings, people either:</p>
+<ul>
+<li><p>Make strong assumptions &#40;often implicit&#41; that features are causally independent &#40;\(\frac{\partial x_i}{\partial x_j} = 0\) for all \(i \neq j\)&#41;</p>
+</li>
+<li><p>Use domain knowledge to identify which features are &quot;descendants&quot; of others</p>
+</li>
+<li><p>Just give up on computing true causal effects and settle for predictive models with feature importance</p>
+</li>
+</ul>
+<p>This is why causal inference is an entire field—there&#39;s no easy, automatic way to do it&#33;</p>
+</blockquote>
+<blockquote>
+<p><strong>Special case: Can you compute \(\frac{\partial x_i}{\partial x_j}\) if the \(x_i\)s are all binary?</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>What is the intervention effect?</strong> The intervention effect is the <strong>causal effect</strong> of changing \(X_j\) on the outcome \(Y\)—what happens to \(Y\) when you <em>force</em> \(X_j\) to change, not just observe it changing naturally.</p>
+<p>It measures the difference in outcomes when you intervene to set different values of \(X_j\). For example, comparing &quot;force everyone to exercise 3 hours/week&quot; vs &quot;force everyone to exercise 1 hour/week.&quot;</p>
+</blockquote>
+\(\text{Intervention Effect} = \mathbb{E}[Y | \text{do}(X_j = 3)] - \mathbb{E}[Y | \text{do}(X_j = 1)]\)
+<blockquote>
+<p>This is fundamentally different from the <strong>observational association</strong>—comparing people who naturally exercise 3 hours vs 1 hour.</p>
+</blockquote>
+\(\mathbb{E}[Y | X_j = 3] - \mathbb{E}[Y | X_j = 1]\)
+<blockquote>
+<p>The observational version mixes up the true causal effect with confounding &#40;e.g., naturally active people might also have healthier diets, better genes, etc.&#41;.</p>
+</blockquote>
+<blockquote>
+<p><strong>Wait, so this lets you know how much Y changes when you change X? Isn&#39;t that simple?</strong></p>
+<p>No&#33; The equation <em>defines</em> what the intervention effect <strong>is</strong> &#40;conceptually&#41;, but it doesn&#39;t tell you <strong>how to compute it</strong> from your data.</p>
+<p><strong>You observe:</strong> \(\mathbb{E}[Y | X_j = 3]\) &#40;average outcome for people who naturally exercise 3 hours&#41;</p>
+<p><strong>You want:</strong> \(\mathbb{E}[Y | \text{do}(X_j = 3)]\) &#40;average outcome if you <em>forced</em> everyone to exercise 3 hours&#41;</p>
+<p>These are <strong>different numbers</strong>&#33; You can&#39;t directly observe the &quot;do&quot; version because you didn&#39;t run an experiment. You&#39;re stuck trying to estimate \(\mathbb{E}[Y | \text{do}(X_j)]\) from observational data, which requires knowing the causal structure, measuring all confounders, making untestable assumptions, and doing complex adjustments.</p>
+<p>Think of it like: I can write down \(\pi\) easily, but computing its digits is hard. Similarly, writing \(\mathbb{E}[Y | \text{do}(X)]\) is easy—<strong>computing</strong> it from real data is where all the difficulty lives.</p>
+</blockquote>
+<h2 id="bottom_line"><a href="#bottom_line" class="header-anchor">Bottom Line</a></h2>
+<ul>
+<li><p><strong>Feature importance</strong>: &quot;This variable is useful for prediction&quot;</p>
+</li>
+<li><p><strong>Counterfactual</strong>: &quot;This variable causes the outcome&quot;</p>
+</li>
+<li><p><strong>The gap</strong>: Correlation, confounding, distribution shift</p>
+</li>
+</ul>
+<p>Knockdowns might work, but you&#39;re making an implicit <strong>causal assumption</strong> that the feature is both important <em>and</em> causally upstream of the outcome with no confounding.</p>
+<h2 id="why_computing_counterfactuals_is_much_harder"><a href="#why_computing_counterfactuals_is_much_harder" class="header-anchor">Why Computing Counterfactuals is Much Harder</a></h2>
+<p><strong>Association/Feature Importance:</strong> Computationally easy</p>
+<ul>
+<li><p>Reduce to linear algebra: correlations, regression coefficients, SHAP values</p>
+</li>
+<li><p>Just matrix operations on observed data: \(X^T X\), eigenvalues, gradients</p>
+</li>
+<li><p>Complexity: \(O(n \cdot p^2)\) or similar—scales well</p>
+</li>
+</ul>
+<p><strong>Counterfactuals:</strong> Computationally hard &#40;often impossible without assumptions&#41;</p>
+<h3 id="the_fundamental_problem_identification"><a href="#the_fundamental_problem_identification" class="header-anchor">The Fundamental Problem: <strong>Identification</strong></a></h3>
+<p>To compute \(P(Y|\text{do}(X=x))\), you need to know the <strong>causal graph structure</strong>. But:</p>
+<ol>
+<li><p><strong>Learning the causal graph from data is NP-hard</strong> in general</p>
+<ul>
+<li><p>With \(p\) variables, there are super-exponentially many possible DAGs</p>
+</li>
+<li><p>Observational data alone often can&#39;t distinguish between graphs &#40;Markov equivalence classes&#41;</p>
+</li>
+<li><p>Example: \(X \to Y\) vs \(X \gets Y\) can produce identical distributions</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Even with the graph, you need identifiability conditions</strong></p>
+<ul>
+<li><p>Need sufficient assumptions &#40;no unmeasured confounders, certain graph structures&#41;</p>
+</li>
+<li><p>The &quot;do-calculus&quot; &#40;Pearl&#41; gives rules, but checking if they apply is itself hard</p>
+</li>
+<li><p>Sometimes \(P(Y|\text{do}(X))\) simply <strong>cannot be computed</strong> from observational data alone</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="what_makes_it_hard_mathematically"><a href="#what_makes_it_hard_mathematically" class="header-anchor">What Makes It Hard Mathematically</a></h3>
+<p>For associations:</p>
+\(\text{Importance}(X_j) = f(\text{observed data}) \quad \text{// direct computation}\)
+<p>For counterfactuals:</p>
+\(P(Y|\text{do}(X)) = \int P(Y|X, Z) P(Z) dZ \quad \text{if } Z \text{ is sufficient adjustment set}\)
+<p>But which \(Z\)? You need to:</p>
+<ul>
+<li><p>Know/learn the causal graph</p>
+</li>
+<li><p>Apply backdoor criterion or front-door criterion</p>
+</li>
+<li><p>Hope the required variables were measured</p>
+</li>
+<li><p>Check positivity &#40;overlap&#41; assumptions</p>
+</li>
+</ul>
+<h3 id="practical_approaches_all_require_strong_assumptions"><a href="#practical_approaches_all_require_strong_assumptions" class="header-anchor">Practical Approaches &#40;all require strong assumptions&#41;</a></h3>
+<ol>
+<li><p><strong>Randomized experiments</strong>: Gold standard, but expensive/unethical/impossible</p>
+</li>
+<li><p><strong>Instrumental variables</strong>: Need to find valid instruments &#40;hard to verify&#41;</p>
+</li>
+<li><p><strong>Regression discontinuity</strong>: Only works in specific settings</p>
+</li>
+<li><p><strong>Propensity score matching</strong>: Assumes no unmeasured confounding</p>
+</li>
+<li><p><strong>Difference-in-differences</strong>: Needs parallel trends assumption</p>
+</li>
+<li><p><strong>Structural causal models</strong>: Requires specifying the full causal structure</p>
+</li>
+</ol>
+<p>All of these are <strong>much more involved</strong> than computing a correlation matrix.</p>
+<h3 id="the_complexity_gap"><a href="#the_complexity_gap" class="header-anchor">The Complexity Gap</a></h3>
+<table><tr><th align="right">Task</th><th align="right">Computational Complexity</th><th align="right">Main Challenge</th></tr><tr><td align="right">Correlation</td><td align="right">\(O(np^2)\)</td><td align="right">Matrix multiplication</td></tr><tr><td align="right">Linear regression</td><td align="right">\(O(np^2)\)</td><td align="right">Solve \(X^TX\beta = X^Ty\)</td></tr><tr><td align="right">Feature importance &#40;tree&#41;</td><td align="right">\(O(n \log n \cdot \text{depth})\)</td><td align="right">Greedy splits</td></tr><tr><td align="right">SHAP values</td><td align="right">\(O(2^p \cdot n)\)</td><td align="right">Exponential in features, but tractable approximations exist</td></tr><tr><td align="right">Causal discovery</td><td align="right"><strong>NP-hard</strong></td><td align="right">Search over graph space</td></tr><tr><td align="right">Counterfactual &#40;known graph&#41;</td><td align="right">\(O(f(\text{graph}))\)</td><td align="right">Depends on identifiability, integration</td></tr><tr><td align="right">Counterfactual &#40;unknown graph&#41;</td><td align="right"><strong>Intractable</strong></td><td align="right">Need experiments or untestable assumptions</td></tr></table>
+<p><strong>TL;DR:</strong> Computing associations &#61; &quot;Look at the data.&quot; Computing counterfactuals &#61; &quot;Understand the world&#39;s causal structure&quot;—which is fundamentally harder.s are neural net input features?**</p>
+<blockquote>
+<p>This is a really important question&#33; The answer depends on what you mean:</p>
+<p><strong>If you&#39;re asking about the causal relationship between input features themselves:</strong></p>
+<ul>
+<li><p><strong>No, the neural network can&#39;t tell you this&#33;</strong></p>
+</li>
+<li><p>The neural network only learns \(f: (x_1, ..., x_p) \to y\)</p>
+</li>
+<li><p>It has no information about how \(x_i\) causally depends on \(x_j\)</p>
+</li>
+<li><p>These dependencies exist in the real world, <em>before</em> data enters your model</p>
+</li>
+<li><p>Example: A neural net predicting health from &#40;exercise, calories, weight&#41; can&#39;t tell you whether exercise causes calorie intake to change</p>
+</li>
+</ul>
+<p><strong>If you&#39;re asking about derivatives through the network:</strong></p>
+<ul>
+<li><p>Yes, you can compute \(\frac{\partial y}{\partial x_j}\) via backpropagation &#40;gradients&#41;</p>
+</li>
+<li><p>But this is NOT the same as \(\frac{\partial x_i}{\partial x_j}\)</p>
+</li>
+<li><p>\(\frac{\partial y}{\partial x_j}\) tells you: &quot;how does the output change if I change input \(x_j\) while holding other inputs fixed?&quot;</p>
+</li>
+<li><p>This is still just observational/predictive, not causal about feature interactions</p>
+</li>
+</ul>
+<p><strong>The fundamental issue:</strong></p>
+<ul>
+<li><p>\(\frac{\partial x_i}{\partial x_j}\) is about relationships <strong>between features in the world</strong></p>
+</li>
+<li><p>Your model &#40;neural net or otherwise&#41; only sees the features after they&#39;ve been determined</p>
+</li>
+<li><p>To know \(\frac{\partial x_i}{\partial x_j}\), you need:</p>
+<ul>
+<li><p>Experiments varying \(x_j\) and observing \(x_i\)</p>
+</li>
+<li><p>Domain knowledge about the data-generating process</p>
+</li>
+<li><p>Assumptions about the causal structure</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Bottom line:</strong> Neural networks &#40;or any predictive model&#41; fundamentally cannot tell you about causal relationships between their input features. That information has to come from outside the model.</p>
+</blockquote>
+<h2 id="can_you_learn_feature_dependencies_fracpartial_x_ipartial_x_j_from_data"><a href="#can_you_learn_feature_dependencies_fracpartial_x_ipartial_x_j_from_data" class="header-anchor">Can You Learn Feature Dependencies \(\frac{\partial x_i}{\partial x_j}\) from Data?</a></h2>
+<p>This is a critical question because without knowing these dependencies, you can&#39;t properly compute intervention effects. The answer depends heavily on what kind of data you have.</p>
+<h3 id="the_easy_case_you_have_perturbationexperimental_data"><a href="#the_easy_case_you_have_perturbationexperimental_data" class="header-anchor">The Easy Case: You Have Perturbation/Experimental Data</a></h3>
+<p>If you have data where \(x_j\) was experimentally manipulated, you&#39;re in good shape:</p>
+<blockquote>
+<p><strong>When it&#39;s possible &#40;with interventional data&#41;:</strong></p>
+<ul>
+<li><p>If you have <strong>experimental data</strong> where you intervened on \(x_j\), then yes&#33;</p>
+</li>
+<li><p>Regress \(x_i\) on \(x_j\) using only the experimental data: \(x_i = \gamma x_j + \epsilon\)</p>
+</li>
+<li><p>The coefficient \(\gamma\) estimates \(\frac{\partial x_i}{\partial x_j}\)</p>
+</li>
+<li><p>This works because intervention breaks confounding</p>
+</li>
+</ul>
+<p><strong>When it&#39;s very hard &#40;observational data only&#41;:</strong></p>
+<ol>
+<li><p><strong>Causal discovery algorithms</strong> can sometimes learn it:</p>
+<ul>
+<li><p>Methods: PC algorithm, GES, LiNGAM &#40;for linear non-Gaussian&#41;, NOTEARS &#40;for neural nets&#41;</p>
+</li>
+<li><p>They use conditional independence patterns to infer causal directions</p>
+</li>
+<li><p><strong>Major limitations:</strong></p>
+<ul>
+<li><p>Assume <strong>causal sufficiency</strong> &#40;no unmeasured confounders affecting multiple features&#41;</p>
+</li>
+<li><p>Assume <strong>faithfulness</strong> &#40;causal structure faithfully generates independencies&#41;</p>
+</li>
+<li><p>Often can only identify up to <strong>Markov equivalence</strong> &#40;can&#39;t distinguish \(X \to Y\) from \(X \gets Y\) without more assumptions&#41;</p>
+</li>
+<li><p>Break down with many variables, complex interactions, or when assumptions violated</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Functional Causal Models &#40;FCMs&#41;</strong>:</p>
+<ul>
+<li><p>Assume specific functional forms: \(x_i = f_i(\text{Parents}(x_i), \epsilon_i)\)</p>
+</li>
+<li><p>Use asymmetries in the noise distributions to identify causal direction</p>
+</li>
+<li><p><strong>Limitations:</strong> Requires very specific assumptions about noise structure</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Time-series data</strong> helps:</p>
+<ul>
+<li><p>If you have temporal ordering: cause must precede effect</p>
+</li>
+<li><p>Granger causality, VAR models, dynamic causal modeling</p>
+</li>
+<li><p><strong>Limitations:</strong> Correlation in time ≠ causation &#40;could still be confounded&#41;</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>The fundamental identifiability problem:</strong></p>
+<p>Consider two possibilities:</p>
+<ul>
+<li><p>&#40;A&#41; \(x_j \to x_i \to y\)</p>
+</li>
+<li><p>&#40;B&#41; \(x_i \to x_j \to y\)</p>
+</li>
+</ul>
+<p>Both can produce the <strong>exact same observational distribution</strong> \(P(x_i, x_j, y)\)&#33;</p>
+<p>Without additional assumptions &#40;functional forms, noise distributions, temporal order, or experiments&#41;, pure observational data cannot distinguish them.</p>
+<p><strong>What people actually do:</strong></p>
+<ul>
+<li><p><strong>Best case:</strong> Run experiments to directly measure \(\frac{\partial x_i}{\partial x_j}\)</p>
+</li>
+<li><p><strong>Second best:</strong> Use causal discovery with strong assumptions &#43; domain knowledge to validate</p>
+</li>
+<li><p><strong>Pragmatic:</strong> Make simplifying assumptions &#40;features independent, known causal order&#41;</p>
+</li>
+<li><p><strong>Honest:</strong> Acknowledge uncertainty and do sensitivity analysis on different causal structures</p>
+</li>
+</ul>
+<p><strong>TL;DR:</strong> You can <em>sometimes</em> learn \(\frac{\partial x_i}{\partial x_j}\) from data, but it requires either experiments or very strong &#40;often untestable&#41; assumptions. Pure observational data alone usually isn&#39;t enough.</p>
+</blockquote>
+<blockquote>
+<p><strong>What is the intervention effect?</strong> The intervention effect is the <strong>causal effect</strong> of changing \(X_j\) on the outcome \(Y\)—what happens to \(Y\) when you <em>force</em> \(X_j\) to change, not just observe it changing naturally.</p>
+<p>It measures the difference in outcomes when you intervene to set different values of \(X_j\). For example, comparing &quot;force everyone to exercise 3 hours/week&quot; vs &quot;force everyone to exercise 1 hour/week.&quot;</p>
+</blockquote>
+\(\text{Intervention Effect} = \mathbb{E}[Y | \text{do}(X_j = 3)] - \mathbb{E}[Y | \text{do}(X_j = 1)]\)
+<blockquote>
+<p>This is fundamentally different from the <strong>observational association</strong>—comparing people who naturally exercise 3 hours vs 1 hour.</p>
+</blockquote>
+\(\mathbb{E}[Y | X_j = 3] - \mathbb{E}[Y | X_j = 1]\)
+<blockquote>
+<p>The observational version mixes up the true causal effect with confounding &#40;e.g., naturally active people might also have healthier diets, better genes, etc.&#41;.</p>
+</blockquote>
+<blockquote>
+<p><strong>Wait, so this lets you know how much Y changes when you change X? Isn&#39;t that simple?</strong></p>
+<p>No&#33; The equation <em>defines</em> what the intervention effect <strong>is</strong> &#40;conceptually&#41;, but it doesn&#39;t tell you <strong>how to compute it</strong> from your data.</p>
+<p><strong>You observe:</strong> \(\mathbb{E}[Y | X_j = 3]\) &#40;average outcome for people who naturally exercise 3 hours&#41;</p>
+<p><strong>You want:</strong> \(\mathbb{E}[Y | \text{do}(X_j = 3)]\) &#40;average outcome if you <em>forced</em> everyone to exercise 3 hours&#41;</p>
+<p>These are <strong>different numbers</strong>&#33; You can&#39;t directly observe the &quot;do&quot; version because you didn&#39;t run an experiment. You&#39;re stuck trying to estimate \(\mathbb{E}[Y | \text{do}(X_j)]\) from observational data, which requires knowing the causal structure, measuring all confounders, making untestable assumptions, and doing complex adjustments.</p>
+<p>Think of it like: I can write down \(\pi\) easily, but computing its digits is hard. Similarly, writing \(\mathbb{E}[Y | \text{do}(X)]\) is easy—<strong>computing</strong> it from real data is where all the difficulty lives.</p>
+</blockquote>
+<h2 id="bottom_line__2"><a href="#bottom_line__2" class="header-anchor">Bottom Line</a></h2>
+<ul>
+<li><p><strong>Feature importance</strong>: &quot;This variable is useful for prediction&quot;</p>
+</li>
+<li><p><strong>Counterfactual</strong>: &quot;This variable causes the outcome&quot;</p>
+</li>
+<li><p><strong>The gap</strong>: Correlation, confounding, distribution shift</p>
+</li>
+</ul>
+<p>Knockdowns might work, but you&#39;re making an implicit <strong>causal assumption</strong> that the feature is both important <em>and</em> causally upstream of the outcome with no confounding.</p>
+<h2 id="why_computing_counterfactuals_is_much_harder__2"><a href="#why_computing_counterfactuals_is_much_harder__2" class="header-anchor">Why Computing Counterfactuals is Much Harder</a></h2>
+<p><strong>Association/Feature Importance:</strong> Computationally easy</p>
+<ul>
+<li><p>Reduce to linear algebra: correlations, regression coefficients, SHAP values</p>
+</li>
+<li><p>Just matrix operations on observed data: \(X^T X\), eigenvalues, gradients</p>
+</li>
+<li><p>Complexity: \(O(n \cdot p^2)\) or similar—scales well</p>
+</li>
+</ul>
+<p><strong>Counterfactuals:</strong> Computationally hard &#40;often impossible without assumptions&#41;</p>
+<h3 id="the_fundamental_problem_identification__2"><a href="#the_fundamental_problem_identification__2" class="header-anchor">The Fundamental Problem: <strong>Identification</strong></a></h3>
+<p>To compute \(P(Y|\text{do}(X=x))\), you need to know the <strong>causal graph structure</strong>. But:</p>
+<ol>
+<li><p><strong>Learning the causal graph from data is NP-hard</strong> in general</p>
+<ul>
+<li><p>With \(p\) variables, there are super-exponentially many possible DAGs</p>
+</li>
+<li><p>Observational data alone often can&#39;t distinguish between graphs &#40;Markov equivalence classes&#41;</p>
+</li>
+<li><p>Example: \(X \to Y\) vs \(X \gets Y\) can produce identical distributions</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Even with the graph, you need identifiability conditions</strong></p>
+<ul>
+<li><p>Need sufficient assumptions &#40;no unmeasured confounders, certain graph structures&#41;</p>
+</li>
+<li><p>The &quot;do-calculus&quot; &#40;Pearl&#41; gives rules, but checking if they apply is itself hard</p>
+</li>
+<li><p>Sometimes \(P(Y|\text{do}(X))\) simply <strong>cannot be computed</strong> from observational data alone</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="what_makes_it_hard_mathematically__2"><a href="#what_makes_it_hard_mathematically__2" class="header-anchor">What Makes It Hard Mathematically</a></h3>
+<p>For associations:</p>
+\[\text{Importance}(X_j) = f(\text{observed data}) \quad \text{// direct computation}\]
+<p>For counterfactuals:</p>
+\[P(Y|\text{do}(X)) = \int P(Y|X, Z) P(Z) dZ \quad \text{if } Z \text{ is sufficient adjustment set}\]
+<p>But which \(Z\)? You need to:</p>
+<ul>
+<li><p>Know/learn the causal graph</p>
+</li>
+<li><p>Apply backdoor criterion or front-door criterion</p>
+</li>
+<li><p>Hope the required variables were measured</p>
+</li>
+<li><p>Check positivity &#40;overlap&#41; assumptions</p>
+</li>
+</ul>
+<h3 id="practical_approaches_all_require_strong_assumptions__2"><a href="#practical_approaches_all_require_strong_assumptions__2" class="header-anchor">Practical Approaches &#40;all require strong assumptions&#41;</a></h3>
+<ol>
+<li><p><strong>Randomized experiments</strong>: Gold standard, but expensive/unethical/impossible</p>
+</li>
+<li><p><strong>Instrumental variables</strong>: Need to find valid instruments &#40;hard to verify&#41;</p>
+</li>
+<li><p><strong>Regression discontinuity</strong>: Only works in specific settings</p>
+</li>
+<li><p><strong>Propensity score matching</strong>: Assumes no unmeasured confounding</p>
+</li>
+<li><p><strong>Difference-in-differences</strong>: Needs parallel trends assumption</p>
+</li>
+<li><p><strong>Structural causal models</strong>: Requires specifying the full causal structure</p>
+</li>
+</ol>
+<p>All of these are <strong>much more involved</strong> than computing a correlation matrix.</p>
+<h3 id="the_complexity_gap__2"><a href="#the_complexity_gap__2" class="header-anchor">The Complexity Gap</a></h3>
+<table><tr><th align="right">Task</th><th align="right">Computational Complexity</th><th align="right">Main Challenge</th></tr><tr><td align="right">Correlation</td><td align="right">\(O(np^2)\)</td><td align="right">Matrix multiplication</td></tr><tr><td align="right">Linear regression</td><td align="right">\(O(np^2)\)</td><td align="right">Solve \(X^TX\beta = X^Ty\)</td></tr><tr><td align="right">Feature importance &#40;tree&#41;</td><td align="right">\(O(n \log n \cdot \text{depth})\)</td><td align="right">Greedy splits</td></tr><tr><td align="right">SHAP values</td><td align="right">\(O(2^p \cdot n)\)</td><td align="right">Exponential in features, but tractable approximations exist</td></tr><tr><td align="right">Causal discovery</td><td align="right"><strong>NP-hard</strong></td><td align="right">Search over graph space</td></tr><tr><td align="right">Counterfactual &#40;known graph&#41;</td><td align="right">\(O(f(\text{graph}))\)</td><td align="right">Depends on identifiability, integration</td></tr><tr><td align="right">Counterfactual &#40;unknown graph&#41;</td><td align="right"><strong>Intractable</strong></td><td align="right">Need experiments or untestable assumptions</td></tr></table>
+<p><strong>TL;DR:</strong> Computing associations &#61; &quot;Look at the data.&quot; Computing counterfactuals &#61; &quot;Understand the world&#39;s causal structure&quot;—which is fundamentally harder.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: January 15, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

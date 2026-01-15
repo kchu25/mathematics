@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Mann-Whitney U Test: Sample Size Planning and Effect Size Reporting</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="mann-whitney_u_test_sample_size_planning_and_effect_size_reporting"><a href="#mann-whitney_u_test_sample_size_planning_and_effect_size_reporting" class="header-anchor">Mann-Whitney U Test: Sample Size Planning and Effect Size Reporting</a></h1>
+<h2 id="does_power_analysis_apply_to_mann-whitney_u_test"><a href="#does_power_analysis_apply_to_mann-whitney_u_test" class="header-anchor">Does Power Analysis Apply to Mann-Whitney U Test?</a></h2>
+<p><strong>Partially, with important caveats.</strong> Formal power analysis is designed for parametric tests, but researchers often use approximations for planning Mann-Whitney U studies:</p>
+<h3 id="key_differences_for_mann-whitney_u_test"><a href="#key_differences_for_mann-whitney_u_test" class="header-anchor">Key Differences for Mann-Whitney U Test</a></h3>
+<ol>
+<li><p><strong>Efficiency Loss</strong>: Non-parametric tests are slightly less powerful than parametric tests &#40;t-tests&#41; when data is normally distributed</p>
+<ul>
+<li><p><strong>Rule of thumb</strong>: Non-parametric tests require ~5-15&#37; more samples than t-tests for the same power</p>
+</li>
+<li><p>The Mann-Whitney U test needs approximately 5&#37; more samples than an independent samples t-test</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Effect Size Measures</strong>:</p>
+<ul>
+<li><p>t-tests use <strong>Cohen&#39;s d</strong> &#40;difference in means / pooled SD&#41;</p>
+</li>
+<li><p>Mann-Whitney uses <strong>rank-biserial correlation</strong> or <strong>probability of superiority</strong></p>
+</li>
+<li><p>Approximate conversion: For large samples, Cohen&#39;s d ≈ effect size for Mann-Whitney</p>
+</li>
+</ul>
+</li>
+<li><p><strong>When to Use Which Test</strong>:</p>
+<ul>
+<li><p><strong>Use t-test</strong> if: Data is approximately normal, or n≥30 per group &#40;Central Limit Theorem&#41;</p>
+</li>
+<li><p><strong>Use Mann-Whitney</strong> if: Data is heavily skewed, has outliers, or violates normality assumptions</p>
+</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="sample_size_planning_for_mann-whitney_u_test"><a href="#sample_size_planning_for_mann-whitney_u_test" class="header-anchor">Sample Size Planning for Mann-Whitney U Test</a></h2>
+<h3 id="important_note_on_power_analysis_for_non-parametric_tests"><a href="#important_note_on_power_analysis_for_non-parametric_tests" class="header-anchor">Important Note on Power Analysis for Non-Parametric Tests</a></h3>
+<p><strong>Limitation</strong>: Formal power analysis for Mann-Whitney U test is not straightforward because:</p>
+<ul>
+<li><p>Cohen&#39;s d is designed for parametric tests &#40;comparing means&#41;</p>
+</li>
+<li><p>Mann-Whitney compares distributions/ranks, not means</p>
+</li>
+<li><p>True non-parametric power analysis requires simulation</p>
+</li>
+</ul>
+<p><strong>Common Practice</strong>: In practice, researchers typically:</p>
+<ol>
+<li><p>Use <strong>t-test power formulas as approximations</strong> &#40;as shown below&#41;</p>
+</li>
+<li><p>Apply the efficiency correction factor &#40;~1.05&#41;</p>
+</li>
+<li><p>Acknowledge this is an approximation, not theoretically exact</p>
+</li>
+</ol>
+<p><strong>Alternative approaches</strong>:</p>
+<ul>
+<li><p>Use simulation-based power analysis for your specific data distribution</p>
+</li>
+<li><p>Follow rules of thumb &#40;minimum 20-30 per group&#41;</p>
+</li>
+<li><p>Report post-hoc effect sizes &#40;rank-biserial correlation&#41; to help future studies</p>
+</li>
+</ul>
+<p>The formulas below use Cohen&#39;s d as an approximation for planning purposes, but remember that the actual effect size you report should be rank-biserial correlation &#40;r&#41;.</p>
+<h3 id="step_1_determine_your_design"><a href="#step_1_determine_your_design" class="header-anchor">Step 1: Determine Your Design</a></h3>
+<p><strong>Mann-Whitney U test</strong> is for:</p>
+<ul>
+<li><p><strong>Independent samples</strong> &#40;two separate groups&#41;</p>
+</li>
+<li><p><strong>Between-subjects designs</strong></p>
+</li>
+<li><p><strong>Different participants in each group</strong></p>
+</li>
+</ul>
+<p><em>Note: For paired/matched samples, use Wilcoxon signed-rank test instead.</em></p>
+<h3 id="step_2_calculate_required_sample_size"><a href="#step_2_calculate_required_sample_size" class="header-anchor">Step 2: Calculate Required Sample Size</a></h3>
+<p>For <strong>independent</strong> Mann-Whitney test, use the independent t-test formula with adjustment:</p>
+\[n = \frac{2(Z_{1-\alpha/2} + Z_{1-\beta})^2}{d^2} \times \text{ARE}\]
+<p>Where:</p>
+<ul>
+<li><p><strong>ARE</strong> &#40;Asymptotic Relative Efficiency&#41; ≈ 0.955 when data is normal</p>
+</li>
+<li><p>This means Mann-Whitney needs about 5&#37; more samples per group than independent t-test</p>
+</li>
+<li><p>For α &#61; 0.05, 80&#37; power: \(n \approx \frac{15.68}{d^2} \times 1.05 \approx \frac{16.5}{d^2}\) per group</p>
+</li>
+</ul>
+<h3 id="step_3_account_for_unequal_group_sizes"><a href="#step_3_account_for_unequal_group_sizes" class="header-anchor">Step 3: Account for Unequal Group Sizes</a></h3>
+<p>If groups have unequal sizes &#40;n₁ and n₂&#41;:</p>
+\[n_{\text{effective}} = \frac{2n_1 n_2}{n_1 + n_2}\]
+<p>This effective sample size is what matters for power calculations.</p>
+<p><strong>Example</strong>: If you have 40 in Group A and 20 in Group B:</p>
+<ul>
+<li><p>\(n_{\text{eff}} = \frac{2 \times 40 \times 20}{40 + 20} = \frac{1600}{60} = 26.7\)</p>
+</li>
+<li><p>This is equivalent to having ~27 participants per group with equal sizes</p>
+</li>
+</ul>
+<h3 id="step_4_check_minimum_detectable_effect"><a href="#step_4_check_minimum_detectable_effect" class="header-anchor">Step 4: Check Minimum Detectable Effect</a></h3>
+<p>For Mann-Whitney with n per group and α &#61; 0.05, 80&#37; power:</p>
+\[d_{\min} \approx \frac{4.05 \times 1.05}{\sqrt{n}} = \frac{4.25}{\sqrt{n}}\]
+<p><strong>Reference table for Mann-Whitney:</strong></p>
+<table><tr><th align="right">n per group</th><th align="right">Min Detectable d</th><th align="right">Interpretation</th></tr><tr><td align="right">10</td><td align="right">1.34</td><td align="right">Very large effects only</td></tr><tr><td align="right">20</td><td align="right">0.95</td><td align="right">Large effects</td></tr><tr><td align="right">30</td><td align="right">0.78</td><td align="right">Large effects</td></tr><tr><td align="right">50</td><td align="right">0.60</td><td align="right">Medium-large effects</td></tr><tr><td align="right">100</td><td align="right">0.43</td><td align="right">Medium effects</td></tr><tr><td align="right">200</td><td align="right">0.30</td><td align="right">Small-medium effects</td></tr><tr><td align="right">400</td><td align="right">0.21</td><td align="right">Small effects</td></tr></table>
+<hr />
+<h2 id="complete_testing_procedure"><a href="#complete_testing_procedure" class="header-anchor">Complete Testing Procedure</a></h2>
+<h3 id="check_assumptions"><a href="#check_assumptions" class="header-anchor"><ol>
+<li><p>Check Assumptions</p>
+</li>
+</ol>
+</a></h3>
+<p><strong>Before choosing your test:</strong></p>
+<pre><code class="language-julia">Normality Check &#40;for each group&#41;:
+├─ Shapiro-Wilk test &#40;for n &lt; 50&#41;
+├─ Visual: QQ-plot
+└─ If p &lt; 0.05 or clear skewness → Use Mann-Whitney U
+
+Independence Check:
+└─ Ensure groups are truly independent &#40;different participants&#41;</code></pre>
+<h3 id="ol_start2_conduct_the_mann-whitney_u_test"><a href="#ol_start2_conduct_the_mann-whitney_u_test" class="header-anchor"><ol start="2">
+<li><p>Conduct the Mann-Whitney U Test</p>
+</li>
+</ol>
+</a></h3>
+<p><strong>In Julia:</strong></p>
+<pre><code class="language-julia">using HypothesisTests
+using Statistics
+
+# Mann-Whitney U test &#40;called MannWhitneyUTest in Julia&#41;
+test_result &#61; MannWhitneyUTest&#40;x, y&#41;
+
+# Get p-value
+p_value &#61; pvalue&#40;test_result&#41;
+
+# Get U statistic
+u_statistic &#61; test_result.U
+
+# Calculate effect size &#40;rank-biserial correlation&#41;
+n1, n2 &#61; length&#40;x&#41;, length&#40;y&#41;
+r &#61; 1 - &#40;2 * u_statistic&#41; / &#40;n1 * n2&#41;</code></pre>
+<h3 id="ol_start3_calculate_statistical_power_post-hoc"><a href="#ol_start3_calculate_statistical_power_post-hoc" class="header-anchor"><ol start="3">
+<li><p>Calculate Statistical Power &#40;Post-Hoc&#41;</p>
+</li>
+</ol>
+</a></h3>
+<p>After collecting data, verify you had adequate power:</p>
+<pre><code class="language-julia">using Distributions
+
+# Function to calculate power for Mann-Whitney U test
+function mann_whitney_power&#40;n, d, alpha&#61;0.05&#41;
+    z_alpha &#61; quantile&#40;Normal&#40;&#41;, 1 - alpha/2&#41;
+    z_beta &#61; d * sqrt&#40;n/2&#41; - z_alpha
+    power &#61; cdf&#40;Normal&#40;&#41;, z_beta&#41;
+    return power
+end
+
+# For observed effect size
+n_per_group &#61; 50
+observed_d &#61; 0.5
+power &#61; mann_whitney_power&#40;n_per_group, observed_d&#41;
+println&#40;&quot;Power: &quot;, round&#40;power, digits&#61;3&#41;&#41;
+
+# Adjust for Mann-Whitney efficiency &#40;multiply n by 0.955&#41;
+adjusted_power &#61; mann_whitney_power&#40;n_per_group * 0.955, observed_d&#41;</code></pre>
+<hr />
+<h2 id="reporting_your_results"><a href="#reporting_your_results" class="header-anchor">Reporting Your Results</a></h2>
+<h3 id="minimal_reporting_apa_style"><a href="#minimal_reporting_apa_style" class="header-anchor">Minimal Reporting &#40;APA Style&#41;</a></h3>
+<blockquote>
+<p>A Mann-Whitney U test indicated that Group A &#40;Mdn &#61; 85&#41; had significantly higher scores than Group B &#40;Mdn &#61; 78&#41;, U &#61; 245, p &#61; .003, r &#61; .38.</p>
+</blockquote>
+<h3 id="full_reporting_research_paper"><a href="#full_reporting_research_paper" class="header-anchor">Full Reporting &#40;Research Paper&#41;</a></h3>
+<blockquote>
+<p><strong>Statistical Analysis:</strong> A Mann-Whitney U test was used to compare scores between groups due to non-normal distribution in Group B &#40;Shapiro-Wilk test, p &#61; .02&#41;. Based on a priori power analysis, 50 participants per group provided 80&#37; power to detect a medium effect size &#40;d ≥ 0.60&#41; at α &#61; 0.05 &#40;two-tailed&#41;.</p>
+<p><strong>Results:</strong> The Mann-Whitney U test revealed a statistically significant difference between groups, U &#61; 245, p &#61; .003. The effect size &#40;rank-biserial correlation r &#61; .38&#41; indicated a medium effect. Group A scores &#40;Mdn &#61; 85, IQR &#61; 79-92&#41; were higher than Group B scores &#40;Mdn &#61; 78, IQR &#61; 71-84&#41;.</p>
+</blockquote>
+<h3 id="what_to_include"><a href="#what_to_include" class="header-anchor">What to Include</a></h3>
+<p><strong>Essential elements:</strong></p>
+<ol>
+<li><p><strong>Test used</strong>: &quot;Mann-Whitney U test&quot; or &quot;Wilcoxon rank-sum test&quot;</p>
+</li>
+<li><p><strong>Justification</strong>: Why not t-test? &#40;&quot;non-normal distribution&quot;, &quot;presence of outliers&quot;&#41;</p>
+</li>
+<li><p><strong>Sample sizes</strong>: n₁ and n₂ &#40;number per group&#41;</p>
+</li>
+<li><p><strong>Test statistic</strong>: U-statistic or W-statistic</p>
+</li>
+<li><p><strong>P-value</strong>: Exact value when p &gt; .001</p>
+</li>
+<li><p><strong>Effect size</strong>: Rank-biserial correlation &#40;r&#41; or probability of superiority</p>
+</li>
+<li><p><strong>Descriptive statistics</strong>: Medians and IQR &#40;not means/SD&#41;</p>
+</li>
+</ol>
+<p><strong>For sample size planning:</strong></p>
+<pre><code class="language-julia">A priori: &quot;Based on t-test approximations, n &#61; 50 per group 
+          should provide 80&#37; power to detect d ≥ 0.60, 
+          adjusted for Mann-Whitney efficiency.&quot;
+
+Post-hoc: &quot;With n₁ &#61; 45 and n₂ &#61; 40, the study had 
+          approximately 80&#37; power to detect effects of d ≥ 0.65 
+          &#40;based on t-test approximations&#41;.&quot;
+
+Underpowered: &quot;The sample &#40;n &#61; 20 per group&#41; provided 80&#37; 
+              power only for large effects &#40;d ≥ 0.95&#41;. 
+              Smaller effects may have been missed.&quot;</code></pre>
+<hr />
+<h2 id="practical_example_complete_workflow"><a href="#practical_example_complete_workflow" class="header-anchor">Practical Example: Complete Workflow</a></h2>
+<h3 id="scenario"><a href="#scenario" class="header-anchor">Scenario</a></h3>
+<p>Testing whether a new teaching method improves test scores compared to traditional method &#40;independent groups design, n₁ &#61; 50, n₂ &#61; 50&#41;.</p>
+<h3 id="step-by-step"><a href="#step-by-step" class="header-anchor">Step-by-Step:</a></h3>
+<p><strong>1. Check if you have adequate power:</strong></p>
+<pre><code class="language-julia">n &#61; 50 per group
+d_min &#61; 4.25/√50 &#61; 4.25/7.07 ≈ 0.60
+
+Expected effect from literature: d &#61; 0.7
+0.7 &gt; 0.60 → ✓ Adequate power&#33;</code></pre>
+<p><strong>2. Check normality:</strong></p>
+<pre><code class="language-julia">Group 1 Shapiro-Wilk: p &#61; 0.32 → Normal
+Group 2 Shapiro-Wilk: p &#61; 0.01 → Not normal
+Decision: Use Mann-Whitney &#40;one group violates normality&#41;</code></pre>
+<p><strong>3. Run the test:</strong></p>
+<pre><code class="language-julia">using HypothesisTests
+
+# Mann-Whitney U test
+result &#61; MannWhitneyUTest&#40;new_method, traditional&#41;
+
+# Get results
+println&#40;&quot;U statistic: &quot;, result.U&#41;
+println&#40;&quot;p-value: &quot;, pvalue&#40;result&#41;&#41;
+
+# Calculate effect size &#40;rank-biserial correlation&#41;
+n1, n2 &#61; length&#40;new_method&#41;, length&#40;traditional&#41;
+r &#61; 1 - &#40;2 * result.U&#41; / &#40;n1 * n2&#41;
+println&#40;&quot;Effect size &#40;r&#41;: &quot;, round&#40;r, digits&#61;2&#41;&#41;</code></pre>
+<p><strong>4. Report:</strong></p>
+<blockquote>
+<p>&quot;A Mann-Whitney U test &#40;chosen due to non-normal distribution in the control group, p &#61; .01&#41; indicated that students in the new teaching method group scored significantly higher than those in the traditional method group &#40;U &#61; 1,725, p &lt; .001, r &#61; .42&#41;. New method scores &#40;Mdn &#61; 84, IQR &#61; 78-89&#41; exceeded traditional method scores &#40;Mdn &#61; 76, IQR &#61; 70-82&#41;. With n &#61; 50 per group, this study achieved 80&#37; power to detect effects of d ≥ 0.60, confirming adequate statistical power for the observed medium-to-large effect.&quot;</p>
+</blockquote>
+<hr />
+<h2 id="quick_decision_tree"><a href="#quick_decision_tree" class="header-anchor">Quick Decision Tree</a></h2>
+<pre><code class="language-julia">Start: Do you have paired or independent data?
+    ↓
+INDEPENDENT → Check normality &#40;both groups&#41;
+    ↓
+Both Normal? → YES: Use independent samples t-test
+             → NO: Use Mann-Whitney U test
+    ↓
+Calculate: d_min &#61; 4.25/√n
+    ↓
+Compare: Expected d &gt; d_min?
+    ↓
+YES → ✓ Adequate power, proceed
+NO  → ✗ Need more participants per group</code></pre>
+<hr />
+<h2 id="common_mistakes_to_avoid"><a href="#common_mistakes_to_avoid" class="header-anchor">Common Mistakes to Avoid</a></h2>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll use the same sample size formula as paired tests&quot;</p>
+<ul>
+<li><p>Mann-Whitney &#40;independent&#41; needs nearly twice as many total participants as paired tests</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Use independent samples formula with appropriate adjustment</p>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll report means and standard deviations&quot;</p>
+<ul>
+<li><p>Non-parametric tests compare medians, not means</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Report medians and interquartile ranges &#40;IQR&#41;</p>
+<p>❌ <strong>WRONG:</strong> &quot;I&#39;ll use Cohen&#39;s d directly from my data&quot;</p>
+<ul>
+<li><p>Use rank-biserial correlation for Mann-Whitney</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Calculate and report rank-biserial r</p>
+<p>❌ <strong>WRONG:</strong> &quot;Mann-Whitney and Wilcoxon are different tests&quot;</p>
+<ul>
+<li><p>Mann-Whitney U test and Wilcoxon rank-sum test are the same test &#40;different names&#41;</p>
+</li>
+<li><p>Don&#39;t confuse with Wilcoxon signed-rank test &#40;for paired data&#41;</p>
+</li>
+</ul>
+<p>✓ <strong>CORRECT:</strong> Mann-Whitney U &#61; Wilcoxon rank-sum &#40;both for independent samples&#41;</p>
+<hr />
+<h2 id="additional_resources"><a href="#additional_resources" class="header-anchor">Additional Resources</a></h2>
+<p><strong>Effect Size Conversions</strong> &#40;approximate&#41;:</p>
+<ul>
+<li><p>Cohen&#39;s d &#61; 0.2 ≈ r &#61; 0.10 &#40;small&#41;</p>
+</li>
+<li><p>Cohen&#39;s d &#61; 0.5 ≈ r &#61; 0.24 &#40;medium&#41;</p>
+</li>
+<li><p>Cohen&#39;s d &#61; 0.8 ≈ r &#61; 0.37 &#40;large&#41;</p>
+</li>
+</ul>
+<p><strong>When sample size &lt; 30 per group:</strong></p>
+<ul>
+<li><p>Consider exact p-values instead of normal approximation</p>
+</li>
+<li><p>Use U-statistic directly</p>
+</li>
+<li><p>Be more cautious about power—non-parametric tests lose more efficiency with small samples</p>
+</li>
+</ul>
+<p><strong>Handling ties in ranks:</strong></p>
+<ul>
+<li><p>Mann-Whitney U test automatically accounts for tied values</p>
+</li>
+<li><p>Most software implementations apply tie corrections by default</p>
+</li>
+<li><p>Large numbers of ties may reduce test power slightly</p>
+</li>
+</ul>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: December 12, 2025.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>

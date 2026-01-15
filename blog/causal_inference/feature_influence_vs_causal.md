@@ -188,7 +188,7 @@ That second term is the **confounding bias** – it's zero only if features are 
 >
 > This is why causal inference is an entire field—there's no easy, automatic way to do it!
 
-> **Special case: Can you compute $\frac{\partial x_i}{\partial x_j}$ if the $x_i
+> **Special case: Can you compute $\frac{\partial x_i}{\partial x_j}$ if the $x_i$s are all binary?**
 
 > **What is the intervention effect?** The intervention effect is the **causal effect** of changing $X_j$ on the outcome $Y$—what happens to $Y$ when you *force* $X_j$ to change, not just observe it changing naturally.
 >

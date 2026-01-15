@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Costly Signaling Games: A Mathematical Overview</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="costly_signaling_games_a_mathematical_overview"><a href="#costly_signaling_games_a_mathematical_overview" class="header-anchor">Costly Signaling Games: A Mathematical Overview</a></h1>
+<h2 id="the_basic_idea"><a href="#the_basic_idea" class="header-anchor">The Basic Idea</a></h2>
+<p>Costly signaling games model situations where one player &#40;the Sender&#41; has private information and wants to convince another player &#40;the Receiver&#41; of something, but words are cheap. The catch? The signal must be costly enough that only certain types can afford to send it.</p>
+<p>Think of a peacock&#39;s tail—it&#39;s so extravagant that only a truly healthy peacock can maintain it. That&#39;s costly signaling in nature&#33;</p>
+<h2 id="the_players_and_setup"><a href="#the_players_and_setup" class="header-anchor">The Players and Setup</a></h2>
+<p>We have two players:</p>
+<ul>
+<li><p><strong>Sender &#40;S&#41;</strong>: Has private type \(\theta \in \Theta\) &#40;e.g., high ability or low ability&#41;</p>
+</li>
+<li><p><strong>Receiver &#40;R&#41;</strong>: Observes a signal but not the type directly</p>
+</li>
+</ul>
+<p>The game unfolds like this:</p>
+<ol>
+<li><p>Nature draws the Sender&#39;s type \(\theta\) according to probability distribution \(p(\theta)\)</p>
+</li>
+<li><p>Sender observes \(\theta\) and chooses a signal \(s \in S\) &#40;often \(s \in [0, \infty)\), like education level&#41;</p>
+</li>
+<li><p>Receiver observes \(s\) &#40;but not \(\theta\)&#41; and takes action \(a \in A\)</p>
+</li>
+<li><p>Payoffs are realized</p>
+</li>
+</ol>
+<h2 id="the_payoff_structure"><a href="#the_payoff_structure" class="header-anchor">The Payoff Structure</a></h2>
+<p>Here&#39;s where the &quot;costly&quot; part comes in. A typical setup looks like:</p>
+<p><strong>Sender&#39;s payoff:</strong> \(u_S(a, \theta, s) = V(a, \theta) - c(s, \theta)\)</p>
+<p>where:</p>
+<ul>
+<li><p>\(V(a, \theta)\) is the benefit from the Receiver&#39;s action</p>
+</li>
+<li><p>\(c(s, \theta)\) is the cost of sending signal \(s\) for type \(\theta\)</p>
+</li>
+</ul>
+<p><strong>Key assumption:</strong> The single-crossing condition: \(\frac{\partial^2 c(s, \theta)}{\partial s \partial \theta} < 0\)</p>
+<p>This means higher types find it less costly to send stronger signals. This is crucial for separation&#33;</p>
+<hr />
+<blockquote>
+<p><strong>How do we interpret this single-crossing condition?</strong></p>
+<p>Let me break down that intimidating math&#33; The condition \(\frac{\partial^2 c(s, \theta)}{\partial s \partial \theta} < 0\) is really saying something intuitive:</p>
+<p><strong>In plain English:</strong> &quot;The better you are &#40;higher \(\theta\)&#41;, the easier it is to increase your signal.&quot;</p>
+<p>Here&#39;s what it means practically:</p>
+<ul>
+<li><p>When you go from sending signal \(s\) to a slightly higher signal \(s + \Delta s\), there&#39;s an extra cost</p>
+</li>
+<li><p>This <strong>marginal cost of signaling more</strong> is <em>lower</em> for high types than low types</p>
+</li>
+<li><p>The derivative being negative means: as \(\theta\) goes up, the cost of increasing \(s\) goes down</p>
+</li>
+</ul>
+<p><strong>Concrete example:</strong> Think about getting an A in advanced calculus:</p>
+<ul>
+<li><p>For a naturally gifted math student &#40;high \(\theta\)&#41;: Maybe 10 hours of study</p>
+</li>
+<li><p>For someone who struggles with math &#40;low \(\theta\)&#41;: Maybe 50 hours of study</p>
+</li>
+</ul>
+<p>Both <em>can</em> get the A, but it&#39;s way cheaper &#40;in time and effort&#41; for the talented student. That&#39;s why the talented student is willing to take the class while others aren&#39;t—the cost difference makes separation possible&#33;</p>
+<p><strong>Why &quot;single-crossing&quot;?</strong> If you graph the indifference curves of different types, they cross exactly once. This ensures high types can&#39;t be mimicked cheaply—there&#39;s always a signal level where only they find it worthwhile.</p>
+<p>Without this condition, signaling wouldn&#39;t work because everyone would find it equally easy/hard to fake being high quality&#33;</p>
+</blockquote>
+<p><strong>Receiver&#39;s payoff:</strong> \(u_R(a, \theta)\) depends on matching the action to the true type.</p>
+<h2 id="equilibrium_concepts"><a href="#equilibrium_concepts" class="header-anchor">Equilibrium Concepts</a></h2>
+<p>We typically look for <strong>Perfect Bayesian Equilibrium</strong> &#40;PBE&#41;, which requires:</p>
+<ol>
+<li><p><strong>Sequential rationality</strong>: Each player&#39;s strategy is optimal given their beliefs</p>
+</li>
+<li><p><strong>Consistent beliefs</strong>: Receiver&#39;s beliefs about \(\theta\) given signal \(s\) follow Bayes&#39; rule when possible</p>
+</li>
+</ol>
+<h2 id="the_classic_example_spences_job_market"><a href="#the_classic_example_spences_job_market" class="header-anchor">The Classic Example: Spence&#39;s Job Market</a></h2>
+<p>Let&#39;s say types are \(\theta \in \{\theta_L, \theta_H\}\) with \(\theta_L < \theta_H\) &#40;low/high productivity&#41;.</p>
+<ul>
+<li><p>Signal \(s\) &#61; years of education</p>
+</li>
+<li><p>Receiver &#40;employer&#41; chooses wage \(w\)</p>
+</li>
+<li><p>Cost of education: \(c(s, \theta_i)\) where \(c(s, \theta_H) < c(s, \theta_L)\)</p>
+</li>
+</ul>
+<h3 id="separating_equilibrium"><a href="#separating_equilibrium" class="header-anchor">Separating Equilibrium</a></h3>
+<p>In a separating equilibrium, different types send different signals:</p>
+<ul>
+<li><p>High type: \(s^* = s_H\)</p>
+</li>
+<li><p>Low type: \(s^* = s_L\) with \(s_H > s_L\)</p>
+</li>
+</ul>
+<p>The employer can infer type from education&#33; For this to work:</p>
+<ol>
+<li><p><strong>High type doesn&#39;t want to mimic low type:</strong></p>
+</li>
+</ol>
+\[w_H - c(s_H, \theta_H) \geq w_L - c(s_L, \theta_H)\]
+<ol start="2">
+<li><p><strong>Low type doesn&#39;t want to mimic high type:</strong></p>
+</li>
+</ol>
+\[w_L - c(s_L, \theta_L) \geq w_H - c(s_H, \theta_L)\]
+<p>The minimal separating equilibrium requires:</p>
+\[w_H - w_L = c(s_H, \theta_L) - c(s_L, \theta_L)\]
+<p>This makes the low type exactly indifferent to deviating.</p>
+<h3 id="pooling_equilibrium"><a href="#pooling_equilibrium" class="header-anchor">Pooling Equilibrium</a></h3>
+<p>Both types might send the same signal \(s^* = \bar{s}\). The employer can&#39;t tell them apart, so offers:</p>
+\[w = E[\theta | s = \bar{s}] = p(\theta_H | \bar{s}) \cdot \theta_H + p(\theta_L | \bar{s}) \cdot \theta_L\]
+<p>Pooling can happen when the cost of separation is too high relative to the benefit.</p>
+<h2 id="the_intuition"><a href="#the_intuition" class="header-anchor">The Intuition</a></h2>
+<p>The mathematics captures a beautiful economic insight: for signaling to be informative, it must be differentially costly. If everyone could fake being high-quality cheaply, signals would be meaningless. The single-crossing condition ensures that high types can credibly separate themselves by doing something that would be too expensive for low types to imitate.</p>
+<p>That&#39;s why education can signal ability even if it doesn&#39;t directly increase productivity—the mere fact that you survived four years of calculus might tell employers something about you&#33;</p>
+<hr />
+<blockquote>
+<p><strong>Is there an objective function to optimize?</strong></p>
+<p>Great question&#33; Each player is trying to maximize their own payoff, but here&#39;s the twist: there isn&#39;t one single objective function for the whole game. Think of it like this:</p>
+<p>The <strong>Sender</strong> is solving: &quot;Given my true type, what signal should I send to get the best response from the Receiver?&quot; Mathematically, they&#39;re choosing \(s\) to maximize \(V(a, \theta) - c(s, \theta)\), anticipating how the Receiver will react.</p>
+<p>The <strong>Receiver</strong> is solving: &quot;Given the signal I see, what action maximizes my payoff?&quot; They&#39;re choosing \(a\) to maximize \(u_R(a, \theta)\), but they don&#39;t know \(\theta\)—they have to guess it from the signal.</p>
+<p>The equilibrium isn&#39;t about finding a global optimum. Instead, it&#39;s about finding a stable situation where both players are doing the best they can given what the other is doing. Neither player can improve by changing their strategy unilaterally. It&#39;s like a mutual standoff where everyone&#39;s already playing their best move given the circumstances.</p>
+<p>So it&#39;s really two separate optimization problems that need to be consistent with each other&#33;</p>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>Wait, is \(s\) the state and \(\theta\) a proxy for potential?</strong></p>
+<p>Actually, it&#39;s the opposite&#33; Let me clarify:</p>
+<p><strong>\(\theta\)</strong> &#40;theta&#41; is the <strong>true underlying quality or type</strong>—this is the real thing. Think of it as someone&#39;s actual ability, genuine health, true productivity, or inherent quality. This is private information that only the Sender knows.</p>
+<p><strong>\(s\)</strong> &#40;signal&#41; is the <strong>observable action or message</strong> the Sender chooses to reveal information about \(\theta\). This could be years of education, the size of a peacock&#39;s tail, amount spent on advertising, or any costly action that&#39;s visible to others.</p>
+<p>So the flow is: \(\theta\) &#40;hidden reality&#41; → \(s\) &#40;costly signal you send&#41; → Receiver&#39;s beliefs about \(\theta\) → Receiver&#39;s action</p>
+<p>The whole point is that \(\theta\) is unobservable, so the Sender uses \(s\) to credibly communicate it. If you could just show your &quot;true potential&quot; directly, you wouldn&#39;t need costly signaling at all&#33; The signal \(s\) is necessary precisely because the real quality \(\theta\) is hidden.</p>
+<p>Think of it like a resume &#40;\(s\)&#41; trying to convince an employer of your actual skills &#40;\(\theta\)&#41;—they can&#39;t directly observe how good you are, so you signal it through credentials.</p>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>What are some common applications?</strong></p>
+<p>Costly signaling games pop up everywhere&#33; Here are some classic examples:</p>
+<p><strong>Labor Markets &#40;Spence&#39;s original&#41;</strong></p>
+<ul>
+<li><p>\(\theta\): Your actual productivity/ability</p>
+</li>
+<li><p>\(s\): Years of education, certifications, prestigious internships</p>
+</li>
+<li><p>Why costly? Time, tuition, effort—and smarter people find it easier</p>
+</li>
+</ul>
+<p><strong>Corporate Finance</strong></p>
+<ul>
+<li><p>\(\theta\): Company&#39;s true quality or future prospects</p>
+</li>
+<li><p>\(s\): Dividend payments, share buybacks, debt levels</p>
+</li>
+<li><p>Why costly? Uses up cash that could go to investment; bad firms can&#39;t afford it</p>
+</li>
+</ul>
+<p><strong>Advertising</strong></p>
+<ul>
+<li><p>\(\theta\): Product quality</p>
+</li>
+<li><p>\(s\): Expensive Super Bowl ads, celebrity endorsements</p>
+</li>
+<li><p>Why costly? Literally millions of dollars&#33; Only works if you&#39;re confident people will buy again</p>
+</li>
+</ul>
+<p><strong>Warranties &amp; Guarantees</strong></p>
+<ul>
+<li><p>\(\theta\): Product reliability</p>
+</li>
+<li><p>\(s\): Length and generosity of warranty</p>
+</li>
+<li><p>Why costly? You&#39;ll have to honor it if the product fails; only reliable products can afford generous warranties</p>
+</li>
+</ul>
+<p><strong>Biological Signaling</strong></p>
+<ul>
+<li><p>\(\theta\): Genetic fitness, health</p>
+</li>
+<li><p>\(s\): Peacock tails, elk antlers, birdsong complexity</p>
+</li>
+<li><p>Why costly? Energetically expensive, attracts predators; only healthy animals can maintain them</p>
+</li>
+</ul>
+<p><strong>Charity &amp; Philanthropy</strong></p>
+<ul>
+<li><p>\(\theta\): Wealth, success, social status</p>
+</li>
+<li><p>\(s\): Large donations, building wings of hospitals</p>
+</li>
+<li><p>Why costly? Literally giving away money; signals you have plenty to spare</p>
+</li>
+</ul>
+<p>The common thread? In all cases, the signal is wasteful or costly enough that fakers can&#39;t afford to mimic it credibly&#33;</p>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>Is it widely adopted?</strong></p>
+<p>Absolutely&#33; Costly signaling theory is a cornerstone of modern economics and has spread far beyond. Here&#39;s why it&#39;s so influential:</p>
+<p><strong>In Economics:</strong> It&#39;s fundamental. Michael Spence won the Nobel Prize in 2001 &#40;shared with Akerlof and Stiglitz&#41; specifically for his work on signaling in labor markets. It&#39;s now standard material in graduate microeconomics and game theory courses worldwide.</p>
+<p><strong>In Practice:</strong> Businesses and policymakers actually use these insights. Corporate finance decisions about dividends and capital structure are partly understood through signaling. Marketing strategies explicitly leverage costly signaling—why else would companies burn millions on Super Bowl ads?</p>
+<p><strong>Beyond Economics:</strong> The framework has been hugely successful in:</p>
+<ul>
+<li><p><strong>Biology</strong>: Zahavi&#39;s &quot;handicap principle&quot; uses the same logic to explain animal displays</p>
+</li>
+<li><p><strong>Evolutionary psychology</strong>: Explaining human behaviors like art, music, and even morality as signals</p>
+</li>
+<li><p><strong>Sociology</strong>: Understanding status competitions and conspicuous consumption</p>
+</li>
+<li><p><strong>Political science</strong>: Analyzing diplomatic signals and international relations</p>
+</li>
+</ul>
+<p><strong>The catch?</strong> While the theory is elegant and widely taught, there&#39;s ongoing debate about how much education <em>actually</em> is signaling vs. genuine skill-building. Some economists argue we over-invest in credentials precisely because of signaling dynamics, while others think human capital &#40;real learning&#41; is more important.</p>
+<p>So yes, it&#39;s widely adopted as a theoretical framework, though people still argue about how much it explains in any particular case&#33;</p>
+</blockquote>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: January 12, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

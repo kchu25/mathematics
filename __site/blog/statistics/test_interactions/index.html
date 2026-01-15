@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Testing for Interactive Effects</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="testing_for_interactive_effects"><a href="#testing_for_interactive_effects" class="header-anchor">Testing for Interactive Effects</a></h1>
+<p>So you&#39;ve got three groups of measurements - x1 alone, x2 alone, and both together. Here&#39;s how to figure out if they&#39;re actually interacting:</p>
+<h2 id="the_basic_idea"><a href="#the_basic_idea" class="header-anchor">The Basic Idea</a></h2>
+<p>You&#39;re asking: is the combined effect different from just adding the individual effects? Let&#39;s call your measured outcome \(Y\).</p>
+<p><strong>The additive expectation</strong> &#40;without a control&#41; is simply: \(Y_{expected} = Y_{x1} + Y_{x2}\)</p>
+<p>You&#39;re testing if the combined effect is just the sum of the parts.</p>
+<p><strong>The test</strong>: Does \(Y_{x1+x2}\) &#40;your actual combined measurement&#41; differ significantly from \(Y_{expected}\)?</p>
+<h2 id="method_1_direct_comparison_simplest"><a href="#method_1_direct_comparison_simplest" class="header-anchor">Method 1: Direct Comparison &#40;Simplest&#41;</a></h2>
+<p>Calculate the expected additive effect for each replicate, then compare it to your observed combined effect using a t-test or similar.</p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li><p>For each observation, calculate: \(\Delta_{interaction} = Y_{x1+x2} - (Y_{x1} + Y_{x2})\)</p>
+</li>
+<li><p>Test if \(\Delta_{interaction}\) is significantly different from zero</p>
+</li>
+<li><p>If positive: synergistic effect. If negative: antagonistic effect.</p>
+</li>
+</ol>
+<h2 id="method_2_factorial_design_analysis"><a href="#method_2_factorial_design_analysis" class="header-anchor">Method 2: Factorial Design Analysis</a></h2>
+<p>Set up your data with just the three groups:</p>
+<table><tr><th align="right">Group</th><th align="right">x1</th><th align="right">x2</th></tr><tr><td align="right">x1 only</td><td align="right">1</td><td align="right">0</td></tr><tr><td align="right">x2 only</td><td align="right">0</td><td align="right">1</td></tr><tr><td align="right">Both</td><td align="right">1</td><td align="right">1</td></tr></table>
+<p><strong>Linear model:</strong> \(Y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 \times x_2) + \epsilon\)</p>
+<p><strong>The intuition</strong>: When x1&#61;1 and x2&#61;0, you get \(Y = \beta_0 + \beta_1\). When x1&#61;0 and x2&#61;1, you get \(Y = \beta_0 + \beta_2\). When both are present &#40;x1&#61;1, x2&#61;1&#41;, you get \(Y = \beta_0 + \beta_1 + \beta_2 + \beta_3\).</p>
+<p>That \(\beta_3\) term is the &quot;extra&quot; effect beyond just adding the individual effects. If there&#39;s no interaction, \(\beta_3 = 0\) and things are perfectly additive. If \(\beta_3 \neq 0\), you&#39;ve got synergy &#40;positive&#41; or antagonism &#40;negative&#41;.</p>
+<p><strong>How to test:</strong></p>
+<ol>
+<li><p>Fit the linear regression model with all your data from the three groups</p>
+</li>
+<li><p>Look at the <strong>t-test</strong> for \(\beta_3\) in your regression output</p>
+</li>
+<li><p>Check the p-value for the interaction term \((x_1 \times x_2)\)</p>
+</li>
+<li><p>If p &lt; 0.05 &#40;or your chosen α&#41;, the interaction is significant</p>
+</li>
+</ol>
+<p><strong>The intuition behind the test:</strong></p>
+<p>You&#39;re asking &quot;Is there something special happening when x1 and x2 are together, beyond just their individual contributions?&quot;</p>
+<p><strong>Null hypothesis &#40;H₀&#41;</strong>: \(\beta_3 = 0\) </p>
+<ul>
+<li><p>Translation: &quot;The combined effect is perfectly additive. No interaction. Just x1 doing its thing plus x2 doing its thing.&quot;</p>
+</li>
+<li><p>Mathematically: \(Y_{x1+x2} = \beta_0 + \beta_1 + \beta_2\)</p>
+</li>
+</ul>
+<p><strong>Alternative hypothesis &#40;H₁&#41;</strong>: \(\beta_3 \neq 0\)</p>
+<ul>
+<li><p>Translation: &quot;There&#39;s an extra effect &#40;or missing effect&#41; when they&#39;re together.&quot;</p>
+</li>
+<li><p>If \(\beta_3 > 0\): Synergy&#33; The combo is better than expected &#40;1&#43;1&#61;3&#41;</p>
+</li>
+<li><p>If \(\beta_3 < 0\): Antagonism&#33; The combo is worse than expected &#40;1&#43;1&#61;1.5&#41;</p>
+</li>
+</ul>
+<p>The t-test checks if \(\beta_3\) is far enough from zero that it&#39;s unlikely to be just random noise. Think of \(\beta_3\) as the &quot;surprise factor&quot; - how much reality differs from your simple addition expectation.</p>
+<p><strong>Important note on data structure:</strong></p>
+<blockquote>
+<p><strong>If x1 and x2 are features/variables in your model</strong> &#40;not separate experimental groups&#41;:</p>
+<p>This regression approach is exactly right and principled&#33; You have one dataset where x1 and x2 vary across observations, and you&#39;re testing if their effects are additive or interactive.</p>
+<p><strong>Key considerations:</strong></p>
+<ul>
+<li><p><strong>Multicollinearity</strong>: If x1 and x2 are highly correlated, standard errors inflate &#40;making the test more conservative, not liberal&#41;</p>
+</li>
+<li><p><strong>Centering helps</strong>: Subtract the mean from x1 and x2 before creating the interaction term to reduce multicollinearity</p>
+</li>
+<li><p><strong>Sample size</strong>: Need at least 10-20 observations per predictor for reliable estimates</p>
+</li>
+<li><p><strong>Power for interaction tests</strong>: Interaction effects are typically harder to detect than main effects. You generally need <strong>4x the sample size</strong> to detect an interaction with the same power as a main effect of equivalent size. For instance, if detecting a main effect of d&#61;0.5 requires n&#61;64 per group, detecting an interaction of the same magnitude might require n&#61;256 per group.</p>
+</li>
+<li><p><strong>Rule of thumb</strong>: If your total N &lt; 50, you can only reliably detect very large interactions &#40;d ≥ 0.8&#41;. For medium interactions &#40;d ≈ 0.5&#41;, aim for N ≥ 100-150.</p>
+</li>
+</ul>
+<p>This is the standard, well-established approach for interaction testing when variables are measured together in the same dataset.</p>
+</blockquote>
+<p><strong>What you get:</strong> Standard errors, confidence intervals, and p-values automatically. Plus you can add covariates if needed later.</p>
+<p>This is basically Method 1 but dressed up in regression language&#33;</p>
+<h2 id="method_3_anova_approach"><a href="#method_3_anova_approach" class="header-anchor">Method 3: ANOVA Approach</a></h2>
+<p>Run a two-way ANOVA with x1 and x2 as factors. The model decomposes your outcome into:</p>
+\(Y_{ij} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \epsilon_{ij}\)
+<p>Where:</p>
+<ul>
+<li><p>\(\mu\) &#61; overall mean</p>
+</li>
+<li><p>\(\alpha_i\) &#61; main effect of x1 &#40;deviation from mean due to x1&#41;</p>
+</li>
+<li><p>\(\beta_j\) &#61; main effect of x2 &#40;deviation from mean due to x2&#41;</p>
+</li>
+<li><p>\((\alpha\beta)_{ij}\) &#61; <strong>interaction effect</strong> &#40;the extra deviation not explained by adding the main effects&#41;</p>
+</li>
+<li><p>\(\epsilon_{ij}\) &#61; random error</p>
+</li>
+</ul>
+<p><strong>The key test</strong>: Does \((\alpha\beta)_{ij}\) differ significantly from zero?</p>
+<p>ANOVA calculates: \(F = \frac{MS_{interaction}}{MS_{error}} = \frac{SS_{interaction}/df_{interaction}}{SS_{error}/df_{error}}\)</p>
+<p>Where:</p>
+<ul>
+<li><p>\(SS_{interaction}\) &#61; sum of squares for the interaction &#40;variability explained by non-additivity&#41;</p>
+</li>
+<li><p>\(MS\) &#61; mean square &#40;SS divided by degrees of freedom&#41;</p>
+</li>
+</ul>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p>Significant F-test → interaction exists → non-additive effects</p>
+</li>
+<li><p>Look at the group means to see if it&#39;s synergistic or antagonistic:</p>
+<ul>
+<li><p>If \(Y_{x1+x2} > Y_{x1} + Y_{x2}\): synergy</p>
+</li>
+<li><p>If \(Y_{x1+x2} < Y_{x1} + Y_{x2}\): antagonism</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="what_to_report"><a href="#what_to_report" class="header-anchor">What to Report</a></h2>
+<p>Whichever method you use, report:</p>
+<ul>
+<li><p>The magnitude of the interaction &#40;effect size&#41;</p>
+</li>
+<li><p>The p-value for the interaction term</p>
+</li>
+<li><p>Whether it&#39;s synergistic &#40;greater than additive&#41; or antagonistic &#40;less than additive&#41;</p>
+</li>
+<li><p>Confidence intervals around your estimates</p>
+</li>
+</ul>
+<h2 id="choosing_your_method"><a href="#choosing_your_method" class="header-anchor">Choosing Your Method</a></h2>
+<p><strong>Use Method 1</strong> if: you want something straightforward and interpretable, especially with unbalanced data</p>
+<p><strong>Use Method 2</strong> if: you want standard regression diagnostics and can check model assumptions easily</p>
+<p><strong>Use Method 3</strong> if: you&#39;re comfortable with ANOVA and want to test multiple factors at once</p>
+<p>All three methods are testing the same fundamental question - they just frame it differently&#33;</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: January 08, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
