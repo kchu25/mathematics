@@ -16,13 +16,15 @@ These are fundamentally different questions.
 
 ## Mathematical Nuances
 
-### 1. **Association vs Causation**
+### 1. Association vs Causation
 
 Feature importance captures association:
-$$I(X_j) \propto \text{how much } X_j \text{ correlates with } Y$$
+
+$I(X_j) \propto \text{how much } X_j \text{ correlates with } Y$
 
 Counterfactual asks about intervention:
-$$Y | \text{do}(X_j = x') - Y | \text{do}(X_j = x)$$
+
+$Y | \text{do}(X_j = x') - Y | \text{do}(X_j = x)$
 
 The "do" operator (from causal inference) means we're forcing $X_j$ to take a value, breaking its natural relationship with other variables.
 
@@ -39,7 +41,7 @@ This is why $\text{do}(X_j)$ breaks the dependence: $X_j \perp\!\!\!\perp \text{
 >
 > The outgoing edges stay because you're not changing how $X_j$ affects other things—you're just changing what determines $X_j$ itself.
 
-### 2. **The Confounding Problem**
+### 2. The Confounding Problem
 
 Consider:
 - $Z$ (genes) causes both $X$ (exercise) and $Y$ (health)
@@ -47,30 +49,36 @@ Consider:
 - But if you force someone to exercise (intervention), the effect might be smaller
 
 Why? The model learned:
-$$P(Y | X, Z) \text{ where } X \text{ and } Z \text{ are correlated}$$
+
+$P(Y | X, Z) \text{ where } X \text{ and } Z \text{ are correlated}$
 
 But intervention gives:
-$$P(Y | \text{do}(X)) \neq P(Y | X)$$
 
-### 3. **Feature Dependencies Matter**
+$P(Y | \text{do}(X)) \neq P(Y | X)$
+
+### 3. Feature Dependencies Matter
 
 When you "knock down" feature $X_j$, what happens to other features?
 
 **In observational data:** Features co-vary naturally
-$$X_1, X_2, ..., X_p \sim P(X_1, ..., X_p)$$
+
+$X_1, X_2, ..., X_p \sim P(X_1, ..., X_p)$
 
 **In intervention:** You break those relationships
-$$\text{do}(X_j = x') \implies X_j \perp\!\!\!\perp \text{Parents}(X_j)$$
+
+$\text{do}(X_j = x') \implies X_j \perp\!\!\!\perp \text{Parents}(X_j)$
 
 The model never saw data in this intervened distribution!
 
-### 4. **Out-of-Distribution Problem**
+### 4. Out-of-Distribution Problem
 
 Your model learned:
-$$f: X \to Y \text{ where } X \sim P_{\text{train}}(X)$$
+
+$f: X \to Y \text{ where } X \sim P_{\text{train}}(X)$
 
 After knockout:
-$$X \sim P_{\text{intervention}}(X) \neq P_{\text{train}}(X)$$
+
+$X \sim P_{\text{intervention}}(X) \neq P_{\text{train}}(X)$
 
 The model might extrapolate poorly in this new regime.
 
@@ -240,10 +248,12 @@ To compute $P(Y|\text{do}(X=x))$, you need to know the **causal graph structure*
 ### What Makes It Hard Mathematically
 
 For associations:
-$$\text{Importance}(X_j) = f(\text{observed data}) \quad \text{// direct computation}$$
+
+$\text{Importance}(X_j) = f(\text{observed data}) \quad \text{// direct computation}$
 
 For counterfactuals:
-$$P(Y|\text{do}(X)) = \int P(Y|X, Z) P(Z) dZ \quad \text{if } Z \text{ is sufficient adjustment set}$$
+
+$P(Y|\text{do}(X)) = \int P(Y|X, Z) P(Z) dZ \quad \text{if } Z \text{ is sufficient adjustment set}$
 
 But which $Z$? You need to:
 - Know/learn the causal graph
