@@ -1,5 +1,5 @@
 @def title = "Feature Importance vs Counterfactuals: The Nuances"
-@def published = "17 October 2025"
+@def published = "15 January 2026"
 @def tags = ["causal-inference"]
 
 # Feature Importance vs Counterfactuals: The Nuances
