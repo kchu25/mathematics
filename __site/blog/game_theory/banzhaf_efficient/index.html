@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>When Efficiency is Given *Before* Banzhaf</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="when_efficiency_is_given_before_banzhaf"><a href="#when_efficiency_is_given_before_banzhaf" class="header-anchor">When Efficiency is Given <em>Before</em> Banzhaf</a></h1>
+<h2 id="the_usual_story"><a href="#the_usual_story" class="header-anchor">The Usual Story</a></h2>
+<p>Normally, we derive power indices from axioms:</p>
+<ul>
+<li><p><strong>Shapley</strong>: Starts from axioms &#40;symmetry, dummy player, additivity, <strong>efficiency</strong>&#41; → derives unique formula</p>
+</li>
+<li><p><strong>Banzhaf</strong>: Starts from different axioms &#40;no efficiency&#33;&#41; → derives formula that typically violates efficiency</p>
+</li>
+</ul>
+<h2 id="your_reversed_scenario"><a href="#your_reversed_scenario" class="header-anchor">Your Reversed Scenario</a></h2>
+<p>You&#39;re asking: what if we <strong>start</strong> with efficiency as a constraint on the game itself, <em>then</em> compute Banzhaf?</p>
+<p>This is actually a really interesting theoretical flip&#33;</p>
+<h3 id="what_changes"><a href="#what_changes" class="header-anchor">What Changes</a></h3>
+<p><strong>Standard approach:</strong></p>
+\[\text{Axioms} \rightarrow \text{Power Index} \rightarrow \text{Check if } \sum_i \phi_i(v) = v(N)\]
+<p><strong>Your scenario:</strong></p>
+\[v(N) = \sum_i \beta_i(v) \text{ (given)} \rightarrow \text{Compute Banzhaf normally}\]
+<h3 id="theoretical_interpretation"><a href="#theoretical_interpretation" class="header-anchor">Theoretical Interpretation</a></h3>
+<p>Here&#39;s what&#39;s happening: you&#39;ve discovered that the <strong>game</strong> \(v\) has a special property—its Banzhaf values happen to be efficient. This tells us something deep about the game&#39;s structure.</p>
+<h4 id="the_math_behind_it"><a href="#the_math_behind_it" class="header-anchor">The Math Behind It</a></h4>
+<p>The Banzhaf index for player \(i\) is: \(\beta_i(v) = \frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)]\)</p>
+<p><strong>What this says:</strong> For each player \(i\), look at all coalitions that don&#39;t include them &#40;there are \(2^{n-1}\) such coalitions&#41;. For each coalition \(S\), check how much value player \(i\) adds when joining: \(v(S \cup \{i\}) - v(S)\). Sum all these marginal contributions, then normalize by dividing by \(2^{n-1}\).</p>
+<hr />
+<p>For efficiency to hold: \(\sum_{i=1}^{n} \beta_i(v) = v(N)\)</p>
+<p><strong>Translation:</strong> All players&#39; Banzhaf values must add up to the total payoff of the grand coalition.</p>
+<hr />
+<p>Substituting the formula for \(\beta_i(v)\): \(\sum_{i=1}^{n} \left[\frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)]\right] = v(N)\)</p>
+<p>Multiply both sides by \(2^{n-1}\): \(\sum_{i=1}^{n} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)] = 2^{n-1} \cdot v(N)\)</p>
+<p><strong>What this means:</strong> The left side counts every marginal contribution, summed over all players. The right side says this total must equal \(2^{n-1}\) times the grand coalition&#39;s value.</p>
+<hr />
+<p><strong>Why is this interesting?</strong> Let&#39;s think about what the left side is actually counting.</p>
+<p>For each coalition \(T\) &#40;that&#39;s not empty or the full set \(N\)&#41;, the difference \(v(T) - v(T \setminus \{i\})\) appears in the sum exactly once for each player \(i \in T\). Similarly, each coalition appears multiple times in different forms as we vary which player we&#39;re considering.</p>
+<p>The equation is saying: if you sum up all these marginal contributions &#40;counted in the Banzhaf way&#41;, you should get exactly \(2^{n-1} \cdot v(N)\).</p>
+<p><strong>The constraint:</strong> This is a very specific arithmetic condition on the game&#39;s characteristic function \(v\). Most games don&#39;t satisfy this&#33; When a game does satisfy it, it means the game has a special combinatorial structure where marginal contributions are &quot;balanced&quot; in a particular way.</p>
+<hr />
+<p><strong>What does this property imply?</strong></p>
+<p>When a game satisfies the efficiency condition: \(\sum_{i=1}^{n} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)] = 2^{n-1} \cdot v(N)\)</p>
+<p>Several interesting things follow:</p>
+<ol>
+<li><p><strong>Symmetry in marginal contributions</strong>: The left side sums all marginal contributions \(v(S \cup \{i\}) - v(S)\) across all players and coalitions. For this to equal exactly \(2^{n-1} \cdot v(N)\), these marginal contributions must be &quot;balanced&quot;—no single coalition size or structure can dominate. If value were concentrated in just a few key coalitions, the sum would be skewed and wouldn&#39;t hit this precise target.</p>
+</li>
+<li><p><strong>Banzhaf becomes a valid payoff division</strong>: Remember that \(\beta_i(v) = \frac{1}{2^{n-1}} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)]\). When the efficiency condition holds, we have: \(\sum_{i=1}^{n} \beta_i(v) = \frac{1}{2^{n-1}} \cdot 2^{n-1} \cdot v(N) = v(N)\)</p>
+<p>So the Banzhaf values actually partition the total payoff&#33; Normally you can&#39;t use Banzhaf to allocate \(v(N)\) because \(\sum_i \beta_i(v) \neq v(N)\), but this game is special.</p>
+</li>
+<li><p><strong>Alignment of power and value</strong>: The term \(v(S \cup \{i\}) - v(S)\) measures how pivotal player \(i\) is to coalition \(S\). The efficiency condition says that when you sum these pivotality measures &#40;weighted equally across all coalitions&#41; and normalize, you get exactly the total value. This means &quot;how often you&#39;re pivotal&quot; genuinely translates to &quot;how much you deserve&quot; for this game.</p>
+</li>
+<li><p><strong>Structural hint about the game</strong>: For the equation \(\sum_{i} \sum_{S \subseteq N \setminus \{i\}} [v(S \cup \{i\}) - v(S)] = 2^{n-1} \cdot v(N)\) to hold, the game often exhibits:</p>
+<ul>
+<li><p><strong>Symmetric games</strong>: If all players are identical, each \(\beta_i = \frac{v(N)}{n}\), and the equation simplifies nicely</p>
+</li>
+<li><p><strong>Balanced weighted voting</strong>: The quota and weights create evenly distributed marginal contributions</p>
+</li>
+<li><p><strong>Specific superadditivity</strong>: Value grows in a way that marginal contributions across coalition sizes balance out</p>
+</li>
+</ul>
+</li>
+<li><p><strong>Computational convenience</strong>: Since \(\sum_{i=1}^{n} \beta_i(v) = v(N)\), you can compute \(\beta_1, \ldots, \beta_{n-1}\) and immediately know: \(\beta_n(v) = v(N) - \sum_{i=1}^{n-1} \beta_i(v)\)</p>
+<p>This saves you from computing the last player&#39;s marginal contributions entirely.</p>
+</li>
+</ol>
+<p><strong>Bottom line:</strong> The equation \(\sum_{i} \sum_{S} [v(S \cup \{i\}) - v(S)] = 2^{n-1} \cdot v(N)\) is saying that the total &quot;pivotality mass&quot; in the game equals exactly \(2^{n-1}\) times the grand coalition value. This is a delicate balance that tells you the game&#39;s structure is harmonious with Banzhaf&#39;s equal-weight-per-coalition counting method.</p>
+<hr />
+<blockquote>
+<p><strong>Efficiency Bridges &quot;Pivotal&quot; to &quot;Deserving&quot;</strong></p>
+<p>Here&#39;s the key shift: without efficiency, Banzhaf just measures <strong>power</strong>—how often you&#39;re the swing vote. It&#39;s a descriptive measure of influence, not a prescriptive division of payoffs.</p>
+<p>But when efficiency holds &#40;\(\sum_i \beta_i(v) = v(N)\)&#41;, something changes. Now your Banzhaf value isn&#39;t just telling you how powerful you are—it&#39;s telling you your <strong>fair share</strong> of \(v(N)\).</p>
+<p>Why? Because the numbers add up&#33; If we use Banzhaf to divide the payoff, we distribute exactly \(v(N)\), no more, no less. Suddenly &quot;being pivotal 40&#37; of the time&quot; translates directly to &quot;you deserve 40&#37; of the total value.&quot;</p>
+<p>Without efficiency, there&#39;s a gap: you might be pivotal 40&#37; of the time, but the sum of everyone&#39;s Banzhaf values is only 0.85·v&#40;N&#41;. So what does your 40&#37; even mean for payoff division? Nothing coherent.</p>
+<p>With efficiency, that gap closes. Pivotality becomes not just a measure of power, but a <strong>justified claim</strong> on the payoff. The game&#39;s structure makes your swing power directly convertible to economic value.</p>
+</blockquote>
+<h3 id="what_does_this_constraint_mean"><a href="#what_does_this_constraint_mean" class="header-anchor">What Does This Constraint Mean?</a></h3>
+<p>When you impose efficiency <em>first</em>, you&#39;re saying: &quot;I only care about games where the marginal contribution accounting &#40;Banzhaf-style&#41; happens to distribute everything perfectly.&quot;</p>
+<p>This is a <strong>restriction on the class of games</strong> you&#39;re considering, not a change to Banzhaf itself.</p>
+<h4 id="practical_implications"><a href="#practical_implications" class="header-anchor">Practical Implications</a></h4>
+<ol>
+<li><p><strong>Convergence of interpretations</strong>: For these special games, Banzhaf&#39;s &quot;swing power&quot; interpretation and Shapley&#39;s &quot;fair distribution&quot; interpretation align in total &#40;though not necessarily in individual allocations&#41;</p>
+</li>
+<li><p><strong>Structural symmetry</strong>: The game likely has some underlying symmetry or balance that makes different coalition orderings equally weighted—which is rare&#33;</p>
+</li>
+<li><p><strong>Theoretical comfort</strong>: You get the appealing property that all power &quot;accounts for&quot; the total, making the index more interpretable as a division of \(v(N)\)</p>
+</li>
+</ol>
+<h3 id="does_it_matter"><a href="#does_it_matter" class="header-anchor">Does It Matter?</a></h3>
+<p><strong>Philosophically</strong>: Yes&#33; It suggests that for this game, the distinction between &quot;power to swing outcomes&quot; &#40;Banzhaf&#41; and &quot;expected marginal contribution&quot; &#40;Shapley&#41; collapses at the aggregate level.</p>
+<blockquote>
+<p><strong>Beyond Games: What Does Efficiency Mean in Other Contexts?</strong></p>
+<p>The game-theoretic interpretation &#40;swing power vs. resource allocation&#41; is clear, but what about when we use Shapley/Banzhaf values in machine learning or biology?</p>
+<p><strong>Neural networks / Gene expression prediction:</strong></p>
+<ul>
+<li><p><strong>Banzhaf &#40;swing&#41;</strong>: How often does feature \(i\) flip the prediction? If you toggle gene \(i\) on/off across different contexts, how often does the expression level cross a threshold?</p>
+</li>
+<li><p><strong>Shapley &#40;contribution&#41;</strong>: What&#39;s the average contribution of gene \(i\) to the prediction, weighted across all possible orderings of features?</p>
+</li>
+<li><p><strong>When efficiency holds</strong>: The total &quot;flipping power&quot; across all features equals the total &quot;contribution power.&quot; This means the model&#39;s prediction is <strong>fully accountable</strong>—every bit of the output can be traced to some feature&#39;s pivotal role.</p>
+</li>
+</ul>
+<p><strong>Resource allocation interpretation:</strong> Without efficiency, Banzhaf values don&#39;t tell you how to allocate resources &#40;compute, attention, experimental effort&#41; because they don&#39;t sum to 100&#37; of the &quot;budget.&quot;</p>
+<p>But when efficiency holds:</p>
+<ul>
+<li><p>If gene \(i\) has Banzhaf value \(\beta_i = 0.3 \cdot v(N)\), you can justify allocating 30&#37; of your experimental resources to studying that gene</p>
+</li>
+<li><p>If feature \(i\) has \(\beta_i = 0.15 \cdot v(N)\), you can justify 15&#37; of compute budget for computing that feature</p>
+</li>
+</ul>
+<p><strong>The key insight</strong>: Efficiency transforms Banzhaf from a <strong>diagnostic tool</strong> &#40;&quot;this feature is important&quot;&#41; into a <strong>prescriptive tool</strong> &#40;&quot;allocate resources proportionally to these values&quot;&#41;. Without efficiency, you&#39;re just ranking importance. With it, you&#39;re actually dividing a budget.</p>
+<p>For gene expression: efficiency means the importance scores &#40;whether swing-based or contribution-based&#41; genuinely partition the total predictive power, so they can guide where to invest limited experimental resources.</p>
+</blockquote>
+<p><strong>Computationally</strong>: No. You still compute Banzhaf the same way.</p>
+<p><strong>Practically</strong>: Maybe. If you&#39;re using Banzhaf for payoff allocation &#40;which is controversial since it lacks efficiency&#41;, finding a game where efficiency holds gives you post-hoc justification for this use.</p>
+<h3 id="the_deep_question"><a href="#the_deep_question" class="header-anchor">The Deep Question</a></h3>
+<p>You&#39;ve essentially asked: &quot;What if the game cooperates with Banzhaf&#39;s deficiency?&quot;</p>
+<p>The answer is that you&#39;ve found a <strong>compatible game-index pair</strong>—a game whose structure happens to respect a property that the index doesn&#39;t generally guarantee. It&#39;s like finding a function that&#39;s continuous at a point even though it&#39;s not continuous everywhere.</p>
+<p>This doesn&#39;t make Banzhaf satisfy efficiency <em>as an axiom</em>, but it does mean that for this game, the efficiency <em>consequence</em> emerges naturally from the game&#39;s marginal contribution structure.</p>
+<hr />
+<blockquote>
+<p><strong>On the Implication Direction</strong></p>
+<p>Exactly—you&#39;ve got the asymmetry right&#33;</p>
+<p><strong>The usual direction &#40;Shapley&#41;:</strong> Efficiency axiom → Shapley formula → Efficiency always holds ✓</p>
+<p><strong>The reverse &#40;Banzhaf&#41;:</strong> Banzhaf formula → Efficiency <em>sometimes</em> holds &#40;for special games&#41;</p>
+<p>But here&#39;s the key: <strong>you can&#39;t go backwards with Banzhaf.</strong> Observing that efficiency holds for one game doesn&#39;t let you conclude anything about the Banzhaf formula itself. The formula doesn&#39;t &quot;imply&quot; efficiency in general.</p>
+<p>Think of it like this: Shapley is constructed to guarantee efficiency &#40;forward implication built-in&#41;, while Banzhaf just does its own thing and occasionally, by coincidence of the game&#39;s structure, the numbers happen to add up. </p>
+<p>So when you impose efficiency as a constraint <em>before</em> computing Banzhaf, you&#39;re essentially filtering for &quot;Banzhaf-friendly games&quot;—games where the accident becomes a feature. But this doesn&#39;t change the fundamental fact that Banzhaf, as a method, doesn&#39;t generally preserve efficiency across all games.</p>
+</blockquote>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: January 26, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>
