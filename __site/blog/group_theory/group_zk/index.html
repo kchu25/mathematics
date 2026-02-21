@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+  
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>The Math Behind ZK Proofs: Groups, Modular Arithmetic, and Why Any of It Matters</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="the_math_behind_zk_proofs_groups_modular_arithmetic_and_why_any_of_it_matters"><a href="#the_math_behind_zk_proofs_groups_modular_arithmetic_and_why_any_of_it_matters" class="header-anchor">The Math Behind ZK Proofs: Groups, Modular Arithmetic, and Why Any of It Matters</a></h1>
+<h2 id="is_this_the_bread_and_butter_of_cryptography"><a href="#is_this_the_bread_and_butter_of_cryptography" class="header-anchor">Is This the Bread and Butter of Cryptography?</a></h2>
+<p>Yes. Uncomfortably so.</p>
+<p>Almost every piece of cryptography you&#39;ve heard of reduces to two or three hard problems, all of which live in the structures this doc covers:</p>
+<table><tr><th align="right">Cryptosystem</th><th align="right">What you&#39;re doing</th><th align="right">Hard problem underneath</th></tr><tr><td align="right"><strong>RSA</strong></td><td align="right">Encrypt/sign with a public key</td><td align="right">Factoring \(n = pq\)</td></tr><tr><td align="right"><strong>Diffie-Hellman</strong></td><td align="right">Two strangers agree on a shared secret</td><td align="right">Discrete log in \(\mathbb{Z}_p^*\)</td></tr><tr><td align="right"><strong>Elliptic Curve Crypto</strong></td><td align="right">Smaller keys, same security</td><td align="right">Discrete log on an elliptic curve group</td></tr><tr><td align="right"><strong>Schnorr signatures</strong></td><td align="right">Sign a message, prove identity</td><td align="right">Discrete log in a prime-order group</td></tr><tr><td align="right"><strong>ZK proofs &#40;Schnorr-style&#41;</strong></td><td align="right">Prove you know a secret without revealing it</td><td align="right">Discrete log &#43; group homomorphisms</td></tr><tr><td align="right"><strong>Pedersen commitments</strong></td><td align="right">Lock in a value without showing it</td><td align="right">Discrete log &#40;two generators&#41;</td></tr><tr><td align="right"><strong>SNARKs / STARKs</strong></td><td align="right">Prove arbitrary computations</td><td align="right">Polynomial commitments over finite fields</td></tr></table>
+<p>The pattern is always the same: find a mathematical structure where <em>one direction is easy and the other is hard</em>, then build a protocol that exploits the gap. Groups give you the structure. Modular arithmetic gives you the concrete instantiation. Prime order gives you the security guarantee.</p>
+<blockquote>
+<p><strong>The real motivation:</strong> You don&#39;t study this to appreciate abstract algebra. You study it because every time you see a lock icon in your browser, a blockchain transaction, or a password hash, someone made a bet that a specific hard problem in a specific group is still unsolved. Understanding the math means you understand <em>what that bet actually is</em> — and when it might go wrong.</p>
+</blockquote>
+<p>If quantum computers ever break the discrete log problem &#40;Shor&#39;s algorithm can do it&#41;, RSA, Diffie-Hellman, and Schnorr-style ZK proofs all fall simultaneously. The reason post-quantum cryptography is a scramble right now is that so many systems share the same mathematical foundation. That&#39;s how load-bearing this stuff is.</p>
+<hr />
+<h2 id="the_real_reason_we_care_about_symmetry"><a href="#the_real_reason_we_care_about_symmetry" class="header-anchor">The Real Reason We Care About &quot;Symmetry&quot;</a></h2>
+<p>When people say group theory is about <em>symmetry</em>, they mean something very specific that&#39;s easy to demonstrate. Rotate a square 90°. Then rotate it another 90°. You get a 180° rotation. Rotate it four times and you&#39;re back where you started. The collection of all these rotations forms a <strong>group</strong> — a set of operations that:</p>
+<ul>
+<li><p><strong>Close</strong> on themselves: doing two rotations gives you another rotation &#40;not some alien operation&#41;</p>
+</li>
+<li><p>Have an <strong>identity</strong>: &quot;do nothing&quot; is a valid operation</p>
+</li>
+<li><p>Have <strong>inverses</strong>: every rotation can be undone</p>
+</li>
+<li><p>Are <strong>associative</strong>: \((A \circ B) \circ C = A \circ (B \circ C)\) — the <em>grouping</em> of operations doesn&#39;t matter, only their left-to-right order. Rotate 90°, then 180°, then 90°: whether you mentally bundle the first two or the last two, you land in the same place. Concretely: associativity means operations are &quot;pure sequencing&quot; with no hidden context — each step just moves you to the next state, and those steps compose cleanly into chains. &#40;Non-example: subtraction. \((10-3)-2 = 5\) but \(10-(3-2) = 9\). Grouping changes the answer, so subtraction fails this, and integers under subtraction don&#39;t form a group.&#41;</p>
+</li>
+</ul>
+<p>But <em>why should a cryptographer care about rotating squares?</em> They don&#39;t, directly. The point is that <strong>numbers can behave the same way</strong> — and when they do, you get powerful algebraic structure you can exploit.</p>
+<hr />
+<h2 id="modular_arithmetic_clocks_and_wrap-around"><a href="#modular_arithmetic_clocks_and_wrap-around" class="header-anchor">Modular Arithmetic: Clocks and Wrap-Around</a></h2>
+<p>You already know modular arithmetic. A clock wraps around: 11 &#43; 3 &#61; 2 &#40;not 14&#41;. Formally, we write:</p>
+\[11 + 3 \equiv 2 \pmod{12}\]
+<p>The notation \(a \equiv b \pmod{n}\) just means &quot;\(a - b\) is divisible by \(n\)&quot;, i.e., \(a\) and \(b\) have the same remainder when divided by \(n\).</p>
+<p>The set \(\{0, 1, 2, \ldots, n-1\}\) with addition mod \(n\) is denoted \(\mathbb{Z}_n\). It forms a group — every element has an inverse, addition closes within the set, and there&#39;s an identity &#40;0&#41;.</p>
+<p><strong>Multiplication mod \(n\)</strong> is trickier. Not every element has a multiplicative inverse. For example, \(2 \times 3 = 6 \equiv 0 \pmod{6}\), so 2 and 3 &quot;annihilate&quot; each other. This is bad. But if \(n\) is <strong>prime</strong>, then <em>every</em> nonzero element has a multiplicative inverse. This is why cryptography is obsessed with primes.</p>
+<p>The set \(\{1, 2, \ldots, p-1\}\) with multiplication mod a prime \(p\) forms a group, written \(\mathbb{Z}_p^*\). It has \(p-1\) elements.</p>
+<blockquote>
+<p><strong>Why the star?</strong> It means &quot;exclude zero.&quot; \(\mathbb{Z}_p = \{0, 1, \ldots, p-1\}\), but \(0 \times \text{anything} = 0\) — you can never multiply your way back to 1, so 0 has no multiplicative inverse and breaks the group axioms. The star is shorthand for &quot;units only&quot; — elements that <em>do</em> have inverses. For prime \(p\), that&#39;s everything except 0. For composite \(n\), it&#39;s more selective: \(\mathbb{Z}_6^* = \{1, 5\}\) because 2, 3, and 4 also lack inverses mod 6 &#40;they share factors with 6&#41;. Another reason to love primes — \(\mathbb{Z}_p^*\) loses exactly one element instead of many.</p>
+</blockquote>
+<hr />
+<h2 id="the_integers_mod_p_as_a_group_concretely"><a href="#the_integers_mod_p_as_a_group_concretely" class="header-anchor">The Integers Mod \(p\) as a Group: Concretely</a></h2>
+<p>Let&#39;s use \(p = 7\). Then \(\mathbb{Z}_7^* = \{1, 2, 3, 4, 5, 6\}\).</p>
+<p>Pick \(g = 3\) and start computing powers mod 7:</p>
+\[3^1 = 3, \quad 3^2 = 9 \equiv 2, \quad 3^3 = 6, \quad 3^4 = 18 \equiv 4, \quad 3^5 = 12 \equiv 5, \quad 3^6 = 15 \equiv 1\]
+<p>Notice: every element of \(\{1,2,3,4,5,6\}\) appeared exactly once before we cycled back to 1. So \(g = 3\) is a <strong>generator</strong> — starting from it, you can reach every element by repeated multiplication. A group with a generator like this is called <strong>cyclic</strong>.</p>
+<p>This is not always the case. For \(p = 7\), try \(g = 2\):</p>
+\[2^1 = 2, \quad 2^2 = 4, \quad 2^3 = 1, \quad 2^4 = 2, \ldots\]
+<p>You only hit \(\{1, 2, 4\}\) — a <strong>subgroup</strong> of order 3 &#40;it has 3 elements&#41;. This subgroup is itself a cyclic group.</p>
+<blockquote>
+<p><strong>What&#39;s a subgroup, really?</strong> It&#39;s just a subset that&#39;s also a group under the same operation. \(\{1, 2, 4\}\) closes under multiplication mod 7 &#40;check: \(2 \times 4 = 8 \equiv 1\), \(4 \times 4 = 16 \equiv 2\), etc.&#41;, has an identity &#40;1&#41;, and every element has an inverse — so it qualifies. Think of it like a clique inside the group that never needs to leave: any operation between two members lands back inside the clique. The full group \(\mathbb{Z}_7^*\) is the whole party; the subgroup \(\{1, 2, 4\}\) is a table that only talks to itself.</p>
+<p>And yes — the largest possible subgroup is the full group itself, \(\{1, 2, 3, 4, 5, 6\}\). The generator that produces it &#40;like \(g = 3\) above&#41; is called a <strong>generator of the group</strong>. So &quot;generator&quot; just means: the element whose powers sweep out the biggest possible set — the whole thing. Smaller generators produce smaller cliques; a true generator leaves no one out.</p>
+</blockquote>
+<p><strong>Key insight:</strong> The subgroup generated by \(g\) contains exactly \(\text{ord}(g)\) elements, where \(\text{ord}(g)\) is the smallest positive integer such that \(g^{\text{ord}(g)} \equiv 1 \pmod{p}\). Lagrange&#39;s theorem says the order of any subgroup must <strong>divide</strong> \(|G| = p-1\). So if \(p-1 = 6\), subgroup orders can only be 1, 2, 3, or 6.</p>
+<blockquote>
+<p><strong>The bridge from group to subgroup:</strong> \(\mathbb{Z}_p^*\) is the full group — all nonzero elements under multiplication mod \(p\). But the moment you pick a generator \(g\), you&#39;re carving out a <em>smaller</em> world: just the powers of \(g\). That smaller world is a subgroup, and it inherits all the group properties &#40;closure, inverses, identity&#41; automatically — it&#39;s a self-contained group in its own right, just living inside the bigger one. The reason cryptographers care about subgroups specifically is that you want to work in the <em>smallest</em> structure that still makes discrete log hard. The full \(\mathbb{Z}_p^*\) has order \(p-1\), which is always even and often has many small factors — a liability, as we&#39;ll see. A carefully chosen subgroup of prime order \(q\) is cleaner, tighter, and harder to attack.</p>
+</blockquote>
+<hr />
+<h2 id="why_prime-order_subgroups"><a href="#why_prime-order_subgroups" class="header-anchor">Why Prime-Order Subgroups?</a></h2>
+<p>So we&#39;ve just seen that not every element generates the whole group. \(g = 2\) in \(\mathbb{Z}_7^*\) only generates \(\{1, 2, 4\}\) — a subgroup of order 3. That subgroup is a perfectly valid group in its own right. The question for cryptography is: <strong>which subgroup do you want to work in, and why does it matter?</strong></p>
+<p>Let&#39;s think about what an attacker is trying to do. Recall that the whole point of working in a cyclic group is that \(g^x \bmod p\) is our one-way function — the prover&#39;s secret is \(x\), and the public key is \(y = g^x \bmod p\). So attacking the system means inverting that function: given \(y\), find \(x\). That&#39;s the <strong>discrete logarithm problem</strong>, and it lives entirely inside whichever cyclic subgroup \(g\) generates. The attacker&#39;s battlefield <em>is</em> that subgroup — which is exactly why the choice of subgroup matters so much. If the subgroup has order \(q\), that takes up to \(q\) steps. For a large prime \(q\), that&#39;s infeasible. So far so good.</p>
+<p>But here&#39;s the catch: if the group order \(q\) is <em>composite</em> — say \(q = 15 = 3 \times 5\) — an attacker can do something much cleverer. They can solve the discrete log <em>separately</em> in the subgroup of order 3 and the subgroup of order 5, then combine the answers using the Chinese Remainder Theorem. Each sub-problem is tiny. This is the <strong>Pohlig-Hellman attack</strong>, and it completely bypasses the apparent size of the group.</p>
+<p>The upshot: the hardness of discrete log depends not on the <em>size</em> of the group order, but on its <strong>largest prime factor</strong>. A group of order \(q = 2^{64}\) is actually easy to attack — you just solve 64 tiny discrete logs in groups of order 2. A group of order \(q = \) a 256-bit prime is genuinely hard.</p>
+<blockquote>
+<p><strong>The fix is simple:</strong> make \(q\) itself prime. Then there are no smaller subgroups to decompose into &#40;other than the trivial group of order 1&#41;, Pohlig-Hellman gets you nothing, and you&#39;re forced to attack the full problem.</p>
+</blockquote>
+<p>The standard construction is the <strong>safe prime</strong>: pick \(p = 2q + 1\) where both \(p\) and \(q\) are prime. Then \(\mathbb{Z}_p^*\) has order \(p - 1 = 2q\). The only prime factors are 2 and \(q\). Pohlig-Hellman can exploit the factor of 2 &#40;trivially — order-2 means only two elements&#41; but the order-\(q\) piece is untouchable. So you pick \(g\) to be a generator of the order-\(q\) subgroup specifically, and you&#39;re done — you&#39;re working in a prime-order group where discrete log is as hard as it gets.</p>
+<hr />
+<h2 id="the_discrete_logarithm_a_one-way_function_with_structure"><a href="#the_discrete_logarithm_a_one-way_function_with_structure" class="header-anchor">The Discrete Logarithm: A One-Way Function With Structure</a></h2>
+<p>A <strong>one-way function</strong> is easy to compute in one direction, hard to reverse. SHA-256 is a one-way function, but it&#39;s &quot;dumb&quot; — it just scrambles bits. Modular exponentiation is a one-way function that <strong>preserves algebraic structure</strong>:</p>
+\[f(x) = g^x \bmod p\]
+<p>Forward: fast, using repeated squaring in \(O(\log x)\) multiplications.</p>
+<p>Backward &#40;find \(x\) given \(g^x \bmod p\)&#41;: no efficient algorithm is known for large primes. The best take roughly \(e^{O(\sqrt{\log p \cdot \log \log p})}\) operations — sub-exponential but still astronomical for 2048-bit \(p\).</p>
+<p>The <em>structural</em> property you retain:</p>
+\[g^{x+y} = g^x \cdot g^y \pmod{p}\]
+<p>This means if you know \(g^x\) and \(g^y\), you can compute \(g^{x+y}\) — without knowing \(x\) or \(y\). This is <strong>homomorphism</strong> — a structure-preserving map between algebraic objects. And it&#39;s what makes ZK proofs possible.</p>
+<hr />
+<h2 id="what_does_group_homomorphism_actually_mean"><a href="#what_does_group_homomorphism_actually_mean" class="header-anchor">What Does &quot;Group Homomorphism&quot; Actually Mean?</a></h2>
+<p>A <strong>homomorphism</strong> \(\phi: G \to H\) is a map between groups that respects the group operation:</p>
+\[\phi(a \cdot b) = \phi(a) \cdot \phi(b)\]
+<p>The map \(\phi(x) = g^x \bmod p\) is a homomorphism from \((\mathbb{Z}_q, +)\) to the order-\(q\) subgroup \((\langle g \rangle, \times)\):</p>
+\[g^{x+y} = g^x \cdot g^y \pmod{p}\]
+<p>Addition on the left, multiplication on the right — but the structure is preserved. The &quot;symmetry&quot; people keep talking about is literally this: the operation on one side <em>mirrors</em> an operation on the other, through the map \(g^{(\cdot)}\).</p>
+<p><strong>Why does this matter for ZK proofs?</strong> Because in the Schnorr protocol, when you verify \(g^z \equiv a \cdot y^e \pmod{p}\), you&#39;re checking a homomorphism equation:</p>
+\[g^{r + ex} = g^r \cdot (g^x)^e\]
+<p>The verifier can check this equation in the <em>exponent space</em> without ever seeing \(r\) or \(x\) directly. The homomorphism lets you &quot;compute with secrets&quot; without revealing them.</p>
+<hr />
+<h2 id="eulers_theorem_and_fermats_little_theorem"><a href="#eulers_theorem_and_fermats_little_theorem" class="header-anchor">Euler&#39;s Theorem and Fermat&#39;s Little Theorem</a></h2>
+<p>Two results you&#39;ll see used everywhere:</p>
+<p><strong>Fermat&#39;s Little Theorem</strong>: If \(p\) is prime and \(\gcd(a, p) = 1\), then:</p>
+\[a^{p-1} \equiv 1 \pmod{p}\]
+<p>So \(a^{p-1} = 1\), \(a^p = a\), \(a^{p+1} = a^2\), etc. Exponents work modulo \(p-1\) in \(\mathbb{Z}_p^*\).</p>
+<p><strong>Consequence</strong>: To find \(a^{-1} \bmod p\), compute \(a^{p-2} \bmod p\). This is how modular inverses are computed in practice &#40;using fast exponentiation&#41;.</p>
+<p><strong>More general form</strong>: In a group of order \(q\), \(g^q = 1\) &#40;identity&#41;. So exponents work mod \(q\). In Schnorr, the response is \(z = r + ex \bmod q\) — the \(\bmod q\) is essential because the exponent space wraps around at \(q\).</p>
+<hr />
+<h2 id="the_chinese_remainder_theorem_crt"><a href="#the_chinese_remainder_theorem_crt" class="header-anchor">The Chinese Remainder Theorem &#40;CRT&#41;</a></h2>
+<p>If \(n = p \cdot q\) where \(\gcd(p, q) = 1\), then working mod \(n\) is &quot;equivalent&quot; to working mod \(p\) and mod \(q\) simultaneously:</p>
+\[\mathbb{Z}_n \cong \mathbb{Z}_p \times \mathbb{Z}_q\]
+<p>The ring isomorphism is explicit: \(x \bmod n\) corresponds to the pair \((x \bmod p, \; x \bmod q)\).</p>
+<p><strong>Why it matters</strong>: RSA lives in \(\mathbb{Z}_{pq}^*\). The CRT lets you perform computations mod \(p\) and mod \(q\) separately &#40;which is fast&#41; and recombine. It also explains the factoring-based attacks on RSA — knowing \(p\) and \(q\) separately completely breaks the hardness assumption.</p>
+<hr />
+<h2 id="the_quadratic_residue_setup_the_warm-up_example"><a href="#the_quadratic_residue_setup_the_warm-up_example" class="header-anchor">The Quadratic Residue Setup &#40;the Warm-Up Example&#41;</a></h2>
+<p>The page&#39;s warm-up asks: prove you know \(w\) such that \(w^2 \equiv 4 \pmod{77}\). Let&#39;s unpack this.</p>
+<p>\(77 = 7 \times 11\). By CRT, \(\mathbb{Z}_{77} \cong \mathbb{Z}_7 \times \mathbb{Z}_{11}\). An element is a <strong>quadratic residue</strong> mod 77 if it&#39;s a perfect square — and by CRT, that means it&#39;s a square mod 7 <em>and</em> a square mod 11.</p>
+<p>The reason \(w = 75\) also satisfies \(w^2 \equiv 4 \pmod{77}\): in mod \(n\) arithmetic, squaring is 2-to-1 &#40;at best&#41;. There are actually 4 square roots of 4 mod 77: \(\{2, 36, 41, 75\}\). The ZK proof works because you can commit to \(r^2\) and then respond with either \(r\) or \(r \cdot w\), and the distribution of what you reveal looks the same regardless of which root you know.</p>
+<hr />
+<h2 id="generators_and_the_structure_of_cyclic_groups"><a href="#generators_and_the_structure_of_cyclic_groups" class="header-anchor">Generators and the Structure of Cyclic Groups</a></h2>
+<p>A <strong>cyclic group</strong> \(G = \langle g \rangle\) of order \(q\) means:</p>
+\[G = \{g^0, g^1, g^2, \ldots, g^{q-1}\}\]
+<p>If \(q\) is prime, <strong>every</strong> non-identity element is a generator. If \(q\) is composite, only some elements are. This is why working in prime-order subgroups is cleaner: no &quot;bad&quot; generators, every element works.</p>
+<p>The <strong>structure theorem for finite abelian groups</strong> says every finite abelian group is a product of cyclic groups of prime-power order. So cyclic groups are the atomic building blocks. When cryptographers say &quot;work in a group of prime order \(q\),&quot; they mean: one atomic piece, no substructure to exploit.</p>
+<hr />
+<h2 id="putting_it_together_why_schnorr_works"><a href="#putting_it_together_why_schnorr_works" class="header-anchor">Putting It Together: Why Schnorr Works</a></h2>
+<p>The Schnorr protocol&#39;s correctness, soundness, and zero-knowledge all reduce to algebraic facts about the cyclic group:</p>
+<p><strong>Correctness</strong> is just the homomorphism \(g^{r+ex} = g^r (g^x)^e\).</p>
+<p><strong>Soundness</strong> relies on the fact that if you could answer two different challenges \(e_1 \neq e_2\) for the same commitment \(a\), then:</p>
+\[z_1 - z_2 = (e_1 - e_2) \cdot x \pmod{q}\]
+<p>Since \(q\) is prime, \((e_1 - e_2)\) has a multiplicative inverse mod \(q\) &#40;Fermat&#39;s little theorem&#41;, so:</p>
+\[x = (z_1 - z_2)(e_1 - e_2)^{-1} \pmod{q}\]
+<p>If the group had composite order, \((e_1 - e_2)\) might not be invertible, breaking the argument.</p>
+<p><strong>Zero-knowledge</strong> is the surprising one. The simulator doesn&#39;t know \(x\) but still produces indistinguishable transcripts by working <em>backwards</em>: pick \(z\) and \(e\), then solve \(a = g^z y^{-e}\). This only works because you can compute \(y^{-e} = (g^x)^{-e} = g^{-ex}\) without knowing \(x\) — you&#39;re using the group structure, not the secret. The discrete log hardness ensures the verifier can&#39;t tell &quot;forward&quot; proofs from &quot;backward&quot; simulations.</p>
+<hr />
+<h2 id="the_pedersen_commitment_hiding_behind_a_second_generator"><a href="#the_pedersen_commitment_hiding_behind_a_second_generator" class="header-anchor">The Pedersen Commitment: Hiding Behind a Second Generator</a></h2>
+<p>Pedersen commitments use <em>two</em> generators \(g\) and \(h\) in the same cyclic group:</p>
+\[C(v, r) = g^v \cdot h^r \bmod p\]
+<p>The <strong>hiding</strong> property: given \(C\), you can&#39;t find \(v\) because \(r\) is uniformly random. Different values of \(v\) are indistinguishable — you can always find an \(r'\) that produces the same commitment for any \(v'\) you want, <em>if you know \(\log_g h\)</em>. But since nobody knows \(\log_g h\) &#40;it&#39;s chosen &quot;nothing up my sleeve&quot;&#41;, you&#39;re computationally stuck.</p>
+<p>The <strong>binding</strong> property: you can&#39;t open \(C\) to two different values. If you could find \((v, r)\) and \((v', r')\) with the same \(C\), then \(g^v h^r = g^{v'} h^{r'}\), giving \(g^{v-v'} = h^{r'-r}\), so \(\log_g h = (v-v')(r'-r)^{-1}\) — contradicting hardness of discrete log.</p>
+<p>The <strong>homomorphic</strong> property: \(C(v_1, r_1) \cdot C(v_2, r_2) = C(v_1 + v_2, r_1 + r_2)\). This is just algebra on the exponents. It&#39;s the key to confidential transactions — you can verify commitments balance &#40;inputs &#61; outputs&#41; without ever seeing the amounts.</p>
+<hr />
+<h2 id="the_abstraction_ladder"><a href="#the_abstraction_ladder" class="header-anchor">The Abstraction Ladder</a></h2>
+<p>To summarize why these abstractions stack the way they do:</p>
+<ol>
+<li><p><strong>Integers mod \(n\)</strong> — the concrete object. Easy to compute with.</p>
+</li>
+<li><p><strong>Groups</strong> — the abstraction that captures &quot;closure, inverse, identity, associativity.&quot; You abstract away <em>what</em> the elements are to reason about <em>structure</em> alone.</p>
+</li>
+<li><p><strong>Cyclic groups</strong> — the cleanest groups. One generator, everything reachable.</p>
+</li>
+<li><p><strong>Prime-order cyclic groups</strong> — no exploitable substructure. The discrete log is maximally hard.</p>
+</li>
+<li><p><strong>Homomorphisms</strong> — structure-preserving maps. Let you &quot;compute on secrets&quot; without revealing them.</p>
+</li>
+<li><p><strong>One-way homomorphisms</strong> &#40;\(x \mapsto g^x\)&#41; — easy to apply, hard to invert. The core of asymmetric cryptography.</p>
+</li>
+</ol>
+<p>Each layer strips away unnecessary detail to expose what actually drives the security. The discrete log assumption lives in step 4–5. If you just said &quot;I&#39;ll work with some numbers,&quot; you&#39;d need to re-prove security for every different instantiation. The group-theoretic language lets you write one proof and apply it everywhere — elliptic curves, classic mod-\(p\), anything satisfying the group axioms.</p>
+<p>That&#39;s the real reason for the abstraction: <strong>one proof to rule them all</strong>.</p>
+<hr />
+<h2 id="whats_left_briefly"><a href="#whats_left_briefly" class="header-anchor">What&#39;s Left &#40;Briefly&#41;</a></h2>
+<p>The blog post gestures toward modern ZK systems like SNARKs and STARKs. These go beyond discrete-log-based ZK into:</p>
+<ul>
+<li><p><strong>Polynomial commitments</strong>: commit to a polynomial \(f(x)\), prove evaluations without revealing \(f\). Requires <strong>bilinear pairings</strong> — maps \(e: G_1 \times G_2 \to G_T\) that are linear in both arguments. More group theory.</p>
+</li>
+<li><p><strong>Arithmetic circuits</strong>: express a computation as a circuit of additions and multiplications, then prove correct execution. The &quot;language&quot; the ZK system speaks.</p>
+</li>
+<li><p><strong>Elliptic curve groups</strong>: the same cyclic group structure, but the &quot;elements&quot; are points on a curve and the &quot;operation&quot; is point addition. Much shorter keys for the same security level.</p>
+</li>
+</ul>
+<p>All of it runs on the same underlying machinery: find a group where the right operations are easy and the wrong ones are hard, and exploit the algebraic structure to prove statements about hidden witnesses.</p>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: February 21, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+  </body>
+</html>

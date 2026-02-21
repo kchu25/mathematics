@@ -16,6 +16,7 @@
 - [causal-inference](tag/causal-inference)
 - [ODE](tag/ODE)
 - [game-theory](tag/game-theory)
-
+- [cryptography](tag/cryptography)
+- [group-theory](tag/group-theory)
 
 

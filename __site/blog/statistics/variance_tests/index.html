@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/libs/highlight/styles/github.min.css">
+   
+  <link rel="stylesheet" href="/css/franklin.css">
+<link rel="stylesheet" href="/css/hypertext.css">
+<link rel="icon" href="/assets/favicon.png">
+
+   <title>Tests on Variances: From F-test to Fligner-Killeen</title>  
+</head>
+<body>
+<header>
+  <h1 style="color:#283747">Mathematics</h1>
+  <nav>
+    <a href="/" class="current">Tags</a>
+  | <a href="/blog/" >Notes</a>
+  <hr/>
+  </nav>
+</header>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><h1 id="tests_on_variances_from_f-test_to_fligner-killeen"><a href="#tests_on_variances_from_f-test_to_fligner-killeen" class="header-anchor">Tests on Variances: From F-test to Fligner-Killeen</a></h1>
+<h2 id="why_test_variances"><a href="#why_test_variances" class="header-anchor">Why Test Variances?</a></h2>
+<p>Many procedures &#40;ANOVA, pooled t-tests&#41; assume <strong>equal variances</strong> across groups. Before running them, you need to check that assumption. The core question is always:</p>
+\[H_0: \sigma_1^2 = \sigma_2^2 = \cdots = \sigma_k^2\]
+<p>The five tests below form a spectrum — from strong distributional assumptions with high power, to minimal assumptions with robustness against messy data.</p>
+<table><tr><th align="right">Test</th><th align="right">Type</th><th align="right">Sensitivity to Non-Normality</th><th align="right">Best Use Case</th></tr><tr><td align="right">F-test</td><td align="right">Parametric</td><td align="right">Very High</td><td align="right">Comparing exactly 2 groups confirmed Normal</td></tr><tr><td align="right">Bartlett&#39;s</td><td align="right">Parametric</td><td align="right">High</td><td align="right">Comparing 2&#43; groups; more powerful but requires Normality</td></tr><tr><td align="right">Levene&#39;s</td><td align="right">Semi-Parametric</td><td align="right">Moderate</td><td align="right">Standard for checking ANOVA assumptions &#40;uses mean deviations&#41;</td></tr><tr><td align="right">Brown–Forsythe</td><td align="right">Semi-Parametric</td><td align="right">Low</td><td align="right">Skewed data &#40;uses median deviations to ignore outliers&#41;</td></tr><tr><td align="right">Fligner–Killeen</td><td align="right">Non-Parametric</td><td align="right">Very Low</td><td align="right">Gold standard for messy, non-normal data with heavy outliers</td></tr></table>
+<hr />
+<h2 id="f-test_for_equality_of_two_variances"><a href="#f-test_for_equality_of_two_variances" class="header-anchor"><ol>
+<li><p>F-test for Equality of Two Variances</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="intuition"><a href="#intuition" class="header-anchor">Intuition</a></h3>
+<p>The simplest idea: take the ratio of two sample variances. If both populations have the same true variance, this ratio should hover around 1. The further it deviates from 1, the stronger the evidence that the variances differ.</p>
+<h3 id="math"><a href="#math" class="header-anchor">Math</a></h3>
+<p>Given two independent samples of sizes \(n_1\) and \(n_2\) drawn from normal populations,</p>
+\[F = \frac{s_1^2}{s_2^2}, \qquad F \sim F(n_1 - 1,\; n_2 - 1) \text{ under } H_0\]
+<p>where convention places the larger variance in the numerator. Reject \(H_0\) if \(F > F_{\alpha/2}\) &#40;two-tailed&#41; or \(F > F_{\alpha}\) &#40;one-tailed&#41;.</p>
+<h3 id="why_it_breaks"><a href="#why_it_breaks" class="header-anchor">Why it breaks</a></h3>
+<p>The F-distribution derivation <strong>requires</strong> both populations to be exactly normal. Even mild skewness or heavy tails inflate the Type I error rate dramatically — you&#39;ll &quot;detect&quot; variance differences that don&#39;t exist.</p>
+<p><strong>Use when:</strong> You have exactly 2 groups and strong evidence of normality. Otherwise, keep reading.</p>
+<hr />
+<h2 id="ol_start2_bartletts_test"><a href="#ol_start2_bartletts_test" class="header-anchor"><ol start="2">
+<li><p>Bartlett&#39;s Test</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="intuition__2"><a href="#intuition__2" class="header-anchor">Intuition</a></h3>
+<p>Bartlett&#39;s test generalises the F-test to \(k \geq 2\) groups. It pools information across all groups and asks: &quot;Is the variation in the group variances larger than what chance alone would produce?&quot;</p>
+<h3 id="math__2"><a href="#math__2" class="header-anchor">Math</a></h3>
+<p>Let each group \(i\) have sample size \(n_i\) and sample variance \(s_i^2\). Define \(N = \sum n_i\) and the pooled variance</p>
+\[s_p^2 = \frac{\sum_{i=1}^k (n_i - 1)\, s_i^2}{N - k}.\]
+<p>The test statistic is</p>
+\[\chi^2_B = \frac{(N-k)\ln s_p^2 - \sum_{i=1}^k (n_i-1)\ln s_i^2}{1 + \dfrac{1}{3(k-1)}\!\left(\sum_{i=1}^k \dfrac{1}{n_i-1} - \dfrac{1}{N-k}\right)}\]
+<p>Under \(H_0\) &#40;all variances equal&#41; and normality, \(\chi^2_B \sim \chi^2(k-1)\).</p>
+<h3 id="reading_the_statistic"><a href="#reading_the_statistic" class="header-anchor">Reading the statistic</a></h3>
+<ul>
+<li><p><strong>Numerator:</strong> Compares the log of the pooled variance to the average of the individual log-variances. If variances are equal, these coincide &#40;by Jensen&#39;s inequality, \(\ln\) of the mean \(\geq\) mean of \(\ln\), with equality iff all values are the same&#41;.</p>
+</li>
+<li><p><strong>Denominator:</strong> A small-sample correction factor that pushes the distribution closer to \(\chi^2\).</p>
+</li>
+</ul>
+<h3 id="why_it_breaks__2"><a href="#why_it_breaks__2" class="header-anchor">Why it breaks</a></h3>
+<p>Like the F-test, Bartlett&#39;s test is built on the normality assumption. It is <strong>even more</strong> sensitive to kurtosis than the F-test: heavy-tailed data inflates \(\chi^2_B\) and produces false positives.</p>
+<p><strong>Use when:</strong> You have \(k \geq 2\) groups that you are confident are normally distributed. It is more powerful than Levene&#39;s in that case.</p>
+<hr />
+<h2 id="ol_start3_levenes_test"><a href="#ol_start3_levenes_test" class="header-anchor"><ol start="3">
+<li><p>Levene&#39;s Test</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="intuition__3"><a href="#intuition__3" class="header-anchor">Intuition</a></h3>
+<p>Here&#39;s the clever trick: instead of working with variances directly, <strong>transform</strong> each observation into its absolute deviation from the group mean, then run a standard one-way ANOVA on those deviations. If the original groups had equal variances, the deviations should have equal means across groups.</p>
+<h3 id="math__3"><a href="#math__3" class="header-anchor">Math</a></h3>
+<p>For observation \(y_{ij}\) in group \(i\), compute</p>
+\[z_{ij} = |y_{ij} - \bar{y}_i|\]
+<p>where \(\bar{y}_i\) is the mean of group \(i\). Then apply a one-way ANOVA F-statistic to the \(z_{ij}\):</p>
+\[W = \frac{(N-k)}{(k-1)} \cdot \frac{\sum_{i=1}^k n_i (\bar{z}_{i\cdot} - \bar{z}_{\cdot\cdot})^2}{\sum_{i=1}^k \sum_{j=1}^{n_i} (z_{ij} - \bar{z}_{i\cdot})^2}\]
+<p>Under \(H_0\), \(W \;\dot\sim\; F(k-1,\; N-k)\).</p>
+<h3 id="why_it_works"><a href="#why_it_works" class="header-anchor">Why it works</a></h3>
+<p>By replacing raw values with deviations from the center, you convert a <strong>variance comparison</strong> into a <strong>mean comparison</strong> — and ANOVA is well-understood for comparing means. The absolute value makes the test moderately robust to non-normality, though it still uses the <strong>mean</strong> as the center, which is itself affected by outliers.</p>
+<p><strong>Use when:</strong> Checking the homogeneity-of-variance assumption before ANOVA. This is the default in most software packages.</p>
+<hr />
+<h2 id="ol_start4_brownforsythe_test"><a href="#ol_start4_brownforsythe_test" class="header-anchor"><ol start="4">
+<li><p>Brown–Forsythe Test</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="intuition__4"><a href="#intuition__4" class="header-anchor">Intuition</a></h3>
+<p>Brown–Forsythe is Levene&#39;s test with one modification: replace the group <strong>mean</strong> with the group <strong>median</strong>. Since the median is resistant to outliers, this makes the test much more robust to skewed or heavy-tailed data.</p>
+<h3 id="math__4"><a href="#math__4" class="header-anchor">Math</a></h3>
+<p>Define</p>
+\[z_{ij} = |y_{ij} - \tilde{y}_i|\]
+<p>where \(\tilde{y}_i\) is the <strong>median</strong> of group \(i\). Then compute the same \(W\) statistic as Levene&#39;s test on the \(z_{ij}\) values, again compared to \(F(k-1, N-k)\).</p>
+<h3 id="why_the_median_matters"><a href="#why_the_median_matters" class="header-anchor">Why the median matters</a></h3>
+<p>Consider a group with an extreme outlier. Using the mean, the outlier pulls the center toward itself, and every other observation gets a larger deviation — <strong>inflating</strong> the apparent variance. The median barely moves, so the outlier&#39;s deviation is large but doesn&#39;t distort everyone else&#39;s. This makes Brown–Forsythe more honest about the bulk of the data.</p>
+<p><strong>Use when:</strong> Your data is skewed, has outliers, or you don&#39;t trust normality but still want a familiar F-based framework.</p>
+<hr />
+<h2 id="ol_start5_flignerkilleen_test"><a href="#ol_start5_flignerkilleen_test" class="header-anchor"><ol start="5">
+<li><p>Fligner–Killeen Test</p>
+</li>
+</ol>
+</a></h2>
+<h3 id="intuition__5"><a href="#intuition__5" class="header-anchor">Intuition</a></h3>
+<p>Go fully non-parametric. Instead of working with the raw deviations, <strong>rank</strong> them. This throws away magnitude information &#40;a deviation of 100 is treated the same as a deviation of 10, as long as they have the same rank&#41; and makes the test immune to outliers and distributional shape.</p>
+<h3 id="math__5"><a href="#math__5" class="header-anchor">Math</a></h3>
+<ol>
+<li><p>Compute absolute deviations from each group&#39;s median: \(z_{ij} = |y_{ij} - \tilde{y}_i|\).</p>
+</li>
+<li><p>Rank all \(N\) values of \(z_{ij}\) together to get ranks \(r_{ij}\).</p>
+</li>
+<li><p>Convert ranks to <strong>normal scores</strong>: \(a_{ij} = \Phi^{-1}\!\left(\frac{1 + r_{ij}/(N+1)}{2}\right)\), where \(\Phi^{-1}\) is the standard normal quantile function.</p>
+</li>
+<li><p>Compute</p>
+</li>
+</ol>
+\[\chi^2_{FK} = \frac{\sum_{i=1}^k n_i (\bar{a}_{i\cdot} - \bar{a}_{\cdot\cdot})^2}{\sum_{i=1}^k \sum_{j=1}^{n_i}(a_{ij} - \bar{a}_{\cdot\cdot})^2 / (N-1)}\]
+<p>Under \(H_0\), \(\chi^2_{FK} \sim \chi^2(k-1)\).</p>
+<h3 id="why_its_the_most_robust"><a href="#why_its_the_most_robust" class="header-anchor">Why it&#39;s the most robust</a></h3>
+<ul>
+<li><p><strong>Median</strong> centering removes outlier influence on the center.</p>
+</li>
+<li><p><strong>Ranking</strong> removes outlier influence on the scale.</p>
+</li>
+<li><p><strong>Normal scores</strong> &#40;van der Waerden scores&#41; give slightly more power than raw ranks while preserving robustness.</p>
+</li>
+</ul>
+<p>The cost: you lose some statistical power when the data really <strong>is</strong> normal, since you&#39;re discarding information about magnitudes.</p>
+<p><strong>Use when:</strong> Data is clearly non-normal, has heavy tails, or you have no idea what the distribution looks like. This is the safest choice.</p>
+<hr />
+<h2 id="the_progression"><a href="#the_progression" class="header-anchor">The Progression</a></h2>
+<p>All five tests answer the same question, but they increasingly <strong>protect</strong> against non-normality by giving up parametric power:</p>
+\[\underbrace{F\text{-test} \to \text{Bartlett's}}_{\text{parametric: use variances directly}} \to \underbrace{\text{Levene's} \to \text{Brown–Forsythe}}_{\text{use deviations from center}} \to \underbrace{\text{Fligner–Killeen}}_{\text{rank the deviations}}\]
+<p>Each arrow represents a trade-off: you lose a bit of power under perfect normality, but gain substantial protection against the real world.</p>
+<hr />
+<h2 id="quick_decision_tree"><a href="#quick_decision_tree" class="header-anchor">Quick Decision Tree</a></h2>
+<pre><code class="language-julia">Is your data normally distributed?
+│
+├─ Yes, confident
+│   ├─ Exactly 2 groups? → F-test
+│   └─ 3&#43; groups?       → Bartlett&#39;s test
+│
+├─ Approximately / unsure
+│   ├─ Symmetric, mild outliers? → Levene&#39;s test
+│   └─ Skewed or moderate outliers? → Brown–Forsythe test
+│
+└─ No / heavy outliers / unknown distribution
+    └─ Fligner–Killeen test</code></pre>
+<hr />
+<h2 id="key_takeaways"><a href="#key_takeaways" class="header-anchor">Key Takeaways</a></h2>
+<ol>
+<li><p><strong>Don&#39;t default to the F-test</strong> — it&#39;s fragile outside of perfect normality.</p>
+</li>
+<li><p><strong>Levene&#39;s test</strong> &#40;mean-based&#41; is the standard default for ANOVA assumption checking.</p>
+</li>
+<li><p><strong>Brown–Forsythe</strong> &#40;median-based&#41; is strictly better when data is skewed — prefer it in practice.</p>
+</li>
+<li><p><strong>Fligner–Killeen</strong> is the safest option for ugly data, at a small cost in power.</p>
+</li>
+<li><p><strong>Bartlett&#39;s</strong> is only worth using when you are certain the data is normal and want maximum power across \(k\) groups.</p>
+</li>
+<li><p>Always <strong>pair</strong> a formal test with visual inspection &#40;boxplots, density plots&#41; — no single test tells the whole story.</p>
+</li>
+</ol>
+<div class="page-foot">
+    Contact me by <a href="mailto:skchu@wustl.edu">E-mail</a> | <a href="https://github.com/kchu25">Github</a> | <a href="https://www.linkedin.com/in/kchu1/">Linkedin</a>
+    <br>
+    This work is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.  Last modified: February 21, 2026.
+    <br>
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+    
+        <script src="/libs/katex/katex.min.js"></script>
+<script src="/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+    
+    
+        <script src="/libs/highlight/highlight.min.js"></script>
+<script>hljs.highlightAll();hljs.configure({tabReplace: '    '});</script>
+
+    
+  </body>
+</html>
