@@ -16,7 +16,11 @@ That wrapping is the heart of everything. We write it as:
 
 $$10 + 5 \equiv 3 \pmod{12}$$
 
-Read this as: "10 + 5 and 3 have the same remainder when divided by 12." Nothing mysterious. Division just leaves a leftover, and we're tracking the leftover.
+Let's unpack the notation carefully. The $\equiv$ sign (not $=$) signals that we're not saying $10 + 5$ *equals* $3$ as numbers — it doesn't. What we're saying is that $10 + 5$ and $3$ are **equivalent under the rule "divide by 12 and look at the remainder."** Both $15$ and $3$ leave a remainder of $3$ when divided by $12$, so they're considered the same under this rule.
+
+The $\pmod{12}$ on the right isn't an operation applied to just one side — it's a **label for the rule** that governs the whole line. It says: "the $\equiv$ you're looking at is the one where two numbers are equivalent when they differ by a multiple of $12$." Think of it as setting the context: everything in this statement lives on a clock with 12 positions, and $\pmod{12}$ is how we announce that.
+
+Nothing mysterious. Division just leaves a leftover, and we're tracking the leftover.
 
 ---
 
