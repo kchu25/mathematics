@@ -1,4 +1,4 @@
-@def title = "Chinese Remainder Theorem"
+@def title = "Section 1, De-Jargoned (Nigel Smart's Cryptography book)"
 @def published = "21 February 2026"
 @def tags = ["group-theory", "cryptography"]
 
