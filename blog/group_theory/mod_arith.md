@@ -31,7 +31,7 @@ $$3^4 = 81 \equiv 4 \pmod 7$$
 $$3^5 = 243 \equiv 5 \pmod 7$$
 $$3^6 = 729 \equiv 1 \pmod 7$$
 
-Something interesting just happened: we hit every nonzero number in $\{1, 2, 3, 4, 5, 6\}$ before cycling back to 1. The powers of 3 *visit the entire set* before repeating. Try this with 7, and you get a different story:
+Something interesting just happened: we hit every nonzero number in $\{1, 2, 3, 4, 5, 6\}$ before cycling back to 1. The powers of 3 *visit the entire set* before repeating. Try this with base $2$, and you get a different story:
 
 $$2^1 = 2, \quad 2^2 = 4, \quad 2^3 = 8 \equiv 1 \pmod 7$$
 
@@ -47,13 +47,29 @@ Try doing this mod $6$ instead. Pick base $2$:
 
 $$2^1 = 2, \quad 2^2 = 4, \quad 2^3 = 8 \equiv 2 \pmod 6$$
 
-We're stuck in a loop immediately: $\{2, 4, 2, 4, \ldots\}$. We never even hit 1. This is a problem if you want predictable arithmetic — 2 has no multiplicative inverse mod 6, because $2 \times 3 = 6 \equiv 0$. You can "annihilate" things.
+We're stuck in a loop immediately: $\{2, 4, 2, 4, \ldots\}$. We never even hit 1. Why?
+
+Let's back up. In ordinary arithmetic, if you multiply a number by $2$, you can undo it by multiplying by $\frac{1}{2}$. That's the **multiplicative inverse** of $2$ — the thing that, when multiplied by $2$, gives you back $1$.
+
+Now we're working mod $6$, so fractions are off the table. The only numbers in our world are $\{1, 2, 3, 4, 5\}$. The question is: is there a whole number $b$ in that set such that
+
+$$2 \times b \equiv 1 \pmod 6?$$
+
+Let's just check all of them:
+
+$$2 \times 1 = 2, \quad 2 \times 2 = 4, \quad 2 \times 3 = 6 \equiv 0, \quad 2 \times 4 = 8 \equiv 2, \quad 2 \times 5 = 10 \equiv 4$$
+
+None of them give 1. There is no inverse. The problem is that $2$ and $6$ share a common factor — $\gcd(2, 6) = 2 \neq 1$ — so every multiple of 2 is even, and 1 is odd, so we can never reach it. More dramatically: $2 \times 3 = 6 \equiv 0 \pmod 6$. Two nonzero numbers multiplied together gave zero — they "annihilated" each other. Once that's possible, the arithmetic becomes treacherous.
 
 Switch to mod $7$ (a prime), and every nonzero number *does* have an inverse. For example:
 
 $$3 \times 5 = 15 \equiv 1 \pmod 7$$
 
-So 5 is the inverse of 3. You can always "undo" multiplication. This is why cryptography is obsessed with primes — they guarantee the arithmetic is well-behaved in a way composites aren't.
+So 5 is the inverse of 3 — multiplying by 5 undoes multiplying by 3. You can verify the others: $2^{-1} \equiv 4$, $6^{-1} \equiv 6$, and so on. Every element is reachable and every operation is reversible.
+
+Why does primality guarantee this? If $p$ is prime and $a$ is not divisible by $p$, then $\gcd(a, p) = 1$ — they share no common factors. That's enough (by Bézout's theorem) to guarantee a whole-number solution to $a \times b \equiv 1 \pmod p$ always exists. Composites fail because they have factors, and any $a$ sharing a factor with $n$ can never multiply its way to 1.
+
+This is why cryptography is obsessed with primes — they guarantee the arithmetic is well-behaved in a way composites aren't.
 
 ---
 
