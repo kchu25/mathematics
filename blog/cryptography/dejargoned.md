@@ -31,21 +31,38 @@ $$17 \equiv 2 \pmod{5} \quad \text{because } 17 = 3 \times 5 + 2$$
 
 ## What is $\mathbb{Z}/N\mathbb{Z}$?
 
-This notation looks terrifying. It's not.
+This notation looks terrifying. It's not. It's just a fancy way to write "integers mod $N$."
 
-**$\mathbb{Z}$** just means "the integers" — the usual whole numbers: ..., -2, -1, 0, 1, 2, ...
+**$\mathbb{Z}$** = all integers: ..., -2, -1, 0, 1, 2, ...
 
-**$N\mathbb{Z}$** means "all multiples of $N$" — so for $N = 5$: ..., -10, -5, 0, 5, 10, ...
+**$N\mathbb{Z}$** = all *multiples of $N$*. For $N=5$: {..., -10, -5, 0, 5, 10, ...}
 
-**$\mathbb{Z}/N\mathbb{Z}$** means: take the integers, but *treat two numbers as the same if they differ by a multiple of $N$*.
+**The "/" means "quotient by"** — but *not* ordinary division. It means: "collapse all the multiples of $N$ into a single equivalence class."
 
-So with $N = 5$: the numbers 0, 5, 10, 15 are *all the same thing*. And 1, 6, 11, 16 are *all the same thing*. You end up with just 5 distinct "slots":
+**$\mathbb{Z}/N\mathbb{Z}$** literally means: "Take all integers, and treat any two integers that differ by a multiple of $N$ as the *same thing*."
+
+### Concrete example with $N = 5$:
+
+- 0 and 5 differ by 5 (a multiple of 5) → *same thing*
+- 1 and 6 differ by 5 → *same thing*
+- 2 and 7 differ by 5 → *same thing*
+- 3 and 8 differ by 5 → *same thing*
+- 4 and 9 differ by 5 → *same thing*
+- 7 and 12 differ by 5 → *same thing*
+
+So the integers collapse into just 5 "buckets" — one for each remainder:
+
+$$\mathbb{Z}/5\mathbb{Z} = \{\text{[all numbers with remainder 0]}, \text{[all with remainder 1]}, \text{[all with remainder 2]}, \text{[all with remainder 3]}, \text{[all with remainder 4]}\}$$
+
+You represent each bucket by its smallest non-negative element:
 
 $$\mathbb{Z}/5\mathbb{Z} = \{0, 1, 2, 3, 4\}$$
 
-That's it. Five numbers. Add them, and if you go over, wrap around:
+When you add two of these, if the result "overflows," you wrap around:
 
 $$3 + 4 = 7 \equiv 2 \pmod 5$$
+
+because 7 and 2 are in the same bucket (they differ by 5).
 
 ---
 
