@@ -31,38 +31,21 @@ $$17 \equiv 2 \pmod{5} \quad \text{because } 17 = 3 \times 5 + 2$$
 
 ## What is $\mathbb{Z}/N\mathbb{Z}$?
 
-This notation looks terrifying. It's not. It's just a fancy way to write "integers mod $N$."
+**Bottom line:** $\mathbb{Z}/N\mathbb{Z}$ is just a formal name for "integers mod $N$" — the set $\{0, 1, \ldots, N-1\}$ with addition that wraps around. The notation is abstract algebra convention; the concept is just clock arithmetic.
 
-**$\mathbb{Z}$** = all integers: ..., -2, -1, 0, 1, 2, ...
+**Why the "/" at all?** Think about ordinary division: $12/4 = 3$ means "how many distinct things are left when you group 12 objects into groups of 4?" The "/" in $\mathbb{Z}/N\mathbb{Z}$ is the same instinct, applied to a set instead of a number:
 
-**$N\mathbb{Z}$** = all *multiples of $N$*. For $N=5$: {..., -10, -5, 0, 5, 10, ...}
+> "Take $\mathbb{Z}$ (all integers), and *group together* everything that differs by a multiple of $N$. How many distinct groups are left?"
 
-**The "/" means "quotient by"** — but *not* ordinary division. It means: "collapse all the multiples of $N$ into a single equivalence class."
-
-**$\mathbb{Z}/N\mathbb{Z}$** literally means: "Take all integers, and treat any two integers that differ by a multiple of $N$ as the *same thing*."
-
-### Concrete example with $N = 5$:
-
-- 0 and 5 differ by 5 (a multiple of 5) → *same thing*
-- 1 and 6 differ by 5 → *same thing*
-- 2 and 7 differ by 5 → *same thing*
-- 3 and 8 differ by 5 → *same thing*
-- 4 and 9 differ by 5 → *same thing*
-- 7 and 12 differ by 5 → *same thing*
-
-So the integers collapse into just 5 "buckets" — one for each remainder:
-
-$$\mathbb{Z}/5\mathbb{Z} = \{\text{[all numbers with remainder 0]}, \text{[all with remainder 1]}, \text{[all with remainder 2]}, \text{[all with remainder 3]}, \text{[all with remainder 4]}\}$$
-
-You represent each bucket by its smallest non-negative element:
+For $N = 5$: the integers $\{\ldots, -5, 0, 5, 10, \ldots\}$ all go in one group, $\{\ldots, -4, 1, 6, 11, \ldots\}$ in another, and so on. You get exactly 5 groups — one per remainder. The "/" is saying "after collapsing those groups, what's left?" What's left is 5 distinct things:
 
 $$\mathbb{Z}/5\mathbb{Z} = \{0, 1, 2, 3, 4\}$$
 
-When you add two of these, if the result "overflows," you wrap around:
+Each number represents its whole group (all integers with that remainder). Add two representatives, and if the result overflows, wrap back into a representative:
 
-$$3 + 4 = 7 \equiv 2 \pmod 5$$
+$$3 + 4 = 7 \equiv 2 \pmod{5}$$
 
-because 7 and 2 are in the same bucket (they differ by 5).
+That's it. The notation looks like set division because it *is* the same idea as division — just applied to grouping integers instead of counting objects.
 
 ---
 
