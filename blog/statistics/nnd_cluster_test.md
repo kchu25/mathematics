@@ -215,6 +215,24 @@ For typical sizes ($N \sim 10^4$, $m \sim 10^2$–$10^3$, $k \leq 10$, $B = 10{,
 
 **Short answer: Start with a single well-chosen $k$, then validate with multiple $k$.**
 
+**Why $k = \sqrt{m}$ is a common default:**
+
+The choice $k = \sqrt{m}$ comes from information theory and statistical learning. Here's the intuition:
+
+- **$k$ too small** (e.g., $k=1$): You're only looking at the immediate nearest neighbor. This is noisy — a single outlier or gap can dominate. Statistics from $k=1$ are unstable.
+- **$k$ too large** (e.g., $k=m/2$): You're averaging over half the subpopulation. This smooths out the local structure and approaches a global measure (like variance).
+- **$k = \sqrt{m}$ as a sweet spot:** This balances local precision (small $k$) against noise reduction (large $k$). 
+
+**Mathematical justification (brief):** In density estimation, the bias-variance trade-off for $k$-NN statistics is optimized around $k \sim \sqrt{n}$ for sample size $n$. This comes from analyzing the trade-off between:
+- **Bias:** How far the $k$-NN distance is from the true density
+- **Variance:** How much $k$-NN estimates fluctuate
+
+The optimal rate turns out to be $k \sim n^{1/(d+2)}$ for $d$ dimensions, but $\sqrt{n}$ is a practical rule-of-thumb that works reasonably well in low dimensions.
+
+**Practical interpretation:** If your subpopulation has $m = 100$ points, $\sqrt{m} = 10$, meaning you examine the 10-th nearest neighbor. If $m = 10{,}000$, then $\sqrt{m} \approx 100$, and you examine the 100-th neighbor. The rule scales the neighborhood size proportionally to the population size — larger populations can afford to examine larger neighborhoods before approaching global behavior.
+
+**However:** $\sqrt{m}$ is a *heuristic*, not optimal in all scenarios. If your clusters are very tight, a smaller $k$ may perform better. If they're loose and diffuse, a larger $k$ might be better. This is why **you should always check sensitivity across multiple $k$ values**.
+
 **The strategy:**
 
 1. **Choose a primary $k$.**
