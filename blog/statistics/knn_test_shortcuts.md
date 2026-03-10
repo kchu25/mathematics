@@ -1,8 +1,8 @@
-+++
-title = "kNN Test Shortcuts & Navigation"
-date = Date(2026, 3, 10)
-tags = ["knn", "hypothesis-testing", "clustering-detection", "permutation-tests", "navigation"]
-+++
+@def title = "kNN Test Shortcuts & Navigation Guide"
+@def published = "10 March 2026"
+@def tags = ["knn", "hypothesis-testing", "clustering-detection", "navigation"]
+
+# kNN Test Shortcuts & Navigation Guide
 
 A curated guide to navigate the kNN clustering hypothesis test landscape. Use this page to find exactly what you need—whether you're learning theory, understanding power, designing studies, or validating results.
 
