@@ -14,13 +14,13 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
 
 | Goal | Start Here | Then Read |
 |------|-----------|-----------|
-| **Understand the basic kNN test** | [kNN Testing Foundations](#foundations) | [Small k Hypothesis Testing](#hypothesis-testing) |
-| **Choose the right k value** | [kNN Hyperparameter Theory](#hyperparameter) | [NND Cluster Test](#nnd) |
-| **Understand power and effect size** | [kNN Power Analysis](#power-analysis) | [Friedman-Rafsky & Schilling Deep Dive](#papers) |
-| **Validate my results** | [Sensitivity Analysis Procedure](#sensitivity) | [NND Cluster Test](#nnd) |
-| **Compare clustering methods** | [Clustering Detection Methods](#methods) | [Earth Mover Distance](#emd) |
-| **Apply the test in practice** | [NND Cluster Test](#nnd) | [Small k Hypothesis Testing](#hypothesis-testing) |
-| **Understand the theory** | [Friedman-Rafsky & Schilling](#papers) | [kNN Hyperparameter Theory](#hyperparameter) |
+| **Understand the basic kNN test** | [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) | [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) |
+| **Choose the right k value** | [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **Understand power and effect size** | [kNN Power Analysis](/blog/statistics/knn_power_analysis/) | [Friedman-Rafsky & Schilling Deep Dive](/blog/statistics/friedman_rafsky_schilling/) |
+| **Validate my results** | [Sensitivity Analysis Procedure](#sensitivity-analysis-procedure) | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **Compare clustering methods** | [Clustering Detection Methods](/blog/statistics/clustering_detection_methods/) | [Earth Mover Distance](/blog/statistics/earth_mover_distance/) |
+| **Apply the test in practice** | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) | [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) |
+| **Understand the theory** | [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) | [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) |
 
 ---
 
@@ -28,7 +28,7 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
 
 ### 🏗️ Foundations
 
-#### **[kNN Testing Foundations](./knn_testing_foundations.md)**
+#### **[kNN Testing Foundations](/blog/statistics/knn_testing_foundations/)**
 - **What:** Complete mathematical foundation of kNN two-sample tests
 - **Key sections:**
   - Part 1: What is a two-sample test?
@@ -46,7 +46,7 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
 
 ### 🎯 Hypothesis Testing
 
-#### **[Small k Hypothesis Testing](./small_k_hypothesis_testing.md)**
+#### **[Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/)**
 - **What:** Why small k (1, 3, 5) values are theoretically justified for clustering detection
 - **Key sections:**
   - Part 1: The conflicting signals problem (KDE vs. hypothesis testing)
@@ -58,14 +58,14 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
   - Part 7: How to choose k in practice
   - Part 8: Sensitivity analysis as validation
 - **Best for:** Understanding the theoretical case for small k; resolving the "yucky feeling"
-- **Prerequisites:** [kNN Testing Foundations](#foundations)
+- **Prerequisites:** [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/)
 - **Time to read:** 30 minutes
 
 ---
 
 ### ⚡ Power Analysis
 
-#### **[kNN Power Analysis](./knn_power_analysis.md)**
+#### **[kNN Power Analysis](/blog/statistics/knn_power_analysis/)**
 - **What:** Comprehensive explanation of statistical power for kNN clustering tests
 - **Key sections:**
   - Definition of power (1 - Type II error)
@@ -80,14 +80,14 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
   - **Theoretical Sources section:** 7 foundational papers
   - Practical reporting checklist
 - **Best for:** Understanding what power means; computing power for your data; reporting power in results
-- **Prerequisites:** [kNN Testing Foundations](#foundations)
+- **Prerequisites:** [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/)
 - **Time to read:** 45 minutes
 
 ---
 
 ### 🔬 Hyperparameter Selection
 
-#### **[kNN Hyperparameter Theory](./knn_hyperparameter_theory.md)**
+#### **[kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/)**
 - **What:** Theory and practical guidance for choosing k based on data and context
 - **Key sections:**
   - Part 1: The k-choice problem (why it's non-trivial)
@@ -100,14 +100,14 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
   - Part 7: The three golden rules
   - Part 8: Step-by-step workflow
 - **Best for:** Choosing k for your specific dataset; understanding dimension effects
-- **Prerequisites:** [kNN Testing Foundations](#foundations), [Small k Hypothesis Testing](#hypothesis-testing)
+- **Prerequisites:** [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/), [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/)
 - **Time to read:** 40 minutes
 
 ---
 
 ### 📊 NND Cluster Test
 
-#### **[NND Cluster Test](./nnd_cluster_test.md)**
+#### **[NND Cluster Test](/blog/statistics/nnd_cluster_test/)**
 - **What:** Complete practical guide to nearest-neighbor distance clustering test
 - **Key sections:**
   - The NND test statistic ($\bar{D}_k$)
@@ -118,7 +118,7 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
   - Example with p-value table across k values
   - Practical recommendations (exploratory vs. publication)
 - **Best for:** Actually running the test; implementing it in code; interpreting sensitivity tables
-- **Prerequisites:** [kNN Testing Foundations](#foundations)
+- **Prerequisites:** [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/)
 - **Time to read:** 30 minutes
 
 ---
@@ -127,7 +127,7 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
 
 ### ✅ Sensitivity Analysis Procedure
 
-**Best reference:** [NND Cluster Test - Sensitivity Analysis](#nnd) section
+**Best reference:** [NND Cluster Test](/blog/statistics/nnd_cluster_test/) — Sensitivity Analysis section
 
 **Quick procedure:**
 1. Test across k ∈ {1, 3, 5, 7, 10, 15, 20} (or appropriate range for your sample size)
@@ -144,11 +144,11 @@ A curated guide to navigate the kNN clustering hypothesis test landscape. Use th
 - **Holm-Bonferroni:** Less conservative; adjust sequentially
 - **Aggregate statistic:** Combine across k, test once
 
-See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
+See [NND Cluster Test](/blog/statistics/nnd_cluster_test/) for details and examples.
 
 ---
 
-#### **[Clustering Detection Methods](./clustering_detection_methods.md)**
+#### **[Clustering Detection Methods](/blog/statistics/clustering_detection_methods/)**
 - **What:** Comparison of different clustering detection methods (kNN, density, spectral, etc.)
 - **Key sections:**
   - Overview of 5 major approaches
@@ -161,7 +161,7 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 
 ---
 
-#### **[Earth Mover Distance](./earth_mover_distance.md)**
+#### **[Earth Mover Distance](/blog/statistics/earth_mover_distance/)**
 - **What:** Alternative distance metric for comparing point cloud distributions
 - **Best for:** Understanding EMD as an alternative to kNN; comparing different approaches
 - **Prerequisites:** Basic probability
@@ -173,7 +173,7 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 
 ### 📚 Foundational Papers
 
-#### **[Friedman-Rafsky & Schilling Deep Dive](./friedman_rafsky_schilling.md)**
+#### **[Friedman-Rafsky & Schilling Deep Dive](/blog/statistics/friedman_rafsky_schilling/)**
 - **What:** Accessible translation of two foundational papers with practical connections
 - **Key sections:**
   - **Friedman-Rafsky (1979) section:** MST-based test, why MST captures k=1 structure, power simulations for clustering alternatives
@@ -184,7 +184,7 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
   - FR79: Graph-based tests using nearest-neighbor structure have high power for clustering
   - Schilling: Power decreases monotonically with k for tight clustering; k=1 achieves power 0.89 in tight clusters (d=2)
 - **Best for:** Understanding *why* small k works; seeing historical development; getting page references to original papers
-- **Prerequisites:** [kNN Testing Foundations](#foundations)
+- **Prerequisites:** [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/)
 - **Time to read:** 60 minutes
 
 ---
@@ -195,48 +195,48 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 
 | Concept | Primary Post | Secondary Posts |
 |---------|-------------|-----------------|
-| **Effect size** | [kNN Power Analysis](#power-analysis) Part 3 | [Small k Hypothesis Testing](#hypothesis-testing) Part 6 |
-| **Statistical power** | [kNN Power Analysis](#power-analysis) | [Friedman-Rafsky & Schilling](#papers) Section 2 |
-| **Type I error** | [kNN Power Analysis](#power-analysis) Part 2 | [kNN Testing Foundations](#foundations) Part 6 |
-| **Type II error** | [kNN Power Analysis](#power-analysis) Part 2 | [NND Cluster Test](#nnd) |
-| **p-value & significance** | [kNN Testing Foundations](#foundations) Part 6 | [NND Cluster Test](#nnd) |
-| **Permutation testing** | [kNN Testing Foundations](#foundations) Part 4 | [NND Cluster Test](#nnd) |
-| **Null distribution** | [kNN Testing Foundations](#foundations) Part 4 | [NND Cluster Test](#nnd) |
-| **Sensitivity analysis** | [NND Cluster Test](#nnd) Sensitivity section | [kNN Hyperparameter Theory](#hyperparameter) Part 3 |
-| **Multiple hypothesis testing** | [NND Cluster Test](#nnd) Strategies section | [kNN Hyperparameter Theory](#hyperparameter) Part 4 |
+| **Effect size** | [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Part 3 | [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) Part 6 |
+| **Statistical power** | [kNN Power Analysis](/blog/statistics/knn_power_analysis/) | [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) Section 2 |
+| **Type I error** | [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Part 2 | [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) Part 6 |
+| **Type II error** | [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Part 2 | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **p-value & significance** | [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) Part 6 | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **Permutation testing** | [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) Part 4 | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **Null distribution** | [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) Part 4 | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) |
+| **Sensitivity analysis** | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Sensitivity section | [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 3 |
+| **Multiple hypothesis testing** | [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Strategies section | [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 4 |
 
 ---
 
 ### By Use Case
 
 #### **I'm planning a study (before collecting data)**
-1. [kNN Power Analysis](#power-analysis) — Understand power concepts
-2. [kNN Hyperparameter Theory](#hyperparameter) Part 5 — Get dimension-specific k recommendations
-3. [kNN Power Analysis](#power-analysis) Factors section — Understand what affects power for your scenario
+1. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) — Understand power concepts
+2. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 5 — Get dimension-specific k recommendations
+3. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Factors section — Understand what affects power for your scenario
 4. **Action:** Simulate data, compute power for your expected effect size, choose sample size
 
 #### **I have data and want to test clustering**
-1. [kNN Hyperparameter Theory](#hyperparameter) Part 2 — Choose k based on visual inspection
-2. [NND Cluster Test](#nnd) — Run the test
-3. [NND Cluster Test](#nnd) Sensitivity section — Validate with sensitivity analysis
+1. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 2 — Choose k based on visual inspection
+2. [NND Cluster Test](/blog/statistics/nnd_cluster_test/) — Run the test
+3. [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Sensitivity section — Validate with sensitivity analysis
 4. **Action:** Report k, p-value, effect size, power, and sensitivity table
 
 #### **I'm writing a paper**
-1. [Small k Hypothesis Testing](#hypothesis-testing) — For theoretical justification of k choice
-2. [kNN Power Analysis](#power-analysis) Practical checklist — For reporting requirements
-3. [Friedman-Rafsky & Schilling](#papers) Connections section — For literature citations
+1. [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) — For theoretical justification of k choice
+2. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Practical checklist — For reporting requirements
+3. [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) Connections section — For literature citations
 4. **Action:** Include all elements from checklist; cite appropriate papers
 
 #### **My results don't match my intuition**
-1. [kNN Hyperparameter Theory](#hyperparameter) Part 3 — Check sensitivity analysis interpretation
-2. [NND Cluster Test](#nnd) Example section — Compare your table to example
-3. [Small k Hypothesis Testing](#hypothesis-testing) Part 8 — Understand what patterns mean
+1. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 3 — Check sensitivity analysis interpretation
+2. [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Example section — Compare your table to example
+3. [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) Part 8 — Understand what patterns mean
 4. **Action:** Re-run sensitivity analysis across wider k range; visualize clusters
 
 #### **I want to understand why small k works**
-1. [Small k Hypothesis Testing](#hypothesis-testing) — The conceptual explanation
-2. [kNN Power Analysis](#power-analysis) Parts 3-4 — The mathematical foundation
-3. [Friedman-Rafsky & Schilling](#papers) — The historical evidence
+1. [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) — The conceptual explanation
+2. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Parts 3-4 — The mathematical foundation
+3. [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) — The historical evidence
 4. **Action:** You'll have complete understanding of the "small k" philosophy
 
 ---
@@ -244,21 +244,21 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 ## Recommended Reading Orders
 
 ### 🟢 **Beginner Path** (New to kNN testing)
-1. [kNN Testing Foundations](#foundations) (45 min)
-2. [NND Cluster Test](#nnd) (30 min) — Apply the test
-3. [kNN Hyperparameter Theory](#hyperparameter) Part 2 (10 min) — Choose k
-4. [kNN Power Analysis](#power-analysis) (45 min) — Understand power
+1. [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) (45 min)
+2. [NND Cluster Test](/blog/statistics/nnd_cluster_test/) (30 min) — Apply the test
+3. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 2 (10 min) — Choose k
+4. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) (45 min) — Understand power
 
 **Outcome:** You can run the test, choose k sensibly, and understand power.
 
 ---
 
 ### 🟡 **Intermediate Path** (Comfortable with basics; want depth)
-1. [kNN Testing Foundations](#foundations) (45 min)
-2. [Small k Hypothesis Testing](#hypothesis-testing) (30 min)
-3. [kNN Hyperparameter Theory](#hyperparameter) (40 min)
-4. [kNN Power Analysis](#power-analysis) (45 min)
-5. [Friedman-Rafsky & Schilling](#papers) (60 min)
+1. [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) (45 min)
+2. [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) (30 min)
+3. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) (40 min)
+4. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) (45 min)
+5. [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) (60 min)
 
 **Outcome:** You understand the theory deeply; can justify choices; can teach others.
 
@@ -266,7 +266,7 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 
 ### 🔴 **Advanced Path** (Want complete mastery)
 1. All posts in order above
-2. [Clustering Detection Methods](#methods) — Understand alternatives
+2. [Clustering Detection Methods](/blog/statistics/clustering_detection_methods/) — Understand alternatives
 3. Original papers (Friedman & Rafsky 1979, Schilling 1986)
 
 **Outcome:** Complete understanding; ready to extend theory or publish research.
@@ -274,10 +274,10 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 ---
 
 ### ⏱️ **Quick Review Path** (Refresher; already know basics)
-1. [kNN Hyperparameter Theory](#hyperparameter) Part 2 — Quick k-choice reminder
-2. [NND Cluster Test](#nnd) Sensitivity section — Quick interpretation guide
-3. [kNN Power Analysis](#power-analysis) Parts 3-4 — Power concepts
-4. [Small k Hypothesis Testing](#hypothesis-testing) Part 8 — Pattern interpretation
+1. [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 2 — Quick k-choice reminder
+2. [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Sensitivity section — Quick interpretation guide
+3. [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Parts 3-4 — Power concepts
+4. [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) Part 8 — Pattern interpretation
 
 **Time:** 15 minutes. **Outcome:** You're refreshed and ready to apply.
 
@@ -293,7 +293,7 @@ See [NND Cluster Test](./nnd_cluster_test.md) for details and examples.
 | **d=3** | k=3, 5 | k=7, 10 | k=⌈m^(2/5)⌉ |
 | **d≥4** | k≤5 | k=⌈m^(1/3)⌉ | k=⌈m^(1/3)⌉ |
 
-See [kNN Hyperparameter Theory](#hyperparameter) Part 5 for full details.
+See [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 5 for full details.
 
 ---
 
@@ -306,7 +306,7 @@ See [kNN Hyperparameter Theory](#hyperparameter) Part 5 for full details.
 | Spike at k=7,10 | Diffuse clustering | Use k=7–15 |
 | All p > 0.05 | No clustering | Test inconclusive |
 
-See [NND Cluster Test](#nnd) for detailed example with numbers.
+See [NND Cluster Test](/blog/statistics/nnd_cluster_test/) for detailed example with numbers.
 
 ---
 
@@ -320,44 +320,44 @@ See [NND Cluster Test](#nnd) for detailed example with numbers.
 | 10 | 0.58 | 0.35 |
 | 15 | 0.45 | 0.38 |
 
-**Source:** Schilling (1986), Tables 1-2. See [Friedman-Rafsky & Schilling](#papers) for details.
+**Source:** Schilling (1986), Tables 1-2. See [Friedman-Rafsky & Schilling](/blog/statistics/friedman_rafsky_schilling/) for details.
 
 ---
 
 ## FAQ Shortcuts
 
 ### **Q: Why does small k have higher power for clustering?**
-**A:** See [Small k Hypothesis Testing](#hypothesis-testing) Part 4. **TL;DR:** Small k concentrates all neighbors within tight clusters, creating strong signal; large k averages across cluster boundary, diluting signal.
+**A:** See [Small k Hypothesis Testing](/blog/statistics/small_k_hypothesis_testing/) Part 4. **TL;DR:** Small k concentrates all neighbors within tight clusters, creating strong signal; large k averages across cluster boundary, diluting signal.
 
 ---
 
 ### **Q: How do I choose k for my data?**
-**A:** See [kNN Hyperparameter Theory](#hyperparameter) Part 2. **Quick version:** Visualize, estimate cluster tightness, use decision tree.
+**A:** See [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 2. **Quick version:** Visualize, estimate cluster tightness, use decision tree.
 
 ---
 
 ### **Q: What does sensitivity analysis mean?**
-**A:** See [NND Cluster Test](#nnd) Sensitivity section. **Quick version:** Run test at k=1,3,5,7,10,15; robust clustering shows plateau of significance.
+**A:** See [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Sensitivity section. **Quick version:** Run test at k=1,3,5,7,10,15; robust clustering shows plateau of significance.
 
 ---
 
 ### **Q: What's the difference between effect size and power?**
-**A:** See [kNN Power Analysis](#power-analysis) Parts 3-4. **Quick version:** Effect size = strength of signal; power = probability of detecting that signal.
+**A:** See [kNN Power Analysis](/blog/statistics/knn_power_analysis/) Parts 3-4. **Quick version:** Effect size = strength of signal; power = probability of detecting that signal.
 
 ---
 
 ### **Q: How many permutations should I use?**
-**A:** See [kNN Testing Foundations](#foundations) Part 4. **Quick version:** 9999 or 10000 for publication; 999 for quick checks.
+**A:** See [kNN Testing Foundations](/blog/statistics/knn_testing_foundations/) Part 4. **Quick version:** 9999 or 10000 for publication; 999 for quick checks.
 
 ---
 
 ### **Q: Should I correct for multiple k values?**
-**A:** See [NND Cluster Test](#nnd) Strategies section. **Quick version:** Use Holm-Bonferroni for final analysis; don't correct for exploratory sensitivity analysis.
+**A:** See [NND Cluster Test](/blog/statistics/nnd_cluster_test/) Strategies section. **Quick version:** Use Holm-Bonferroni for final analysis; don't correct for exploratory sensitivity analysis.
 
 ---
 
 ### **Q: Is my clustering result real or noise?**
-**A:** See [kNN Hyperparameter Theory](#hyperparameter) Part 3. **Quick version:** Robust signal = significant across multiple k; fragile signal = significant at only one k.
+**A:** See [kNN Hyperparameter Theory](/blog/statistics/knn_hyperparameter_theory/) Part 3. **Quick version:** Robust signal = significant across multiple k; fragile signal = significant at only one k.
 
 ---
 
