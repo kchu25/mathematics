@@ -8,7 +8,7 @@
 
 When you use $k=3$ or $k=5$ in your clustering test, there's a lingering unease: *Is this just a heuristic? Am I cherry-picking the $k$ that makes my data look significant?*
 
-The previous post grounded $k=\sqrt{m}$ in **KDE theory**, which felt principled. But you correctly identified a problem: **KDE is not what we're doing.** We're not estimating density everywhere; we're asking **"Do these two groups differ in their inter-point geometry?"**
+The [previous post](/blog/statistics/knn_hyperparameter_theory.md) grounded $k=\sqrt{m}$ in **KDE theory**, which felt principled. But you correctly identified a problem: **KDE is not what we're doing.** We're not estimating density everywhere; we're asking **"Do these two groups differ in their inter-point geometry?"**
 
 This is a **two-sample hypothesis testing problem**, and it has its own theory. And here's the good news: **there are solid theoretical reasons to use small $k$ — but they're different from KDE reasoning.**
 
