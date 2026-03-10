@@ -60,6 +60,20 @@ This is a question about **local density** or **spatial concentration** — not 
 
 ## The Solution: Nearest-Neighbor Distance (NND) Analysis
 
+### The Hypotheses
+
+**Null Hypothesis ($H_0$):**
+> The subpopulation is just a random size-$m$ sample from the pooled set of background + subpopulation points. There is no special clustering — the subpopulation points are no closer together than any other random subset of the same size would be.
+
+**Alternative Hypothesis ($H_a$):**
+> The subpopulation points are **spatially concentrated** — they are significantly closer to each other (smaller inter-point distances) than what you would observe if you randomly selected $m$ points from the pooled data.
+
+In other words:
+- $H_0$: The subpopulation **is just a random grab-bag** from the background. The observed clustering is consistent with random chance.
+- $H_a$: The subpopulation **is a genuine cluster** — an unusually dense clump of points that would be rare under random labeling.
+
+**Which tail?** This is a **one-tailed test** (lower tail). We reject $H_0$ if the observed mean k-NN distance is *unusually small*, not if it's large. A p-value of 0.001 means: "there's a 0.1% chance of observing such tight clustering if the subpopulation were just a random sample."
+
 ### The idea
 
 For every point in your subpopulation, measure how far away its nearest neighbors are (within the full dataset or within the background). If the subpopulation is genuinely clustered, these distances will be **systematically smaller** than what you'd see for a random sample of background points.
@@ -92,7 +106,59 @@ There is no closed-form null distribution for $\bar{D}_k^{\mathcal{S}}$, so we u
 
 $$p = \frac{\#\{b : \bar{D}_k^{(b)} \leq \bar{D}_k^{\mathcal{S}}\}}{B}$$
 
-If $p < \alpha$, the subpopulation is significantly more tightly packed than random chance.
+### Interpreting the p-value: What does it really mean?
+
+The p-value is:
+
+> **The probability of observing a mean k-NN distance as small as (or smaller than) the observed one, *if the null hypothesis were true*.**
+
+Breaking this down:
+
+**What the null hypothesis says:** Your subpopulation is just a random $m$-sized subset of the pooled data. Under this assumption, repeated random relabelings would produce a distribution of mean k-NN distances.
+
+**What the p-value quantifies:** How extreme (how small) your observed $\bar{D}_k^{\mathcal{S}}$ is *relative to that null distribution*.
+
+**What it does NOT mean:**
+- ❌ It is NOT "the probability that the subpopulation is clustered"
+- ❌ It is NOT "the probability that $H_0$ is true"
+- ❌ It is NOT "the probability that $H_a$ is false"
+
+### Concrete interpretations
+
+| p-value | Interpretation |
+|---------|---|
+| $p = 0.001$ | If the subpopulation were random, only **0.1% of relabelings** would produce clustering this tight. Very strong evidence against $H_0$. |
+| $p = 0.01$ | Only **1% of random relabelings** would be this tight. Strong evidence. |
+| $p = 0.05$ | **5% of random relabelings** would be this tight. Marginal evidence (threshold for $\alpha = 0.05$). |
+| $p = 0.15$ | **15% of random relabelings** are this tight. Not rare under randomness — cannot reject $H_0$. |
+| $p = 0.50$ | **50% of random relabelings** are equally tight or tighter. The observed clustering is completely ordinary under randomness. |
+
+### Example: interpreting a p-value
+
+Suppose your subpopulation has $\bar{D}_5 = 2.3$ (mean 5-NN distance = 2.3 units). You run 10,000 permutations and find that 47 of them have $\bar{D}_5 \leq 2.3$.
+
+$$p = \frac{47}{10{,}000} = 0.0047$$
+
+**What to report:** "The subpopulation exhibits significantly higher local density than expected under random labeling ($k=5$, mean NND $= 2.3$, $p = 0.0047$)."
+
+**What this means:** If you randomly selected 5,000 different size-$m$ subsets of the pooled data and computed their mean 5-NN distances, only about 47 of them would be as tight or tighter than your subpopulation. This is rare — less than 0.5% — so it's unlikely the subpopulation is just a random grab-bag.
+
+### Common misinterpretations to avoid
+
+**Mistake 1:** "p = 0.001 means there's a 99.9% chance the subpopulation is clustered."
+
+**Correct:** p = 0.001 means there's a 0.1% chance of observing this tight clustering *if the subpopulation were random*. The actual probability the subpopulation is clustered depends on your prior belief (Bayesian reasoning), not just the p-value.
+
+**Mistake 2:** "p = 0.10 means the result is not significant, so there's no clustering."
+
+**Correct:** p = 0.10 means "10% of random relabelings produce this tightness or tighter." This is not extremely rare, but it's also not common. Whether you consider this "significant" depends on your chosen threshold $\alpha$. Convention is $\alpha = 0.05$, but $\alpha = 0.10$ is sometimes used for exploratory work.
+
+**Mistake 3:** "A larger p-value means the effect is smaller."
+
+**Partially correct, but backwards causality:** A larger p-value means the observed clustering is *less extreme under the null*. This could be because:
+- The clustering is genuinely weak (true effect size is small).
+- Your sample size is small (low power to detect clustering).
+- You chose an unfortunate $k$ (not the right scale for the clustering).
 
 ---
 
@@ -134,26 +200,96 @@ For typical sizes ($N \sim 10^4$, $m \sim 10^2$–$10^3$, $k \leq 10$, $B = 10{,
 
 **Yes — but it's a well-understood one**, and you can make it principled:
 
-**Why it doesn't matter much in practice.** If the subpopulation is genuinely clustered, the signal shows up across a wide range of $k$. A cluster that is significant at $k = 5$ will almost always also be significant at $k = 3$ and $k = 10$. The choice of $k$ controls the *scale* of the clustering you're looking for:
+**Why it doesn't matter much in practice.** If the subpopulation is genuinely clustered, the signal shows up across a wide range of $k$. A cluster that is significant at $k = 5$ will almost always also be significant at $k = 3$ and $k = 10$. The choice of $k$ controls the *scale* of the clustering you're looking for — essentially the size of the neighborhood you examine.
 
-| $k$ | What it measures |
-|-----|-----------------|
-| $k = 1$ | Extremely local: are nearest pairs closer than expected? Noisy, sensitive to duplicates. |
-| $k = 3$–$10$ | Local neighborhood density: the sweet spot for most cluster detection tasks. |
-| $k \sim \sqrt{m}$ | Meso-scale: are medium-sized neighborhoods denser? More stable, less powerful for tight clusters. |
-| $k \sim m$ | Approaching global: starts to resemble a variance test. Defeats the purpose. |
+| $k$ | What it measures | Pros | Cons |
+|-----|-----------------|------|------|
+| $k = 1$ | Nearest-pair tightness: are consecutive neighbors close? | Captures very tight, local clustering | Noisy, sensitive to duplicates and gaps |
+| $k = 3$–$5$ | **Tight local neighborhoods** | Sweet spot; detects well-defined clusters | May miss looser clusters |
+| $k = 5$–$10$ | Neighborhood density | Robust, interpretable scale | Less sensitive to very tight clusters |
+| $k = \sqrt{m}$ | Meso-scale neighborhoods | Good default if $m$ is known; stable | Somewhat arbitrary |
+| $k = \log(m)$ or $k = m/10$ | Increasingly global | More stable estimates | Less sensitive to fine structure |
+| $k \geq m/2$ | Approaching global distribution | Starts to measure overall spread | Defeats the purpose; becomes a variance test |
 
-**Principled strategies:**
+### Should you use a single $k$ or multiple?
 
-1. **Report multiple $k$ values.** Run the test at $k = 1, 3, 5, 10, 20$ and show that significance is stable. If it is, the result is robust; if it appears only at one specific $k$, be cautious.
+**Short answer: Start with a single well-chosen $k$, then validate with multiple $k$.**
 
-2. **Aggregate across $k$.** Use the mean NND averaged over several values of $k$:
+**The strategy:**
+
+1. **Choose a primary $k$.**
+   - **If you have no prior knowledge:** Use $k = 5$ (the "default" that works well for most datasets).
+   - **If $m$ (subpopulation size) is small** ($m < 50$): Use $k = 3$ or $k = \lceil \sqrt{m} \rceil$.
+   - **If $m$ is large** ($m > 500$): You can use $k = 10$ or even $k = 20$ (more stable).
+   - **If you expect very tight clusters:** Use $k = 1$ or $k = 3$ (more sensitive).
+   - **If you expect loose, diffuse clusters:** Use $k = 10$ or $k = 15$ (less noisy).
+
+2. **Report your primary result.**
+   - State $k$ clearly: "We tested clustering using the 5-th nearest neighbor distance ($k=5$)."
+   - Report the observed $\bar{D}_k$, p-value, and effect size.
+
+3. **Validate with a sensitivity plot.**
+   - Run the test across $k \in \{1, 3, 5, 7, 10, 15, 20\}$ (or a subset).
+   - Plot p-value vs. $k$.
+   - **Interpretation:**
+     - **Robust signal:** p-value stays significant across a wide range of $k$ → true clustering detected.
+     - **Fragile signal:** p-value is significant at only one or two $k$ values → may be noise or an artifact of that specific scale.
+     - **Scale-dependent:** Different $k$ ranges show different significance → suggests clustering at a specific scale (e.g., tight within $k=3$ but not within $k=20$).
+
+### Example: Sensitivity analysis
+
+Suppose you run your NND test at multiple $k$ and get:
+
+| $k$ | $\bar{D}_k$ | p-value | Conclusion |
+|-----|-------------|---------|-----------|
+| 1 | 0.5 | 0.003 | ✅ Significant |
+| 3 | 1.2 | 0.001 | ✅ Significant |
+| 5 | 2.3 | 0.002 | ✅ Significant |
+| 7 | 3.1 | 0.008 | ✅ Significant |
+| 10 | 4.5 | 0.062 | ⚠️ Borderline |
+| 15 | 6.2 | 0.25 | ❌ Not significant |
+
+**Interpretation:** Your subpopulation is **genuinely clustered** at a local scale. The tight clustering is detectable with $k=1$–$10$, but at larger neighborhood sizes ($k=15$), the effect disappears. This suggests the cluster is relatively compact, not a large diffuse group.
+
+### Principled multi-$k$ strategies
+
+If you want to be more formal about using multiple $k$ values:
+
+**Strategy 1: Report multiple $k$ values with Bonferroni correction**
+If you run tests at $K$ different values of $k$, you inflate the Type I error rate. Correct by using significance threshold $\alpha / K$ instead of $\alpha$. For example, if testing at $K = 5$ different $k$ values, use $\alpha = 0.05 / 5 = 0.01$ per test. This is conservative (loses power) but controls false positives.
+
+**Strategy 2: Aggregate statistic across $k$**
+Combine information from multiple $k$ values using a single aggregated statistic:
 $$\bar{D}_{\text{agg}} = \frac{1}{K} \sum_{k=1}^{K} \bar{D}_k^{\mathcal{S}}$$
-This smooths over the scale choice and is still valid under permutation testing.
+Run the permutation test *once* on $\bar{D}_{\text{agg}}$ instead of multiple times. This smooths over scale choice and avoids multiple-testing inflation. Still valid under permutation testing.
 
-3. **Use a data-driven rule.** A common default is $k = \lceil \sqrt{m} \rceil$ or $k = \lceil \log(m) \rceil$. Neither is "optimal" — they're conventions, like using $\alpha = 0.05$. The permutation framework is valid for any fixed $k$ chosen *before* looking at the results.
+**Strategy 3: Use Holm-Bonferroni (less conservative)**
+If you run tests at $K$ different $k$ values, sort the p-values from smallest to largest: $p_1 \leq p_2 \leq \cdots \leq p_K$. Use thresholds:
+- Test 1 (smallest p): Reject if $p_1 < \alpha / K$
+- Test 2: Reject if $p_2 < \alpha / (K-1)$
+- ...
+- Test K: Reject if $p_K < \alpha$
 
-4. **Check the sensitivity plot.** Plot p-value vs. $k$. A genuinely clustered subpopulation will show significance across a plateau of $k$ values. A spurious signal will be fragile — significant at one $k$, not at the next.
+This is less conservative than Bonferroni and is the recommended approach.
+
+### Practical recommendations
+
+**For exploratory work (e.g., your case):**
+- Start with $k = 5$ as default.
+- Always plot sensitivity across $k = \{1, 3, 5, 7, 10, 15, 20\}$ or similar.
+- If you see a plateau of significance, report it as a robust finding.
+- If significance is scattered, be cautious — the clustering may be weak or scale-dependent.
+
+**For a final publication:**
+- Choose $k$ *before* running the analysis (not by p-hacking).
+- Report your pre-specified $k$ prominently.
+- Include a sensitivity table (p-value vs. $k$) in supplementary material.
+- If you reported multiple $k$, use Holm-Bonferroni correction or the aggregate statistic.
+
+**For a single-shot analysis:**
+- Use $k = \lceil \sqrt{m} \rceil$ if $m$ is known (standard rule).
+- Or use $k = 5$ if you have no information (robust default).
+- The permutation test is valid for any fixed $k$ chosen before seeing the results.
 
 ---
 
