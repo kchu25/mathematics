@@ -98,18 +98,18 @@ If you compute:
 
 Define the **effect size** in a two-sample test:
 
-$$\delta = \frac{\mu_{\text{obs}} - \mu_{\text{null}}}{\sigma_{\text{null}}}$$
+$$\delta = \frac{\mu_{\text{null}} - \mu_{\text{obs}}}{\sigma_{\text{null}}}$$
 
 where:
 - $\mu_{\text{obs}}$ = observed mean k-NN distance for your actual subpopulation
 - $\mu_{\text{null}}$ = mean k-NN distance under $H_0$ (average over permutations)
 - $\sigma_{\text{null}}$ = standard deviation under $H_0$
 
-**Power is monotonically increasing in $|\delta|$.** A larger effect size means higher power.
+**Power is monotonically increasing in $\delta$.** A larger effect size means higher power.
 
 Now, for tight clusters:
-- **Small $k$:** The separation between $\mu_{\text{obs}}$ (small) and $\mu_{\text{null}}$ (large) is **huge**. Effect size is large.
-- **Large $k$:** The separation is smaller because you're averaging in neighbors from outside the cluster. Effect size is reduced.
+- **Small $k$:** Points in the subpopulation are very close, so $\mu_{\text{obs}}$ is small. Meanwhile, $\mu_{\text{null}}$ is large (random points are spread out). The numerator $\mu_{\text{null}} - \mu_{\text{obs}}$ is **huge and positive**. Effect size is large.
+- **Large $k$:** You average in neighbors from outside the cluster, so $\mu_{\text{obs}}$ increases. The separation $\mu_{\text{null}} - \mu_{\text{obs}}$ shrinks. Effect size is reduced.
 
 **Therefore, for tight clusters, small $k$ gives larger effect size → higher power.**
 
