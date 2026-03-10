@@ -157,6 +157,57 @@ This smooths over the scale choice and is still valid under permutation testing.
 
 ---
 
+## About Distance Metrics
+
+**Important clarification:** The NND test itself is not a distance metric. Rather, it *uses* a distance metric to compute nearest neighbors, and the **mean k-NN distance** is the test statistic.
+
+### Which distance metric should you use?
+
+By default, `NearestNeighbors.jl` uses **Euclidean distance** ($L_2$ norm):
+
+$$d_{\text{Euclidean}}(x, y) = \sqrt{\sum_{j=1}^{d} (x_j - y_j)^2}$$
+
+Other common choices:
+
+| Metric | Formula | When to use |
+|--------|---------|-----------|
+| Euclidean ($L_2$) | $\sqrt{\sum (x_j - y_j)^2}$ | Default; most interpretable; assumes isotropic geometry |
+| Manhattan ($L_1$) | $\sum \|x_j - y_j\|$ | City-block distances; robust to outliers; useful for mixed variable types |
+| Chebyshev ($L_\infty$) | $\max_j \|x_j - y_j\|$ | Max component distance; useful for bounded domains |
+| Mahalanobis | $(x-y)^T \Sigma^{-1} (x-y)$ | Accounts for correlations; requires inverting covariance matrix |
+| Cosine | $1 - \frac{x \cdot y}{\|x\| \|y\|}$ | Angle-based; useful for high-dim normalized data or text |
+
+**Your choice of distance metric matters for interpretation:**
+- If your data is **standardized** (zero mean, unit variance per dimension), Euclidean is fine.
+- If you have **mixed scales** (e.g., one axis is 0–100, another is 0–1), **standardize first** or use Manhattan distance.
+- If you have **directional data** (angles, normalized vectors), use cosine distance.
+- If dimensions are **correlated**, Mahalanobis accounts for this — but is more complex.
+
+### Specifying the distance metric in Julia
+
+```julia
+using NearestNeighbors, Distances
+
+# Euclidean (default)
+tree = KDTree(data)
+
+# Manhattan
+tree = KDTree(data, Cityblock())
+
+# Chebyshev
+tree = KDTree(data, Chebyshev())
+
+# Mahalanobis (requires precomputed inverse covariance)
+using LinearAlgebra, Statistics
+Σ = cov(data')  # covariance matrix
+M = Mahalanobis(inv(Σ))
+tree = KDTree(data, M)
+```
+
+**Recommendation for your use case:** If your data is in 1D (just labels) or 2D (pred vs. true), Euclidean is fine. If you standardize each axis first (as shown in the code), the distance is directly interpretable as "standard deviations away."
+
+---
+
 ## Julia Implementation
 
 ```julia
