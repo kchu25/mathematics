@@ -76,7 +76,7 @@ In other words:
 
 ### The idea
 
-For every point in your subpopulation, measure how far away its nearest neighbors are (within the full dataset or within the background). If the subpopulation is genuinely clustered, these distances will be **systematically smaller** than what you'd see for a random sample of background points.
+For every point in your subpopulation, measure how far away its nearest neighbors are in the full dataset (background + subpopulation combined). If the subpopulation is genuinely clustered, these distances will be **systematically smaller** than what you'd see for a random sample of the same size — because a clustered point's nearest neighbors are other cluster members right next to it.
 
 ### Formally
 
@@ -86,13 +86,15 @@ For each $x_i \in \mathcal{S}$, define the $k$-th nearest-neighbor distance:
 
 $$d_k(x_i) = \text{the distance from } x_i \text{ to its } k\text{-th nearest neighbor in } \mathcal{B} \cup \mathcal{S}$$
 
+Note: we search the **full pooled dataset**, not just within $\mathcal{S}$. This might seem odd — why include the background? The reason is that the permutation test requires it. We build a single KD-tree over all $m + n$ points, and both the observed statistic and every permutation query the **same tree**. The signal still comes from clustering: if $\mathcal{S}$ is tightly clustered, most of a subpopulation point's $k$ nearest neighbors (in the full pool) will be *other subpopulation points*, making $d_k(x_i)$ small. For a random subset, neighbors would be scattered across both groups, giving larger distances.
+
 The test statistic is:
 
 $$\bar{D}_k^{\mathcal{S}} = \frac{1}{m} \sum_{i=1}^{m} d_k(x_i)$$
 
 the mean $k$-NN distance for the subpopulation.
 
-**If the subpopulation is clustered**, its points are near each other, so $\bar{D}_k^{\mathcal{S}}$ will be small — smaller than you'd expect for a random size-$m$ grab from the background.
+**If the subpopulation is clustered**, its points are near each other, so $\bar{D}_k^{\mathcal{S}}$ will be small — smaller than you'd expect for a random size-$m$ grab from the pool.
 
 ### Getting a p-value: the permutation test
 
