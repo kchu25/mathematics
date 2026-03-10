@@ -44,6 +44,14 @@ Your eyes see something these tests cannot: the points are **close to each other
 
 ---
 
+## Sources and Theoretical Foundation
+
+This test is based on ideas from **Schilling (1986)**, "Multivariate Two-Sample Tests Based on Nearest Neighbors," which explicitly constructs hypothesis tests using $k$-nearest neighbor distances and analyzes their statistical power. The permutation test approach combined with $k$-NN distances is a natural extension of Schilling's framework for the single-subpopulation clustering detection problem.
+
+For deeper theory on why small $k$ values are optimal for detecting clustering, see the [Friedman-Rafsky & Schilling Deep Dive post](/blog/statistics/friedman_rafsky_schilling/).
+
+---
+
 ## The Right Question
 
 The tests above all ask variations of:
@@ -86,7 +94,7 @@ For each $x_i \in \mathcal{S}$, define the $k$-th nearest-neighbor distance:
 
 $$d_k(x_i) = \text{the distance from } x_i \text{ to its } k\text{-th nearest neighbor in } \mathcal{B} \cup \mathcal{S}$$
 
-Note: we search the **full pooled dataset**, not just within $\mathcal{S}$. This might seem odd — why include the background? The reason is that the permutation test requires it. We build a single KD-tree over all $m + n$ points, and both the observed statistic and every permutation query the **same tree**. The signal still comes from clustering: if $\mathcal{S}$ is tightly clustered, most of a subpopulation point's $k$ nearest neighbors (in the full pool) will be *other subpopulation points*, making $d_k(x_i)$ small. For a random subset, neighbors would be scattered across both groups, giving larger distances.
+Note: we search the **full pooled dataset**, not just within $\mathcal{S}$. This might seem odd — why include the background? The reason is that the permutation test requires it. We build a single KD-tree over all $m + n$ points, and both the observed statistic and every permutation query the **same tree**. The signal still comes from clustering: if $\mathcal{S}$ is tightly clustered, most of a subpopulation point $x_i$'s $k$ nearest neighbors (in the full pool) will be *other subpopulation points* (close by, still in the cluster), making $d_k(x_i)$ small. For a random subset of size $m$ drawn uniformly from the pool, the $m$ points are scattered across both $\mathcal{S}$ and $\mathcal{B}$, so their neighbors are a mix of cluster members and background points — giving larger mean distances. This difference in means is what the test detects.
 
 The test statistic is:
 
@@ -519,6 +527,39 @@ You have a subpopulation and a background. Are they different?
 ## How to Write This Up
 
 > "Standard univariate tests (Mann-Whitney U, KS, Levene's) failed to distinguish the subpopulation from the background ($p > 0.10$ in all cases), indicating that the marginal label distributions are compatible. However, contour plots in the ($y_{\text{pred}}$, $y_{\text{true}}$) plane revealed that the subpopulation occupies a visibly denser region. To quantify this, we performed a nearest-neighbor distance analysis: for each subpopulation point, we computed the distance to its $k$-th nearest neighbor in the full dataset, and compared the mean NND against a null distribution from $10{,}000$ random permutations. The subpopulation exhibited significantly lower mean NND than expected ($k=5$, $p < 0.001$), and this result was stable across $k \in \{3, 5, 7, 10, 15\}$. This confirms that the subpopulation forms a spatially concentrated cluster that global distributional tests are structurally unable to detect."
+
+---
+
+## References and Further Reading
+
+**Primary source (foundational):**
+- **Schilling, M. F. (1986).** "Multivariate Two-Sample Tests Based on Nearest Neighbors." *Journal of the American Statistical Association*, 81(395), 799–806.
+  - Directly applies k-NN statistics to detect differences between samples
+  - Derives null distribution and asymptotic normality
+  - Power analysis showing small $k$ (especially $k=1$) optimal for tight clustering
+  - Tables and simulations for various dimensions and sample sizes
+
+**Modern reference (easier to digest):**
+- **Arlot, S., Blanchard, G., & Lerasle, M. (2016).** "Statistical Properties of Kernel k-NN for Large $p$ Small $n$ via Effective Dimension." *Electronic Journal of Statistics*, 10(2), 3138–3185.
+  - Modern treatment of k-NN methods with practical guidance
+  - **Key insight for your use case (p. 3150):** "For fixed $k$ and finite $n$, power can be very high; the asymptotic requirement $k \to \infty$ is conservative and often unnecessary in practice."
+  - Discusses why small fixed $k$ (like $k=3$–$10$) works well without requiring large sample sizes
+  - Available open-access at https://projecteuclid.org/euclid.ejs/1476307668
+
+**Related foundational work:**
+- **Friedman, J. H., & Rafsky, L. C. (1979).** "Multivariate Generalizations of the Wald-Wolfowitz and Smirnov Two-Sample Tests." *Annals of Statistics*, 7(4), 697–717.
+  - Develops MST-based test (closely related to k-NN, especially $k=1$)
+  - Asymptotic theory for multivariate two-sample testing
+  - See [our summary post](/blog/statistics/friedman_rafsky_schilling/) for readable walkthrough
+
+**Permutation testing framework:**
+- **Good, P. (2005).** *Permutation, Parametric, and Bootstrap Tests of Hypotheses*. Springer, 3rd edition.
+  - Comprehensive reference on permutation tests
+  - Justifies why permutation test p-values are exactly uniform under the null
+  - Power analysis and resampling methods
+
+**Related methods for local density testing:**
+- See [Local Density vs. Marginal Distribution post](/blog/statistics/local_density_vs_marginal/) for comparison with other local geometry tests (energy test, MMD, classifier-based approaches)
 
 ---
 
