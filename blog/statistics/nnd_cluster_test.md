@@ -300,6 +300,470 @@ If you run tests at $K$ different $k$ values, sort the p-values from smallest to
 
 This is less conservative than Bonferroni and is the recommended approach.
 
+### **When you have MANY subpopulations: The Practical Workflow**
+
+Your situation is important and common: you have **many different subpopulations** to test, and you want an efficient, reproducible pipeline. Here's the right approach:
+
+**Key insight:** You choose $k$ *once* (not per subpopulation), then justify that choice with sensitivity analysis on a *subset* of your data.
+
+**The recommended workflow:**
+
+1. **Pick a single, standard $k$ for all your subpopulations.**
+   - Use $k = 5$ (most robust default).
+   - Or use $k = \lceil \sqrt{m} \rceil$ if subpopulation sizes vary wildly ($m$ ranges from 10 to 10,000).
+   - **Document this choice** in your methods section.
+
+2. **Run the full permutation test at that single $k$ for all subpopulations.**
+   - Report the observed $\bar{D}_k$, p-value, and effect size for each.
+   - This is fast (one $k$-NN query per subpopulation, one permutation loop).
+
+3. **Validate on a representative subset (e.g., 5–10 subpopulations).**
+   - For a *subset* of your subpopulations (pick ones that show varying p-values: some highly significant, some borderline, some not significant), run the full sensitivity analysis across multiple $k$ values.
+   - Plot p-value vs. $k$ for each and verify that:
+     - **Truly clustered subpops** show a plateau of significance across $k$.
+     - **Borderline subpops** show fragile signals (significance at only one or two $k$).
+     - **Non-clustered subpops** consistently show non-significant results across $k$.
+   - If the pattern is consistent, you can trust your choice of $k$ for the remaining subpopulations.
+
+4. **Report the validation.**
+   - In your methods: "We chose $k = 5$ as the primary test parameter based on the rule-of-thumb $k = \sqrt{m}$ and validated this choice via sensitivity analysis on a representative subset (Fig. S2)."
+   - Include the sensitivity plots in supplementary material — readers will see your validation.
+
+### Multi-dataset scenarios: Do you need separate $k$ for each dataset?
+
+**Short answer: No. Choose a single $k$ *across all datasets*, then validate on a subset that *spans datasets*.**
+
+Your situation is even more structured than "many subpopulations within one dataset." You likely have:
+- Dataset 1: subpops 1a, 1b, 1c, ... (each with sample sizes $m_{1a}, m_{1b}, \ldots$)
+- Dataset 2: subpops 2a, 2b, 2c, ... (each with sample sizes $m_{2a}, m_{2b}, \ldots$)
+- Dataset 3, 4, ...
+
+**The recommendation:**
+
+**Choose a single, global $k$ for all datasets and all subpopulations.**
+
+| Approach | Use this if | Avoid if |
+|----------|-----------|----------|
+| **Single global $k$ (e.g., $k=5$)** | All datasets share similar structure (same dimensionality, same scale, similar subpop sizes). Most common case. | Datasets differ wildly in size, dimensionality, or noise. |
+| **Adaptive $k$ by dataset** | Datasets differ in dimensionality or subpopulation size ranges (e.g., Dataset 1 has large subpops $m \sim 1000$, Dataset 2 has tiny subpops $m \sim 20$). | You want a simple, reproducible protocol. |
+| **Adaptive $k$ per dataset type** | You have distinct data types (e.g., genomics data vs. imaging data), each with natural differences in structure. | Datasets are the same type. |
+
+### Recommended workflow for multi-dataset analysis
+
+**Step 1: Pick a global default $k$.**
+- Use $k = 5$ (safe, data-agnostic default).
+- *Do not* use $k = \sqrt{m}$ if $m$ varies wildly across datasets — $\sqrt{20}$ is very different from $\sqrt{5000}$.
+
+**Step 2: Run NND test at that single $k$ for all subpopulations across all datasets.**
+```
+For dataset in [Dataset 1, Dataset 2, ...]:
+  For subpopulation in dataset:
+    Run nnd_permutation_test(subpop, background; k=5, B=10_000)
+    Record: (dataset, subpop, mNND, p_value)
+```
+This is fast — one permutation loop per subpopulation, regardless of dataset.
+
+**Step 3: Validate on a representative subset that spans datasets.**
+
+Pick validation subpopulations strategically:
+- **One highly significant subpop from each dataset** (e.g., the one with the smallest p-value)
+- **One borderline subpop from each dataset** (e.g., closest to p = 0.05)
+- **One non-significant subpop from each dataset** (e.g., the one with the largest p-value)
+
+This gives you 3 × (number of datasets) validation points — usually 9–15 subpopulations total.
+
+For each validation subpop, run sensitivity across $k \in \{1, 3, 5, 7, 10, 15, 20\}$.
+
+**Step 4: Examine the patterns across datasets.**
+
+Create a sensitivity plot matrix: rows = datasets, columns = $k$ values, cells = p-values for the three representative subpops per dataset.
+
+**What to look for:**
+- **Consistent pattern across datasets:** If highly significant subpops show plateaus of significance across $k$ in Dataset 1, Dataset 2, and Dataset 3, you can trust $k=5$ for all.
+- **Dataset-specific effects:** If Dataset 1 shows robust signals at all $k$ but Dataset 2 only shows significance at $k < 5$, this suggests Dataset 2 has tighter clusters (smaller neighborhoods capture the signal better). Still okay to use a single $k=5$, but you should note the observation.
+- **One dataset outlier:** If Datasets 1–3 show consistent patterns but Dataset 4 is totally different, investigate Dataset 4 separately. It may have different structure (different dimensionality? Different noise level?).
+
+### Why a single global $k$ still works
+
+Even if datasets differ slightly in structure, a single $k$ is justified because:
+
+1. **$k$ is a relative scale parameter.** A tight cluster is tight *within* its dataset's noise and dimensionality. The NND test compares the observed clustering to random relabelings from *that same dataset*, so the baseline automatically adapts.
+
+2. **The permutation test is internal to each dataset.** When you test Dataset 2's subpopulation with $k=5$, you're sampling random size-$m$ subsets from Dataset 2's pool. The random baseline is Dataset 2-specific, so $k=5$ is implicitly adapted to Dataset 2's geometry.
+
+3. **Sensitivity validation across datasets catches problems.** If $k=5$ works well for 9 of your 10 datasets but fails for one, the sensitivity plot will show it immediately.
+
+### When to use adaptive $k$ per dataset
+
+Use **dataset-specific $k$** only if:
+
+**Dimensionality varies significantly:**
+- If Dataset 1 is 1D (just labels) but Dataset 2 is 50D (high-dimensional expression profiles), you might use $k = 3$ for the 1D data (very local) and $k = 10$ for the 50D data (needs larger neighborhoods in high dimensions to avoid sparsity).
+- **Note:** This is only necessary if you see qualitatively different signal patterns in validation. Many analysts use global $k=5$ anyway and it works fine.
+
+**Subpopulation size ranges differ extremely:**
+- If Dataset 1 has subpops with $m \in [10, 20]$ and Dataset 2 has $m \in [1000, 5000]$, you might use $k = 2$ for Dataset 1 and $k = 10$ for Dataset 2.
+- But honestly: just use $k = 5$ for both and check sensitivity. A single global $k$ is simpler and more transparent.
+
+**True caveat: Avoid p-hacking.**
+If you use different $k$ for different datasets, you must:
+- **Pre-specify** the $k$ choice per dataset *before* running any tests.
+- **Document** and justify the choice (e.g., "Dataset 1 is 1D, so we used $k=3$ to capture local clustering; Dataset 2 is 50D, so we used $k=10$ to avoid sparsity").
+- **Correct for multiple testing** if you used multiple $k$ values per dataset (Holm-Bonferroni or FDR).
+
+### Julia code for multi-dataset analysis
+
+```julia
+using DataFrames, NearestNeighbors, Statistics, Random
+
+"""
+    nnd_multidataset_test(datasets_dict; k=5, B=10_000)
+
+Run NND test across multiple datasets, each with multiple subpopulations.
+
+Input:
+- `datasets_dict`: Dict mapping dataset name → Dict mapping subpop name → (subpop_matrix, bg_matrix)
+  Example: 
+    datasets = Dict(
+      "dataset1" => Dict("subpop_1a" => (sub_1a, bg_1),
+                         "subpop_1b" => (sub_1b, bg_1)),
+      "dataset2" => Dict("subpop_2a" => (sub_2a, bg_2),
+                         "subpop_2b" => (sub_2b, bg_2)),
+    )
+- `k`: Fixed neighborhood parameter (single $k$ for all datasets)
+- `B`: Number of permutations
+
+Returns a DataFrame with columns: dataset, subpop_name, size_m, observed_mNND, p_value, significant
+"""
+function nnd_multidataset_test(datasets_dict; k=5, B=10_000)
+    results = []
+    
+    for (dataset_name, subpops_in_dataset) in datasets_dict
+        for (subpop_name, (subpop, background)) in subpops_in_dataset
+            m = size(subpop, 2)
+            result = nnd_permutation_test(subpop, background; k=k, B=B)
+            
+            push!(results, (
+                dataset = dataset_name,
+                subpop_name = subpop_name,
+                size_m = m,
+                mNND = result.obs_mNND,
+                p_value = result.p_value,
+                significant = result.p_value < 0.05
+            ))
+        end
+    end
+    
+    return DataFrame(results)
+end
+
+# Example usage
+datasets = Dict(
+    "dataset1" => Dict(
+        "subpop_1a" => (randn(1, 100) .+ 0.0, randn(1, 5000) .* 10),  # tight
+        "subpop_1b" => (randn(1, 150) .* 3.0, randn(1, 5000) .* 10),  # loose
+    ),
+    "dataset2" => Dict(
+        "subpop_2a" => (randn(1, 50) .* 0.2, randn(1, 3000) .* 5),    # tiny, tight
+        "subpop_2b" => (randn(1, 200) .* 2.0, randn(1, 3000) .* 5),   # larger, loose
+    ),
+)
+
+results = nnd_multidataset_test(datasets; k=5, B=10_000)
+
+println("\n=== NND Results Across Multiple Datasets ===")
+println(results)
+
+# Summary by dataset
+println("\n=== Summary by Dataset ===")
+by_dataset = groupby(results, :dataset)
+for (dataset, group) in pairs(by_dataset)
+    n_sig = count(group.significant)
+    n_total = nrow(group)
+    println("$dataset: $n_sig / $n_total significant")
+end
+
+# FDR correction across all subpopulations
+println("\n=== FDR-adjusted results ===")
+p_vals = results.p_value
+sorted_p, sorted_idx = sort(p_vals, alg=QuickSort, rev=false, init=1:length(p_vals))
+threshold = 0.05
+fdr_threshold = maximum(
+    [sorted_p[i] for i in 1:length(sorted_p) if sorted_p[i] <= threshold * i / length(sorted_p)];
+    init = 0.0
+)
+results.significant_fdr = results.p_value .<= fdr_threshold
+n_sig_fdr = count(results.significant_fdr)
+println("FDR-adjusted significant: $n_sig_fdr / $(nrow(results))")
+
+# Save results
+using CSV
+CSV.write("nnd_results.csv", results)
+```
+
+**Analyze the results:**
+
+```julia
+# Histogram of p-values (should be mostly uniform if null is true)
+using Plots
+histogram(results.p_value, bins=20, label="p-values", xlabel="p-value", ylabel="Count")
+savefig("pvalue_histogram.png")
+
+# p-value vs. subpop size
+scatter(results.size_m, results.p_value, xlabel="Subpopulation size (m)", 
+        ylabel="p-value", label="", group=results.dataset)
+savefig("pvalue_vs_size.png")
+# Interpretation: If smaller subpops have systematically higher p-values, 
+# this is expected (low power with small samples). If the pattern is different 
+# across datasets, investigate why.
+
+# Effect size (mNND) vs. p-value
+scatter(results.mNND, results.p_value, xlabel="Observed mean NND", 
+        ylabel="p-value", label="", group=results.dataset)
+savefig("effect_size.png")
+# Should show a clear inverse relationship: smaller mNND → smaller p-value
+```
+
+### Sensitivity validation across datasets
+
+Once you've run all subpopulations with $k=5$, pick validation subpops strategically:
+
+```julia
+# For each dataset, pick 3 subpops: most significant, borderline, least significant
+validation_subpops = []
+for dataset_name in unique(results.dataset)
+    dataset_results = filter(r -> r.dataset == dataset_name, results)
+    
+    # Most significant (smallest p)
+    idx_sig = argmin(dataset_results.p_value)
+    push!(validation_subpops, (dataset_results.dataset[idx_sig], dataset_results.subpop_name[idx_sig]))
+    
+    # Borderline (closest to 0.05)
+    idx_mid = argmin(abs.(dataset_results.p_value .- 0.05))
+    push!(validation_subpops, (dataset_results.dataset[idx_mid], dataset_results.subpop_name[idx_mid]))
+    
+    # Least significant (largest p)
+    idx_nonsig = argmax(dataset_results.p_value)
+    push!(validation_subpops, (dataset_results.dataset[idx_nonsig], dataset_results.subpop_name[idx_nonsig]))
+end
+
+# Run sensitivity on validation subset
+validation_results = []
+ks = [1, 3, 5, 7, 10, 15, 20]
+
+for (dataset_name, subpop_name) in validation_subpops
+    subpop, background = datasets_dict[dataset_name][subpop_name]
+    
+    pvals_by_k = Float64[]
+    for k_test in ks
+        r = nnd_permutation_test(subpop, background; k=k_test, B=5_000)  # fewer perms for speed
+        push!(pvals_by_k, r.p_value)
+    end
+    
+    for (k, p) in zip(ks, pvals_by_k)
+        push!(validation_results, (dataset=dataset_name, subpop=subpop_name, k=k, p=p))
+    end
+end
+
+# Pivot and visualize
+using DataFrames, Plots
+val_df = DataFrame(validation_results)
+val_pivot = unstack(val_df, :k, :p)  # Pivot so columns are k values
+
+# Plot: one line per subpop, x-axis = k, y-axis = p-value
+for row in eachrow(val_pivot)
+    plot!(ks, Matrix(row[3:end])[1,:], label="$(row.dataset) / $(row.subpop)", 
+          xlabel="k", ylabel="p-value", xscale=:log)
+end
+plot!(yaxis=:log)  # Log scale on p-value axis to see small p-values
+savefig("sensitivity_across_datasets.png")
+```
+
+**Interpretation of sensitivity plots across datasets:**
+- **All datasets show same pattern:** p-values high and consistent across $k$ for non-clustered subpops, low and consistent for truly clustered ones. → Trust $k=5$ globally.
+- **One dataset behaves differently:** E.g., Dataset 3 shows significance only at $k \leq 5$ but not at $k \geq 10$. → Note this and consider whether Dataset 3 has structurally different clustering (tighter clusters).
+- **Highly fragmented:** Different subpops show significance at completely different $k$ ranges. → Consider using dataset-specific or subpop-specific $k$ (but then correct for multiple testing).
+
+### Summary: Multi-dataset decision table
+
+| Your situation | Recommendation | Reasoning |
+|---|---|---|
+| All datasets are same type (e.g., 5 genomics experiments) | **Single global $k=5$** | Datasets share structure; simpler pipeline; fewer degrees of freedom. |
+| Datasets differ in dimensionality (1D vs. 50D) | Single global $k=5$ (validate on subset across dims) | NND adapts internally via permutation. Still use global $k$; just check sensitivity. |
+| Datasets differ in noise/scale massively | **Single global $k=5$ with dataset-specific visualization** | Same $k$, but plot results separately per dataset. Interpret effect sizes in dataset context. |
+| A few datasets are qualitatively different types | **Separate $k$ per dataset type** | E.g., genomics uses $k=5$, imaging uses $k=10$. Pre-specify and justify. Apply Holm-Bonferroni. |
+| You have 50+ datasets | **Single global $k=5$; validate on 3–5 datasets spanning the range** | Too expensive to validate all. Pick datasets at the extremes (smallest/largest subpops, most/least noise) to validate. |
+
+---
+
+### Why this works
+
+The key insight: **the NND test is self-normalizing within each dataset.** When you run:
+```
+nnd_permutation_test(subpop_from_dataset1, background_from_dataset1; k=5)
+```
+you automatically query a KD-tree built from *dataset1's* pool of points. The null distribution is built by randomly relabeling dataset1's points. So even if dataset1 has wildly different noise or scale than dataset2, the test internally normalizes to that dataset's geometry.
+
+A single global $k$ is therefore robust across datasets **as long as $k$ is chosen to be reasonable for all of them** (e.g., $k=5$ works for $m \in [20, 5000]$, but $k=5$ might be bad if you also have $m \in [3, 5]$ subpopulations).
+
+---
+
+### Checklist for multi-dataset analysis
+
+- ☐ Choose single $k$ (default: $k=5$) before running any tests
+- ☐ Run full NND test at that $k$ for all subpopulations across all datasets
+- ☐ Pick validation subset: 3 subpops per dataset (sig/borderline/nonsig)
+- ☐ Run sensitivity on validation subset across $k \in \{1, 3, 5, 7, 10, 15, 20\}$
+- ☐ Check sensitivity plots: do patterns hold across datasets?
+- ☐ Apply FDR correction (Benjamini-Hochberg) across all p-values
+- ☐ Report: chosen $k$, validation findings, FDR-adjusted results
+- ☐ In supplementary: sensitivity plots, histogram of all p-values, effect size distributions by dataset
+
+---
+
+4. **Report the validation.**
+   - In your methods: "We chose $k = 5$ as the primary test parameter based on the rule-of-thumb $k = \sqrt{m}$ and validated this choice via sensitivity analysis on a representative subset (Fig. S2)."
+   - Include the sensitivity plots in supplementary material — readers will see your validation.
+
+### Why this workflow?
+
+**Computational efficiency:** Running sensitivity on all subpopulations is expensive. If you have 1,000 subpopulations and you test 7 different $k$ values per subpopulation, you'd run 7,000 permutation tests. Running a single $k$ for all (1,000 tests) + sensitivity on 10 subpopulations (70 tests) = 1,070 tests — a 6.5× speedup.
+
+**Statistical robustness:** A single, pre-specified $k$ avoids the appearance of p-hacking. If you select $k$ separately for each subpopulation to maximize significance, you inflate Type I errors.
+
+**Interpretability:** Readers understand a single choice of $k$ across all tests. It's reproducible and transparent.
+
+### What to watch for across many tests
+
+**Multiple testing correction:** If you're testing many subpopulations, you're running many independent hypothesis tests. Your overall Type I error rate (the probability of at least one false positive across all tests) increases. Options:
+
+- **Bonferroni:** Use threshold $\alpha = 0.05 / N_{\text{subpop}}$ per subpopulation. Very conservative.
+- **FDR (False Discovery Rate):** Use `adjust_pvalues(..., method="BH")` (Benjamini-Hochberg) on your p-value vector. Controls the expected proportion of false discoveries among those you call significant. Less conservative and recommended for exploratory work.
+- **No correction:** If you're doing discovery-driven analysis (not a formal hypothesis test), you may report all p-values and let readers interpret. Common in genomics.
+
+**Consistency checks across subpopulations:**
+- Compute a histogram of p-values across all your subpopulations. 
+- A truly null hypothesis should produce a *uniform* distribution of p-values (flat from 0 to 1).
+- If you see an excess of very small p-values, you're detecting real clustering.
+- If you see a deficit of small p-values (mostly clustered near 1.0), the null hypothesis is probably correct for most subpopulations.
+
+**Effect size variations:**
+- Compute the mean observed $\bar{D}_k$ across all subpopulations.
+- Rank subpopulations by their $\bar{D}_k$ (tighter clusters have smaller $\bar{D}_k$).
+- This gives you a sense of the *range* of clustering strengths in your data — some subpops may be very tight, others loose.
+
+### Julia code for many subpopulations
+
+```julia
+using NearestNeighbors, Statistics, Random
+
+"""
+    nnd_batch_test(subpops_dict, background; k=5, B=10_000)
+
+Run NND test for multiple subpopulations at once.
+
+Input:
+- `subpops_dict`: Dict mapping subpop name to matrix (d × m)
+- `background`: Background data (d × n)
+- `k`: Fixed neighborhood parameter
+- `B`: Number of permutations
+
+Returns a DataFrame with columns: subpop_name, observed_mNND, p_value
+"""
+function nnd_batch_test(subpops_dict, background; k=5, B=10_000)
+    results = []
+    
+    for (name, subpop) in subpops_dict
+        result = nnd_permutation_test(subpop, background; k=k, B=B)
+        push!(results, (
+            subpop_name = name,
+            mNND = result.obs_mNND,
+            p_value = result.p_value,
+            significant = result.p_value < 0.05
+        ))
+    end
+    
+    # Convert to DataFrame for easy viewing and export
+    return DataFrame(results)
+end
+
+# Example usage
+bg = randn(1, 5000)  # 1D background
+subpops = Dict(
+    "subpop_1" => randn(1, 100) .+ 0.0,   # centered, tight
+    "subpop_2" => randn(1, 150) .* 2.0,   # wide
+    "subpop_3" => randn(1, 80) .* 0.3 .+ 5.0,  # tight, offset
+)
+
+results = nnd_batch_test(subpops, bg; k=5, B=10_000)
+println(results)
+# Output:
+# ┌──────────────┬──────────┬──────────┬─────────────┐
+# │ subpop_name  │ mNND     │ p_value  │ significant │
+# ├──────────────┼──────────┼──────────┼─────────────┤
+# │ subpop_1     │ 2.3      │ 0.0015   │ true        │
+# │ subpop_2     │ 4.1      │ 0.4200   │ false       │
+# │ subpop_3     │ 1.8      │ 0.0001   │ true        │
+# └──────────────┴──────────┴──────────┴─────────────┘
+
+# FDR correction
+using StatsBase  # for quantile and related functions
+p_values = results.p_value
+# Benjamini-Hochberg FDR correction
+sorted_p, idx = sort(p_values, alg=QuickSort, rev=false, init=1:length(p_values))
+threshold = 0.05
+fdr_threshold = maximum(
+    [sorted_p[i] for i in 1:length(sorted_p) if sorted_p[i] <= threshold * i / length(sorted_p)];
+    init = 0.0
+)
+results.significant_fdr = results.p_value .<= fdr_threshold
+println("FDR-adjusted significant subpops: ", sum(results.significant_fdr))
+```
+
+### Sensitivity validation on a subset
+
+Once you've run all subpopulations with your chosen $k$, pick a few to validate:
+
+```julia
+# Pick 3 subpops with different significance levels
+idx_sig = argmax(results.p_value .== minimum(results.p_value[results.p_value .> 0]))  # most significant
+idx_nonsig = argmax(results.p_value)  # least significant
+idx_mid = argmax(abs.(results.p_value .- 0.05))  # closest to threshold
+
+validation_subset = [idx_sig, idx_mid, idx_nonsig]
+
+for idx in validation_subset
+    subpop_name = results.subpop_name[idx]
+    subpop = subpops_dict[subpop_name]
+    
+    # Test across multiple k
+    ks = [1, 3, 5, 7, 10, 15, 20]
+    pvals = []
+    for k_test in ks
+        r = nnd_permutation_test(subpop, bg; k=k_test, B=5_000)  # fewer perms for speed
+        push!(pvals, r.p_value)
+    end
+    
+    println("Subpop: $subpop_name")
+    for (k, p) in zip(ks, pvals)
+        println("  k=$k: p=$(round(p, digits=4))")
+    end
+    println()
+end
+```
+
+### Summary table: Choose vs. Validate
+
+| Scenario | What to do | Why |
+|----------|-----------|-----|
+| First time analyzing a new dataset type | Choose $k=5$ + validate on subset | Understand your data before scaling |
+| Replicating a previous analysis | Use the same $k$ as before | Reproducibility; no need to re-validate |
+| Running 1,000+ subpopulations | Choose single $k$; validate on 5–10 | Computational efficiency; spot-check quality |
+| Publishing a final result | Pre-specify $k$; show full sensitivity in SI | Transparency; readers trust your choice |
+| Exploratory discovery work | Try multiple $k$; use Holm-Bonferroni | Find all signals; acknowledge multiple testing |
+
+---
+
 ### Practical recommendations
 
 **For exploratory work (e.g., your case):**
