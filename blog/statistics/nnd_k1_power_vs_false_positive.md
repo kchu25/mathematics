@@ -402,43 +402,158 @@ Possible output:
 
 **But we only know this because we generated the data.**
 
-**3. The repeated-experiment approach.**
+**3. The null-test approach (what you should do with your real data).**
 
-If you can't generate synthetic data that matches your real scenario, you can still reason about false positives empirically:
+This is the most direct approach. You take your actual background data, draw random subsets from it (which are guaranteed to have no true clustering by construction), and see what p-values you get.
 
-**Run the test on your own null distribution.** Take your actual background data. Randomly draw 1,000 different size-$m$ subsets (each a random subset of the background, with no clustering by construction). For each, run the NND test at $k=1$ and $k=5$.
+**Why this matters:** If you run NND tests on 1,000 random subsets and find that 3% of them have $p < 0.05$ at $k=1$ (instead of the expected 5%), then $k=1$ is slightly conservative. If you find 12% of them have $p < 0.05$, then $k=1$ is inflated and you have a problem (possibly duplicates or boundary effects).
+
+**What to do with your own data:**
 
 ```julia
-# Empirical false positive rate calibration
-function calibrate_false_positive_rate(background; k=1, m=100, n_trials=1000, B=5_000)
+using NearestNeighbors, Statistics, Random
+
+# Your actual background data (whatever you're using as the "comparison" pool)
+background = your_background_data  # shape: d × n
+
+function nnd_permutation_test(subpop, background; k=5, B=10_000, seed=42)
+    rng = MersenneTwister(seed)
+    m = size(subpop, 2)
+    pool = hcat(subpop, background)
+    N = size(pool, 2)
+    tree = KDTree(pool)
+    
+    idxs, dists = knn(tree, subpop, k + 1, true)
+    obs_mNND = mean([d[end] for d in dists])
+    
+    null_mNNDs = zeros(B)
+    for b in 1:B
+        perm_idx = randperm(rng, N)[1:m]
+        rand_pts = pool[:, perm_idx]
+        _, dists_perm = knn(tree, rand_pts, k + 1, true)
+        null_mNNDs[b] = mean([d[end] for d in dists_perm])
+    end
+    
+    p_value = count(≤(obs_mNND), null_mNNDs) / B
+    return (; obs_mNND, null_mNNDs, p_value)
+end
+
+# === NULL TEST: Random subsets ===
+function null_distribution_test(background; k=1, m=100, n_trials=1000, B=5_000)
+    """
+    Draw n_trials random subsets from the background (guaranteed no clustering).
+    See what fraction falsely show significance.
+    """
     N = size(background, 2)
-    rejections = 0
+    p_values_k1 = Float64[]
+    p_values_k5 = Float64[]
     
     for trial in 1:n_trials
-        # Draw a random subset (no real clustering by construction)
+        # Draw a random subset from the background (this has NO true clustering by construction)
         idx = randperm(N)[1:m]
-        fake_subpop = background[:, idx]
-        fake_bg = background[:, setdiff(1:N, idx)]
+        random_subpop = background[:, idx]
+        remaining_bg = background[:, setdiff(1:N, idx)]
         
-        r = nnd_permutation_test(fake_subpop, fake_bg; k=k, B=B)
-        if r.p_value < 0.05
-            rejections += 1
+        # Test at k=1
+        r1 = nnd_permutation_test(random_subpop, remaining_bg; k=1, B=B, seed=trial)
+        push!(p_values_k1, r1.p_value)
+        
+        # Test at k=5
+        r5 = nnd_permutation_test(random_subpop, remaining_bg; k=5, B=B, seed=trial)
+        push!(p_values_k5, r5.p_value)
+        
+        if trial % 100 == 0
+            println("Completed $trial / $n_trials trials")
         end
     end
     
-    empirical_fpr = rejections / n_trials
-    return empirical_fpr
+    # Count false positives (p < 0.05)
+    fp_k1 = count(p -> p < 0.05, p_values_k1)
+    fp_k5 = count(p -> p < 0.05, p_values_k5)
+    
+    fpr_k1 = fp_k1 / n_trials
+    fpr_k5 = fp_k5 / n_trials
+    
+    println("\n=== NULL TEST RESULTS ===")
+    println("(Testing random subsets drawn from your background)")
+    println("k=1: $fp_k1 / $n_trials false positives = $(round(fpr_k1*100, digits=2))% (expected ≈ 5%)")
+    println("k=5: $fp_k5 / $n_trials false positives = $(round(fpr_k5*100, digits=2))% (expected ≈ 5%)")
+    
+    if fpr_k1 > 0.08 || fpr_k5 > 0.08
+        println("\n⚠️  WARNING: False positive rate is inflated (>8%).")
+        println("This suggests a problem with the test or your data (duplicates, boundary effects, etc.)")
+    elseif abs(fpr_k1 - 0.05) < 0.02 && abs(fpr_k5 - 0.05) < 0.02
+        println("\n✓ OK: Both k=1 and k=5 are well-calibrated (FPR ≈ 5%).")
+        println("Any disagreement between k=1 and k=5 on your real data is due to power/scale, not false positives.")
+    end
+    
+    return (; p_values_k1, p_values_k5, fpr_k1, fpr_k5)
 end
 
-# Use YOUR actual background data
-println("Empirical false positive rate:")
-println("  k=1: $(calibrate_false_positive_rate(your_background; k=1, m=100))")
-println("  k=5: $(calibrate_false_positive_rate(your_background; k=5, m=100))")
+# Run the null test on YOUR background
+null_results = null_distribution_test(background; k=1, m=100, n_trials=1000, B=5_000)
 ```
 
-If the permutation test is working correctly, both should be close to 0.05 (within sampling variation: roughly $0.05 \pm 0.014$ for 1,000 trials).
+**What you're looking for:**
 
-**If $k=1$ shows a substantially higher empirical false positive rate than 0.05**, something is wrong with your data (ties, duplicates, etc.) and you should investigate. If both are near 0.05, the test is well-calibrated and the disagreement between $k=1$ and $k=5$ is a power issue, not a false positive issue.
+The false positive rate (FPR) should be close to 5% for both $k=1$ and $k=5$. More precisely:
+- **Within 3%–7%:** Test is well-calibrated. Any p-value disagreements on your real data reflect power differences, not systematic problems.
+- **k=1: 8–15%, k=5: 5–7%:** $k=1$ is slightly inflated, but often not a big problem in practice. Your real significant findings at $k=1$ may warrant extra scrutiny.
+- **k=1: >15% or k=5: >8%:** Something is wrong. Investigate duplicates, measure precision, data entry errors, or boundary effects in your background data.
+
+**What the results tell you:**
+
+✅ **If both FPRs ≈ 5%:**  
+The test is working correctly. When your real subpopulation shows $k=1$ significant but $k=5$ not significant, this is **genuinely a power/scale issue**, not a false positive. Your clustering is fine-scale and loose. You can trust this interpretation.
+
+⚠️ **If $k=1$ has FPR > 8%:**  
+$k=1$ is inflated in your setting. This could be due to:
+- Duplicates or near-duplicates in your data
+- Boundary effects (your background has naturally dense regions)
+- Rounding/measurement precision issues
+  
+Recommendation: Use $k=3$ or $k=5$ as your primary test, and view $k=1$ results with caution.
+
+### Example workflow with your real data
+
+```julia
+# 1. Run the null test first (calibrate on your background)
+null_results = null_distribution_test(your_background; k=1, m=size(your_subpop, 2), n_trials=500, B=5_000)
+
+# 2. If the test is well-calibrated, proceed to test your real subpopulation
+result_k1 = nnd_permutation_test(your_subpop, your_background; k=1, B=10_000)
+result_k5 = nnd_permutation_test(your_subpop, your_background; k=5, B=10_000)
+
+println("Your subpopulation:")
+println("  k=1: p=$(round(result_k1.p_value, digits=4))")
+println("  k=5: p=$(round(result_k5.p_value, digits=4))")
+
+# 3. Interpret based on the null test results
+if result_k1.p_value < 0.05 && result_k5.p_value > 0.05
+    if null_results.fpr_k1 < 0.08  # well-calibrated
+        println("→ Fine-scale clustering (tight pairwise, loose at meso-scale)")
+    else
+        println("→ CAUTION: k=1 is inflated in your data. This result may be unreliable.")
+    end
+elseif result_k1.p_value < 0.05 && result_k5.p_value < 0.05
+    println("→ Multi-scale clustering (genuine tight cluster)")
+else
+    println("→ No significant clustering")
+end
+```
+
+---
+
+### Why the null test is the gold standard
+
+The null test directly answers: **"In my specific data setting, what fraction of *truly random* subsets falsely appear clustered?"**
+
+This is the most honest calibration you can do. It accounts for:
+- Your specific background distribution (not uniform, possibly heterogeneous)
+- Your specific dimensionality and sample sizes
+- Any quirks of your data (boundary effects, sparse regions, etc.)
+
+It's the empirical equivalent of "ground truth" when you don't have actual ground truth.
 
 ---
 
