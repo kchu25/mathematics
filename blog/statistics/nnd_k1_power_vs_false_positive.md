@@ -60,22 +60,40 @@ If the answer is yes ($p < 0.05$), it means: the subpopulation's points have nea
 
 But "unusually close nearest neighbors" does not necessarily imply what you intuitively mean by "clustered." Here's why:
 
-### Mechanism 1: Duplicate or near-duplicate points
+### Mechanism 1: Pairwise tightness vs. neighborhood-scale tightness (the key distinction)
 
-If even a few pairs of points in your subpopulation happen to be nearly identical (due to measurement precision, rounding, ties in the data), the 1-NN distances for those points will be essentially zero. This drags the mean 1-NN distance down dramatically.
+**IMPORTANT CLARIFICATION:** If your subpopulation is genuinely clustered (points are nearby), that's *not* a false positive. The question is whether the nearness persists at multiple scales.
 
-**Example:**
-- Subpopulation: 100 points. 5 pairs are duplicates (same value, or differ by $10^{-10}$).
-- The 10 points involved in duplicates have $d_1 \approx 0$. The other 90 points have $d_1 \approx 2.5$.
-- Mean 1-NN distance: $\frac{10 \times 0 + 90 \times 2.5}{100} = 2.25$.
-- Under permutation, random subsets are unlikely to grab these specific pairs, so their mean 1-NN distances are higher.
-- Result: $p \ll 0.05$.
+**Genuinely tight cluster (what you want to find):**
+- Points are near each other at the 1st neighbor scale
+- Points are still near each other at the 5th neighbor scale
+- Points are still near each other at the 10th neighbor scale
+- Even if you grab 10 nearest neighbors around any cluster point, most/all are still cluster members
+- $k=1$ is significant AND $k=5$ is significant AND $k=10$ is significant
 
-**Is this a false positive?** In the strict statistical sense, **no** — the subpopulation genuinely has smaller 1-NN distances than random subsets. But in the scientific sense, **you probably don't care about this.** The "clustering" is driven by a handful of duplicates, not by a coherent spatial concentration of the full subpopulation.
+**Loosely distributed subpopulation with some pairwise structure (more ambiguous):**
+- Each point has at least one or a few neighbors nearby (the point is not isolated)
+- But the neighborhood is not uniformly dense — you can't grab 5 neighbors and have them all be subpopulation members
+- Many points reach outside the subpopulation by their 5th neighbor
+- $k=1$ is significant, but $k=5$ or $k=10$ is NOT
 
-**Why $k=5$ doesn't trigger:** The 5th nearest neighbor of those duplicate points is not another duplicate — it's a regular point at normal distance. So $d_5$ for those points is not anomalously small. The signal from duplicates gets washed out.
+**Example to clarify:**
 
-**Key insight:** $k=1$ is sensitive to **pairwise coincidences**. $k=5$ requires the signal to be a **neighborhood-level** phenomenon (at least 5 nearby points, not just 1).
+```
+Genuinely tight cluster (2D):
+Points: (0, 0), (0.5, 0.5), (1, 0), (0.5, -0.5), (1.5, 1), ...
+All within a ball of radius ~2. Every point's 5 nearest neighbors are also in this region.
+→ k=1, k=3, k=5, k=10 all significant
+
+Loosely distributed with pairwise structure:
+Points: (0, 0), (0.2, 0), [gap], (5, 5), (5.3, 5), [gap], (10, 10), (10.1, 10), ...
+Pairs of nearby points, but gaps between pairs.
+→ k=1 significant (pairs are close), k=5 NOT significant (5th neighbor reaches to a different cluster region or background)
+```
+
+**Why $k=5$ is immune to the ambiguous case:** If your subpopulation is loosely scattered with a few nearby pairs, then $k=5$ requires you to find 5 nearby points clustered together. Loose distributions can't sustain this at multiple scales.
+
+**Key insight:** $k=1$ is sensitive to **pairwise proximity** (any subpopulation point has at least one or two neighbors nearby). $k=5$ requires **neighborhood-level density** (many points in a tight ball together).
 
 ### Mechanism 2: Density fluctuations (Poisson noise)
 
@@ -97,23 +115,47 @@ For $k=1$, $\text{Var}(d_1(x_i))$ is large (1-NN distances are highly variable).
 
 With $k=5$, the null distribution is tighter (lower variance), so if you cross the threshold, the effect is more robust.
 
-### Mechanism 3: A single dense region affecting a few points
+### Mechanism 3: Statistical variability at threshold
 
-Imagine your pooled data has one small region that's naturally denser (not because of your subpopulation, but because the background itself has heterogeneous density). If your subpopulation happens to contain a few points from this dense region, the 1-NN distances for those points will be small.
+Even under $H_0$ (subpopulation is a random subset), spatial point processes show natural density fluctuations — some random subsets will have slightly tighter spacing by chance.
 
-This is not "clustering of the subpopulation" in any meaningful sense — it's just "the subpopulation contains a few points from a naturally dense area."
+The 1-NN distance **has higher statistical variance** than the 5-NN distance. This is basic order statistics: averaging over more neighbors reduces variance.
 
-$k=1$ detects this easily (those few points pull the mean down). $k=5$ is more robust because it requires the *neighborhood* (5 nearest points) to all be subpopulation members or at least unusually close — not just one nearest neighbor.
+**The consequence:** The null distribution of $\bar{D}_1$ has **fatter tails** — it's more spread out. Even if $H_0$ is true, there's a higher probability that a random subset's $\bar{D}_1$ falls in the extreme tail (far left), purely by chance.
+
+For example, under $H_0$:
+- $P(\bar{D}_1 \text{ in bottom 1%}) \approx 0.01$ (by definition of extreme tails)
+- $P(\bar{D}_5 \text{ in bottom 1%}) \approx 0.01$ (same)
+
+But the spread of $\bar{D}_1$ is wider, so:
+- $\bar{D}_1 = 1.5$ might be in the bottom 1% (extreme)
+- $\bar{D}_5 = 8.0$ might be in the bottom 5% (not as extreme)
+
+When you're right at the $p=0.05$ threshold ($\bar{D}_1 \approx t_{0.05}$), you might be at the edge of being driven by random fluctuation rather than a real signal.
+
+With $k=5$, the null distribution is tighter, so crossing the threshold requires a more robust signal.
 
 ### Summary: What $k=1$ "false positives" actually are
 
 | Mechanism | What happens | Is it a false positive? | Why $k=5$ is immune |
 |-----------|-------------|------------------------|---------------------|
-| Duplicates/ties | A few point pairs are nearly identical | Statistically no, scientifically yes | 5th neighbor is not a duplicate |
-| Poisson fluctuations | Random clustering in null distribution | Yes (this is the 5% Type I error) | Null distribution is tighter; harder to cross threshold by chance |
-| Background density heterogeneity | Subpop includes points from a naturally dense region | Depends on your question | Requires neighborhood-level density, not just pairwise |
+| Pairwise vs. neighborhood tightness | Subpop has nearby point pairs, but neighborhoods are not uniformly dense | Statistically no, scientifically maybe (it's real but loose clustering) | 5th neighbor requires sustained density; loose clustering fails the test |
+| Poisson fluctuations | Random density variations in null distribution cause edge-of-threshold p-values | Yes (this is the 5% Type I error, but more likely at threshold) | Null distribution is tighter; harder to cross threshold by chance |
+| Background density heterogeneity | Subpop includes points from a naturally dense background region | Depends on your question (the proximity is real, but may not reflect subpop clustering) | Requires neighborhood-level density, not just pairwise proximity |
 
-**The honest summary:** $k=1$ has the same Type I error rate as $k=5$ (both are $\alpha$). But $k=1$'s rejections near the threshold ($p \approx 0.01$–$0.05$) are **noisier** — they are more likely to be driven by pairwise coincidences or Poisson fluctuations rather than coherent spatial concentration. $k=5$'s rejections near the threshold are **more robust** — they require a genuine neighborhood-level phenomenon.
+**The honest summary:** $k=1$ has the same Type I error rate as $k=5$ (both are $\alpha$). But $k=1$'s rejections near the threshold ($p \approx 0.01$–$0.05$) are **noisier** — they are more likely to be driven by **pairwise clustering** (each point has a nearby neighbor, but the neighborhood is not uniformly dense) or **Poisson fluctuations** rather than **coherent, multi-scale spatial concentration** (the whole subpopulation is packed tightly together at all scales). $k=5$'s rejections near the threshold are **more robust** — they require a genuine neighborhood-level phenomenon (5 nearby points all clustered together).
+
+### Clarification: "Nearby points" in clustered data vs. "spurious pairwise tightness"
+
+You correctly noted: *"My subpopulation naturally has nearby points since I am trying to get those clusters out."*
+
+**Yes, that's right.** If your subpopulation is genuinely clustered, it *will* have nearby points. This is not a false positive.
+
+The distinction is:
+- **Genuine multi-scale clustering:** Points are nearby at the pairwise scale (1-NN), AND still nearby at the neighborhood scale (5-NN), AND still nearby at the larger scale (10-NN). Your contour plots show this — the cluster is a coherent, compact blob across multiple "zoom levels."
+- **Loose clustering with pairwise structure:** Points are nearby at the pairwise scale, BUT by the time you grab the 5th neighbor, you've jumped to a different part of the subpopulation or the background. Your contour plots might show scattered clumps, not a single tight blob.
+
+When $k=1$ is significant but $k=5$ is not, you're learning: **The nearby points exist, but they don't persist across scales.** This is still real clustering, but it's loose and multi-modal rather than tight and cohesive.
 
 ---
 
