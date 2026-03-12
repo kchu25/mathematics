@@ -229,7 +229,7 @@ For typical sizes ($N \sim 10^4$, $m \sim 10^2$–$10^3$, $k \leq 10$, $B = 10{,
 
 The choice $k = \sqrt{m}$ comes from information theory and statistical learning. Here's the intuition:
 
-- **$k$ too small** (e.g., $k=1$): You're only looking at the immediate nearest neighbor. This is noisy — a single outlier or gap can dominate. Statistics from $k=1$ are unstable.
+- **$k$ too small** (e.g., $k=1$): You're only looking at the immediate nearest neighbor. This is noisy — a single outlier or gap can dominate. Statistics from $k=1$ are unstable. (But see the [detailed analysis of when $k=1$ is actually right](/blog/statistics/nnd_k1_power_vs_false_positive/) for why "noisy" ≠ "wrong.")
 - **$k$ too large** (e.g., $k=m/2$): You're averaging over half the subpopulation. This smooths out the local structure and approaches a global measure (like variance).
 - **$k = \sqrt{m}$ as a sweet spot:** This balances local precision (small $k$) against noise reduction (large $k$). 
 
