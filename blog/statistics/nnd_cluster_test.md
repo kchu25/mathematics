@@ -84,23 +84,23 @@ In other words:
 
 ### The idea
 
-For every point in your subpopulation, measure how far away its nearest neighbors are in the full dataset (background + subpopulation combined). If the subpopulation is genuinely clustered, these distances will be **systematically smaller** than what you'd see for a random sample of the same size — because a clustered point's nearest neighbors are other cluster members right next to it.
+For every point in your subpopulation, measure how far away its nearest neighbors are **among the other subpopulation points**. If the subpopulation is genuinely clustered, these within-group distances will be **systematically smaller** than what you'd see for a random sample of the same size drawn from the full population — because a clustered subpopulation's points are packed tightly together.
 
 ### Formally
 
 Let $\mathcal{S} = \{x_1, \ldots, x_m\}$ be the subpopulation and $\mathcal{B} = \{y_1, \ldots, y_n\}$ be the background, all in $\mathbb{R}^d$ (or $\mathbb{R}^1$ for your label case).
 
-For each $x_i \in \mathcal{S}$, define the $k$-th nearest-neighbor distance:
+For each $x_i \in \mathcal{S}$, define the $k$-th nearest-neighbor distance **within the subpopulation**:
 
-$$d_k(x_i) = \text{the distance from } x_i \text{ to its } k\text{-th nearest neighbor in } \mathcal{B} \cup \mathcal{S}$$
+$$d_k(x_i) = \text{the distance from } x_i \text{ to its } k\text{-th nearest neighbor in } \mathcal{S} \setminus \{x_i\}$$
 
-Note: we search the **full pooled dataset**, not just within $\mathcal{S}$. This might seem odd — why include the background? The reason is that the permutation test requires it. We build a single KD-tree over all $m + n$ points, and both the observed statistic and every permutation query the **same tree**. The signal still comes from clustering: if $\mathcal{S}$ is tightly clustered, most of a subpopulation point $x_i$'s $k$ nearest neighbors (in the full pool) will be *other subpopulation points* (close by, still in the cluster), making $d_k(x_i)$ small. For a random subset of size $m$ drawn uniformly from the pool, the $m$ points are scattered across both $\mathcal{S}$ and $\mathcal{B}$, so their neighbors are a mix of cluster members and background points — giving larger mean distances. This difference in means is what the test detects.
+Note: we search **only within $\mathcal{S}$**, not the full pooled dataset. This directly measures what we care about: how close the subpopulation's points are *to each other*. We build a KD-tree over just the $m$ subpopulation points and query it.
 
 The test statistic is:
 
 $$\bar{D}_k^{\mathcal{S}} = \frac{1}{m} \sum_{i=1}^{m} d_k(x_i)$$
 
-the mean $k$-NN distance for the subpopulation.
+the mean within-group $k$-NN distance for the subpopulation.
 
 **If the subpopulation is clustered**, its points are near each other, so $\bar{D}_k^{\mathcal{S}}$ will be small — smaller than you'd expect for a random size-$m$ grab from the pool.
 
@@ -108,9 +108,9 @@ the mean $k$-NN distance for the subpopulation.
 
 There is no closed-form null distribution for $\bar{D}_k^{\mathcal{S}}$, so we use a **permutation test**:
 
-1. Pool all $m + n$ points together.
-2. Randomly draw $m$ points (same size as the subpopulation).
-3. Compute $\bar{D}_k$ for this random subset.
+1. Pool all $m + n$ points together: $\mathcal{P} = \mathcal{S} \cup \mathcal{B}$.
+2. Randomly draw $m$ points from $\mathcal{P}$ (same size as the subpopulation).
+3. Compute the mean within-group $k$-NN distance $\bar{D}_k$ for this random subset (i.e., build a KD-tree from just those $m$ points and measure how close they are to each other).
 4. Repeat $B$ times (e.g., $B = 10{,}000$) to build a null distribution.
 5. The p-value is:
 
@@ -124,7 +124,7 @@ The p-value is:
 
 Breaking this down:
 
-**What the null hypothesis says:** Your subpopulation is just a random $m$-sized subset of the pooled data. Under this assumption, repeated random relabelings would produce a distribution of mean k-NN distances.
+**What the null hypothesis says:** Your subpopulation is just a random $m$-sized subset of the pooled data. Under this assumption, repeated random draws of $m$ points would produce a distribution of mean within-group k-NN distances.
 
 **What the p-value quantifies:** How extreme (how small) your observed $\bar{D}_k^{\mathcal{S}}$ is *relative to that null distribution*.
 
@@ -176,12 +176,12 @@ $$p = \frac{47}{10{,}000} = 0.0047$$
 
 Consider again: subpopulation in $[40, 60]$, background in $[0, 100]$.
 
-- A random subset of size $m$ from the background will have points scattered across $[0, 100]$, so their nearest-neighbor distances will be large (on average $\sim 100/m$).
-- The subpopulation has all $m$ points in a band of width 20, so nearest-neighbor distances are $\sim 20/m$ — much smaller.
+- A random subset of size $m$ drawn from the full population will have points scattered across $[0, 100]$, so their **within-group** nearest-neighbor distances will be large (on average $\sim 100/m$).
+- The subpopulation has all $m$ points in a band of width 20, so its within-group nearest-neighbor distances are $\sim 20/m$ — much smaller.
 
-The permutation test catches this because it compares the subpopulation's NND to what you'd get by randomly labeling $m$ background points as "subpopulation." A genuinely clustered subset will have smaller NND than virtually all permutations.
+The permutation test catches this because it compares the subpopulation's within-group NND to what you'd get from random $m$-sized subsets drawn from the full population. Each random subset's points are scattered across $[0, 100]$, so their within-group distances are large. A genuinely clustered subset will have smaller within-group NND than virtually all permutations.
 
-**Why global tests missed it:** Global tests compare *distributional summaries* (mean, variance, CDF shape). NND compares *inter-point geometry* — it asks whether the points are close to *each other*, not whether they come from a different marginal distribution.
+**Why global tests missed it:** Global tests compare *distributional summaries* (mean, variance, CDF shape). NND compares *within-group inter-point geometry* — it asks whether the points are close to *each other*, not whether they come from a different marginal distribution.
 
 ---
 
@@ -189,15 +189,15 @@ The permutation test catches this because it compares the subpopulation's NND to
 
 ### 1. Is this computationally feasible?
 
-**Yes.** The dominant cost is building a spatial index and querying it.
+**Yes.** The dominant cost is building KD-trees and querying them.
 
-- **Building a KD-tree** over $N = m + n$ points: $O(N \log N)$
-- **Querying** $k$ nearest neighbors for $m$ points: $O(m \cdot k \cdot \log N)$
-- **Permutation loop** ($B$ iterations): $O(B \cdot m \cdot k \cdot \log N)$
+- **Observed statistic:** Build a KD-tree over $m$ subpopulation points: $O(m \log m)$. Query $k$-NN for $m$ points: $O(m \cdot k \cdot \log m)$.
+- **Permutation loop** ($B$ iterations): Each iteration draws $m$ random points, builds a KD-tree over those $m$ points, and queries $k$-NN: $O(B \cdot m \cdot (\log m + k \cdot \log m))$.
+- **Total:** $O(B \cdot m \cdot k \cdot \log m)$.
 
-For typical sizes ($N \sim 10^4$, $m \sim 10^2$–$10^3$, $k \leq 10$, $B = 10{,}000$), this runs in seconds. Even for $N \sim 10^6$, KD-trees keep the per-query cost at $O(\log N)$, so the permutation test remains tractable.
+For typical sizes ($m \sim 10^2$–$10^3$, $k \leq 10$, $B = 10{,}000$), this runs in seconds. Building a KD-tree over $m$ points is fast since $m$ is typically much smaller than the full dataset.
 
-**In 1D** it's even cheaper: sort the data once ($O(N \log N)$) and find $k$-NN by scanning neighbors in the sorted array ($O(1)$ per query). The entire permutation test is $O(B \cdot m)$.
+**In 1D** it's even cheaper: sort the $m$ points once ($O(m \log m)$) and find $k$-NN by scanning neighbors in the sorted array ($O(1)$ per query). Each permutation iteration is $O(m \log m)$ for the sort.
 
 | $N$ (total points) | $m$ (subpop) | $B$ (perms) | Approximate time |
 |---|---|---|---|
@@ -602,7 +602,7 @@ The key insight: **the NND test is self-normalizing within each dataset.** When 
 ```
 nnd_permutation_test(subpop_from_dataset1, background_from_dataset1; k=5)
 ```
-you automatically query a KD-tree built from *dataset1's* pool of points. The null distribution is built by randomly relabeling dataset1's points. So even if dataset1 has wildly different noise or scale than dataset2, the test internally normalizes to that dataset's geometry.
+the null distribution is built by randomly drawing $m$ points from dataset1's pool and computing their within-group k-NN distances. So even if dataset1 has wildly different noise or scale than dataset2, the null distribution automatically adapts to that dataset's geometry.
 
 A single global $k$ is therefore robust across datasets **as long as $k$ is chosen to be reasonable for all of them** (e.g., $k=5$ works for $m \in [20, 5000]$, but $k=5$ might be bad if you also have $m \in [3, 5]$ subpopulations).
 
@@ -842,11 +842,31 @@ tree = KDTree(data, M)
 using NearestNeighbors, Statistics, Random
 
 """
+    mean_within_knn(pts, k)
+
+Compute the mean k-NN distance within a set of points.
+Builds a KD-tree from `pts` alone and measures how close
+each point is to its k-th nearest neighbor in that set.
+"""
+function mean_within_knn(pts::AbstractMatrix, k::Int)
+    tree = KDTree(pts)
+    # k+1 because each point is its own 0th neighbor
+    _, dists = knn(tree, pts, k + 1, true)
+    return mean(d[end] for d in dists)
+end
+
+"""
     nnd_permutation_test(subpop, background; k=5, B=10_000, seed=42)
 
 Test whether `subpop` points are more tightly clustered than
-expected under random labeling, using k-NN distances and a
-permutation test.
+expected under random labeling, using within-group k-NN distances
+and a permutation test.
+
+The observed statistic is the mean k-NN distance computed
+*within the subpopulation only*. The null distribution is built
+by drawing random m-sized subsets from the full population
+(subpop ∪ background) and computing their within-group k-NN
+distances.
 
 Returns (observed_mNND, null_distribution, p_value).
 """
@@ -859,24 +879,18 @@ function nnd_permutation_test(
 )
     rng = MersenneTwister(seed)
     m = size(subpop, 2)
-    pool = hcat(subpop, background)  # d × (m+n)
+    pool = hcat(subpop, background)  # d × (m+n)  (used only as sampling frame)
     N = size(pool, 2)
 
-    # Build a single KD-tree over the entire pool
-    tree = KDTree(pool)
+    # Observed: mean within-group k-NN distance for the subpopulation
+    obs_mNND = mean_within_knn(subpop, k)
 
-    # Observed: mean k-NN distance for the subpopulation
-    # Use k+1 because each point's 0th neighbor is itself
-    idxs, dists = knn(tree, subpop, k + 1, true)
-    obs_mNND = mean([d[end] for d in dists])
-
-    # Null distribution: random subsets of size m
+    # Null distribution: random subsets of size m, each with their own within-group distances
     null_mNNDs = zeros(B)
     for b in 1:B
         perm_idx = randperm(rng, N)[1:m]
         rand_pts = pool[:, perm_idx]
-        _, dists_perm = knn(tree, rand_pts, k + 1, true)
-        null_mNNDs[b] = mean([d[end] for d in dists_perm])
+        null_mNNDs[b] = mean_within_knn(rand_pts, k)
     end
 
     p_value = count(≤(obs_mNND), null_mNNDs) / B
@@ -990,7 +1004,7 @@ You have a subpopulation and a background. Are they different?
 
 ## How to Write This Up
 
-> "Standard univariate tests (Mann-Whitney U, KS, Levene's) failed to distinguish the subpopulation from the background ($p > 0.10$ in all cases), indicating that the marginal label distributions are compatible. However, contour plots in the ($y_{\text{pred}}$, $y_{\text{true}}$) plane revealed that the subpopulation occupies a visibly denser region. To quantify this, we performed a nearest-neighbor distance analysis: for each subpopulation point, we computed the distance to its $k$-th nearest neighbor in the full dataset, and compared the mean NND against a null distribution from $10{,}000$ random permutations. The subpopulation exhibited significantly lower mean NND than expected ($k=5$, $p < 0.001$), and this result was stable across $k \in \{3, 5, 7, 10, 15\}$. This confirms that the subpopulation forms a spatially concentrated cluster that global distributional tests are structurally unable to detect."
+> "Standard univariate tests (Mann-Whitney U, KS, Levene's) failed to distinguish the subpopulation from the background ($p > 0.10$ in all cases), indicating that the marginal label distributions are compatible. However, contour plots in the ($y_{\text{pred}}$, $y_{\text{true}}$) plane revealed that the subpopulation occupies a visibly denser region. To quantify this, we performed a nearest-neighbor distance analysis: for each subpopulation point, we computed the distance to its $k$-th nearest neighbor *within the subpopulation*, and compared the mean within-group NND against a null distribution from $10{,}000$ random permutations (each permutation draws a random $m$-sized subset from the full population and computes its within-group NND). The subpopulation exhibited significantly lower mean within-group NND than expected ($k=5$, $p < 0.001$), and this result was stable across $k \in \{3, 5, 7, 10, 15\}$. This confirms that the subpopulation forms a spatially concentrated cluster that global distributional tests are structurally unable to detect."
 
 ---
 
@@ -1031,6 +1045,6 @@ You have a subpopulation and a background. Are they different?
 
 1. **Global tests (U, KS, variance, EMD) compare distributions.** If your subpopulation is a tight cluster *inside* the background's support, the marginal distributions can look compatible — these tests have no power.
 2. **Clustering is an inter-point property**, not a distributional property. You need a test that measures whether points are *close to each other*, not whether they come from a different CDF.
-3. **NND + permutation testing** directly asks "are these points closer together than random?" It is non-parametric, assumption-free, works in any dimension, and is computationally cheap (KD-trees keep it fast).
+3. **NND + permutation testing** directly asks "are these points closer to each other than random?" It is non-parametric, assumption-free, works in any dimension, and is computationally cheap (KD-trees keep it fast). The test compares within-group k-NN distances of the subpopulation against what random subsets produce.
 4. **The choice of $k$ is a heuristic, but a manageable one.** Report results across a range of $k$. A genuine cluster produces a plateau of significance. A fragile signal at one specific $k$ is suspect.
 5. **For 2D data** (the predict-vs-label plane where you see the contour differences), run NND directly in 2D — this captures exactly the geometric structure your eyes detect.

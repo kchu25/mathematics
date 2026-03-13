@@ -421,31 +421,160 @@ Example: Background scattered in $[0, 100]$, subpopulation scattered in $[40, 60
 
 ### Method 1: k-Nearest Neighbor Distance (Simple & Non-Parametric)
 
-For each point, compute distance to $k$-th nearest neighbor. Compare distributions.
+For each point in the subpopulation, compute distance to its $k$-th nearest neighbor **within the subpopulation itself**. Then compare against random subsets drawn from the full population (subpop + background), where each random subset's within-group k-NN distances are computed the same way.
 
-**Code sketch (1D):**
+**Toy example: Why within-group distances work**
+
+Let's compare two scenarios:
+
+**Scenario A: Real clustering (tight subpopulation)**
 ```julia
-# Subpopulation and background as 1D arrays
-sub = [4.0, 4.2, 4.5, 5.0, 5.5, 5.8, 6.0]
-bg = [0:10...]  # spread across 0-10
+# Background: scattered uniformly across [0, 100]
+bg = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
-# Pool all points
-pool = vcat(sub, bg)
+# Subpopulation: tight cluster around 50
+sub_real = [49.0, 49.2, 49.5, 50.0, 50.5, 50.8, 51.0]
 
-# For each subpop point, find distance to 5th nearest neighbor
-sub_nnd = [knn_distance(x, pool, k=5) for x in sub]
-# Result: sub_nnd ≈ [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3] (all close)
+# Compute 5-NN distances WITHIN the subpopulation only
+# For point 50.0 in subpop:
+# - Its neighbors within sub_real: [50.5, 49.5, 50.8, 49.2, 51.0, 49.0]
+# - 5th nearest neighbor within sub_real: 51.0 (distance = 1.0)
+# All points are within 2 units of each other.
 
-# For each bg point, find distance to 5th nearest neighbor
-bg_nnd = [knn_distance(y, pool, k=5) for y in bg]
-# Result: bg_nnd ≈ [1, 1, 1, ..., 1] (all far apart)
+mean_within_knn_subpop = 1.2  # ≈ very small (TIGHT)
 
-# Compare
-mean(sub_nnd)  # ≈ 0.3 (tight)
-mean(bg_nnd)   # ≈ 1.0 (sparse)
+# Now for each permutation, draw 7 random points from the full population
+# (subpop ∪ background) and compute THEIR within-group 5-NN distances:
+pool = vcat(sub_real, bg)  # all 18 points
+random_subset = [10, 40, 70, 90, 0, 60, 20]  # 7 random draws from pool
+# These are scattered across [0, 100]
+# 5th nearest neighbor within this subset: ≈ 40 units away
+
+mean_within_knn_random = 42.0  # ≈ very large (SCATTERED)
+
+# Result: Subpopulation's within-group distances are MUCH smaller than random.
+# TEST IS SIGNIFICANT. ✓ CORRECT
 ```
 
-**Interpretation:** The subpopulation has **significantly smaller k-NN distances**, indicating **higher local density**.
+**Scenario B: Random subpopulation (null hypothesis)**
+```julia
+# Same background
+bg = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
+# Subpopulation: random 7 points drawn from background
+sub_random = [10, 40, 60, 20, 80, 70, 30]  # random sample
+
+# Compute 5-NN distances WITHIN the random subpop only
+# For point 40 in sub_random:
+# - Its neighbors within sub_random: [30, 60, 20, 70, 10, 80]
+# - 5th nearest neighbor within sub_random: distance = 40
+# These points are spread across [10, 80].
+
+mean_within_knn_subpop = 38.0  # large (SCATTERED)
+
+# For each permutation, draw 7 random points from the full population:
+random_subset = [0, 50, 90, 30, 100, 40, 70]  # another random draw
+# Also scattered across [0, 100].
+mean_within_knn_random = 42.0  # similarly large
+
+# Result: Random subpopulation's within-group distances are the SAME as
+# other random subsets. TEST IS NOT SIGNIFICANT. ✓ CORRECT
+```
+
+**Key insight:** The test compares the subpopulation's within-group tightness against random subsets' within-group tightness:
+- **Real clustering:** Subpop points are close *to each other* (small within-group k-NN distances) → SIGNIFICANT
+- **Random subpop:** Random points are spread out *relative to each other* (large within-group k-NN distances, same as other random subsets) → NOT SIGNIFICANT
+
+This is the most natural framing: you're directly measuring whether the subpopulation's points are unusually close to one another.
+
+**Code sketch (1D with Julia):**
+```julia
+using NearestNeighbors, Statistics
+
+# Background: scattered uniformly
+bg = collect(0:10:100)  # [0, 10, 20, ..., 100]
+
+# Real clustering
+sub_real = [49.0, 49.2, 49.5, 50.0, 50.5, 50.8, 51.0]
+
+# Random subpop (null)
+sub_random = [10, 40, 60, 20, 80, 70, 30]
+
+# Function to compute mean within-group k-NN distance
+function mean_within_knn(subpop; k=5)
+    pts = reshape(subpop, 1, :)  # reshape to d×n for KDTree
+    tree = KDTree(pts)
+    
+    # For each point in subpop, find distance to k-th nearest neighbor
+    # k+1 because the first neighbor is the point itself
+    idxs, dists = knn(tree, pts, k+1, true)
+    
+    mean_dist = mean([d[k+1] for d in dists])
+    return mean_dist
+end
+
+# Compare
+real_dist = mean_within_knn(sub_real)    # ≈ 1.2  (TIGHT — 7 points in a 2-unit range)
+random_dist = mean_within_knn(sub_random) # ≈ 38   (SCATTERED — 7 points across [10, 80])
+
+println("Real clustering: mean within-group 5-NN distance = $real_dist")
+println("Random subpop:   mean within-group 5-NN distance = $random_dist")
+# Output:
+# Real clustering: mean within-group 5-NN distance ≈ 1.2  (TIGHT)
+# Random subpop:   mean within-group 5-NN distance ≈ 38   (SCATTERED)
+```
+
+**Interpretation:** Within-group k-NN distances directly measure how tightly packed the points are. Real clusters have small within-group distances. Random subsets have large within-group distances. The permutation test compares these: draw random $m$-sized subsets from the full population, compute their within-group distances, and see if the subpopulation's distances are unusually small.
+
+**Important: Does the size of the random subpopulation matter?**
+
+You might think: "If I pick a bigger random subpop (say, 100 points instead of 7), won't it be more likely to accidentally form clusters, making the test more significant?"
+
+**No.** Here's why:
+
+Suppose your full population has 100 points spread uniformly in $[0, 100]$.
+
+**Case 1: Random subpop of size 7**
+- 7 random points from the population: on average spread out
+- Their within-group 5-NN distances: $\approx 50$ (the spacing between 7 random points in $[0, 100]$)
+- Test result: NOT significant (other random 7-point subsets look the same) ✓
+
+**Case 2: Random subpop of size 50**
+- 50 random points from the population: STILL spread out
+- Their within-group 5-NN distances: $\approx 10$ (closer because more points within the same $[0, 100]$ range)
+- But null distribution *also* has within-group 5-NN distances $\approx 10$ (other random 50-point subsets have the same density!)
+- Test result: NOT significant (still looks like other random subsets) ✓
+
+**Case 3: Random subpop of size 100 (entire population)**
+- All 100 points as the "subpop"
+- Their within-group 5-NN distances: $\approx 5$ (tighter because there are 100 points)
+- But every permutation also draws all 100 points, so every null draw is identical.
+- Test result: NOT significant (by definition) ✓
+
+**Why bigger size doesn't make random subsets more significant:**
+
+The key insight: **the within-group k-NN distance scales with the density of the subset, but so does every null permutation.** When you draw a random subset of size 50, its within-group distances are smaller than a random subset of size 7 — but the null distribution is also built from random subsets of size 50. The comparison is always apples-to-apples.
+
+**What DOES make a null test more likely to trigger (falsely)?**
+
+**Small sample sizes with unlucky random draws:**
+
+If you draw a random subpop of size 7, sometimes by pure chance, a few of those 7 points will be close together (Poisson fluctuation). With $n=7$, this is more noticeable than with $n=100$.
+
+**Example:**
+```julia
+# Random draw 1: unlucky clustering
+sub_random_1 = [5, 6, 7, 50, 80, 20, 95]  # points 5,6,7 are close by chance
+mean_5nn = mean_within_knn(sub_random_1)  # might be smaller due to the 5-6-7 clump
+
+# Random draw 2: evenly scattered
+sub_random_2 = [5, 25, 45, 65, 85, 15, 95]  # well-spread
+mean_5nn = mean_within_knn(sub_random_2)  # larger
+```
+
+But this is just **noise** — the permutation test accounts for it. If you run 10,000 random draws, about 5% will cross the significance threshold purely by chance (this is the 5% Type I error rate), not because of the size.
+
+**Bottom line:** Size of the random null subpopulation doesn't systematically make it more significant. The test is calibrated correctly for any size because both the observed statistic and the null distribution use the same subset size. Real clustering shows up because the subpopulation's within-group distances are *abnormally small* compared to random subsets of the same size.
 
 ### Method 2: Kernel Density Estimation (Smooth & Interpretable)
 
@@ -511,7 +640,7 @@ In practice, you should report **both**:
 
 ### Example Report
 
-> "The subpopulation and background have similar marginal distributions on the predicted value $\hat{y}$ (U-test, $p = 0.18$), both centered at 50 and spanning $[0, 100]$. However, their spatial distributions differ dramatically: subpopulation points cluster in a $10 \times 10$ region ([45, 55]²) with mean pairwise distance of 0.5, while background points are scattered across [0, 100]² with mean pairwise distance of 10. A permutation test on k-NN distances confirms this clustering is highly significant ($k=5$, mean NND: sub = 0.4 vs. bg = 2.1, $p < 0.001$). The subpopulation exhibits ~25× higher local density than the background, despite indistinguishable marginal distributions."
+> "The subpopulation and background have similar marginal distributions on the predicted value $\hat{y}$ (U-test, $p = 0.18$), both centered at 50 and spanning $[0, 100]$. However, their spatial distributions differ dramatically: subpopulation points cluster in a $10 \times 10$ region ([45, 55]²) with mean within-group pairwise distance of 0.5, while random subsets of the same size drawn from the full population have mean within-group pairwise distance of 10. A permutation test on within-group k-NN distances confirms this clustering is highly significant ($k=5$, mean within-group NND: sub = 0.4 vs. null = 2.1, $p < 0.001$). The subpopulation exhibits ~25× higher local density than expected under random labeling, despite indistinguishable marginal distributions."
 
 ---
 

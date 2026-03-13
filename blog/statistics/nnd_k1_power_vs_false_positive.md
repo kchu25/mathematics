@@ -177,10 +177,10 @@ Under $H_a$ (true tight cluster), every point $x_i$ in the subpopulation has its
 - $d_5(x_i)$: distance to the 5th closest cluster member. Still small, but larger.
 - $d_{20}(x_i)$: might reach outside the cluster entirely.
 
-Under $H_0$ (random labeling), the "subpopulation" is scattered across the full pool:
+Under $H_0$ (random labeling), the "subpopulation" is a random $m$-sized subset scattered across the full population:
 
-- $d_1(x_i)$: distance to the nearest point in the full pool. This is a background-level distance.
-- $d_5(x_i)$: distance to the 5th nearest point. Larger.
+- $d_1(x_i)$: distance to the nearest point *within the random subset*. Since the subset is scattered, this is large.
+- $d_5(x_i)$: distance to the 5th nearest point within the subset. Even larger.
 
 The signal — the difference between $H_a$ and $H_0$ — is:
 
@@ -188,9 +188,9 @@ $$\text{Signal}_k = \mathbb{E}[d_k \mid H_0] - \mathbb{E}[d_k \mid H_a]$$
 
 For a tight cluster, the signal is **largest at $k=1$** and **decreases with $k$**. Here's why:
 
-At $k=1$, the subpopulation point's nearest neighbor under $H_a$ is a fellow cluster member right next to it — but under $H_0$, it's whatever random point happens to be closest in the full pool. The gap between "cluster neighbor" and "random neighbor" is enormous.
+At $k=1$, the subpopulation point's nearest neighbor *within the subpopulation* under $H_a$ is a fellow cluster member right next to it — but under $H_0$, the nearest point in a random $m$-sized subset is far away (the subset is spread across $[0, L]$). The gap between "cluster neighbor distance" and "random subset neighbor distance" is enormous.
 
-At $k=5$, the subpopulation point's 5th nearest neighbor under $H_a$ is still a cluster member, but further away (by definition — it's the 5th closest, not the 1st). Under $H_0$, the 5th nearest random point is also further. The *absolute* gap is larger, but relative to the baseline it's not as dramatic.
+At $k=5$, the subpopulation point's 5th nearest neighbor under $H_a$ is still a cluster member, but further away (by definition — it's the 5th closest, not the 1st). Under $H_0$, the 5th nearest point in the random subset is also further. The *absolute* gap is larger, but relative to the baseline it's not as dramatic.
 
 **Mathematically (1D uniform example):**
 
@@ -200,31 +200,33 @@ Background: $N$ points uniformly in $[0, L]$.
 Under $H_a$:
 $$\mathbb{E}[d_k \mid H_a] \approx \frac{w \cdot k}{m+1}$$
 
-Under $H_0$ (random $m$-subset from pool):
-$$\mathbb{E}[d_k \mid H_0] \approx \frac{L \cdot k}{N+1}$$
+Under $H_0$ (random $m$-subset, within-group distances):
+$$\mathbb{E}[d_k \mid H_0] \approx \frac{L \cdot k}{m+1}$$
+
+(Note: the denominator is $m+1$, not $N+1$, because we're measuring k-NN distances *within the random subset of size $m$*, not within the full pool of size $N$.)
 
 Signal:
-$$\text{Signal}_k = \frac{Lk}{N+1} - \frac{wk}{m+1} = k \left(\frac{L}{N+1} - \frac{w}{m+1}\right)$$
+$$\text{Signal}_k = \frac{Lk}{m+1} - \frac{wk}{m+1} = \frac{k(L - w)}{m+1}$$
 
 This is **linear in $k$**. So the signal *grows* with $k$!
 
 ### The denominator: noise
 
-But the standard deviation of $\bar{D}_k$ under $H_0$ also grows. For order statistics of uniform random variables:
+But the standard deviation of $\bar{D}_k$ under $H_0$ also grows. For order statistics of $m$ uniform random variables in $[0, L]$:
 
-$$\text{sd}(\bar{D}_k \mid H_0) \propto \frac{k}{\sqrt{m}} \cdot \frac{L}{N} \cdot c(k)$$
+$$\text{sd}(\bar{D}_k \mid H_0) \propto \frac{k}{\sqrt{m}} \cdot \frac{L}{m} \cdot c(k)$$
 
-where $c(k)$ is a factor that depends on the variance of the $k$-th order statistic. For the $k$-th order statistic of $N$ uniform points, the variance scales as $\frac{k(N-k+1)}{(N+1)^2(N+2)}$, which for small $k \ll N$ is approximately $\frac{k}{N^2}$.
+where $c(k)$ is a factor that depends on the variance of the $k$-th order statistic. For the $k$-th order statistic of $m$ uniform points, the variance scales as $\frac{k(m-k+1)}{(m+1)^2(m+2)}$, which for small $k \ll m$ is approximately $\frac{k}{m^2}$.
 
 This gives:
 
-$$\text{sd}(\bar{D}_k \mid H_0) \propto \frac{\sqrt{k}}{\sqrt{m}} \cdot \frac{L}{N}$$
+$$\text{sd}(\bar{D}_k \mid H_0) \propto \frac{\sqrt{k}}{\sqrt{m}} \cdot \frac{L}{m}$$
 
 ### The effect size
 
-$$\delta_k = \frac{\text{Signal}_k}{\text{sd}(\bar{D}_k \mid H_0)} \propto \frac{k \left(\frac{L}{N} - \frac{w}{m}\right)}{\frac{\sqrt{k}}{\sqrt{m}} \cdot \frac{L}{N}} = \sqrt{k} \cdot \sqrt{m} \cdot \frac{\frac{L}{N} - \frac{w}{m}}{\frac{L}{N}}$$
+$$\delta_k = \frac{\text{Signal}_k}{\text{sd}(\bar{D}_k \mid H_0)} \propto \frac{\frac{k(L-w)}{m}}{\frac{\sqrt{k}}{\sqrt{m}} \cdot \frac{L}{m}} = \sqrt{k} \cdot \sqrt{m} \cdot \frac{L - w}{L}$$
 
-Simplifying: $\delta_k \propto \sqrt{k \cdot m} \cdot \left(1 - \frac{wN}{mL}\right)$.
+Simplifying: $\delta_k \propto \sqrt{k \cdot m} \cdot \left(1 - \frac{w}{L}\right)$.
 
 **Wait — this says $\delta_k$ grows with $k$!** Larger $k$ means larger effect size, which means more power. This contradicts the empirical observation!
 
@@ -302,6 +304,12 @@ Generate data where you *define* the ground truth:
 ```julia
 using NearestNeighbors, Statistics, Random
 
+function mean_within_knn(pts::AbstractMatrix, k::Int)
+    tree = KDTree(pts)
+    _, dists = knn(tree, pts, k + 1, true)
+    return mean(d[end] for d in dists)
+end
+
 # === SCENARIO A: True clustering (ground truth: H_a is true) ===
 bg_A = randn(2, 5000) .* 10                     # background: wide spread
 sub_A = randn(2, 100) .* 0.5 .+ [5.0; 5.0]     # subpop: tight cluster at (5,5)
@@ -316,19 +324,18 @@ bg_B = pool_B[:, setdiff(1:5000, idx_B)]
 function nnd_permutation_test(subpop, background; k=5, B=10_000, seed=42)
     rng = MersenneTwister(seed)
     m = size(subpop, 2)
-    pool = hcat(subpop, background)
+    pool = hcat(subpop, background)  # used only as sampling frame
     N = size(pool, 2)
-    tree = KDTree(pool)
     
-    idxs, dists = knn(tree, subpop, k + 1, true)
-    obs_mNND = mean([d[end] for d in dists])
+    # Observed: mean within-group k-NN distance
+    obs_mNND = mean_within_knn(subpop, k)
     
+    # Null: random subsets, each with their own within-group distances
     null_mNNDs = zeros(B)
     for b in 1:B
         perm_idx = randperm(rng, N)[1:m]
         rand_pts = pool[:, perm_idx]
-        _, dists_perm = knn(tree, rand_pts, k + 1, true)
-        null_mNNDs[b] = mean([d[end] for d in dists_perm])
+        null_mNNDs[b] = mean_within_knn(rand_pts, k)
     end
     
     p_value = count(≤(obs_mNND), null_mNNDs) / B
@@ -416,22 +423,27 @@ using NearestNeighbors, Statistics, Random
 # Your actual background data (whatever you're using as the "comparison" pool)
 background = your_background_data  # shape: d × n
 
+function mean_within_knn(pts::AbstractMatrix, k::Int)
+    tree = KDTree(pts)
+    _, dists = knn(tree, pts, k + 1, true)
+    return mean(d[end] for d in dists)
+end
+
 function nnd_permutation_test(subpop, background; k=5, B=10_000, seed=42)
     rng = MersenneTwister(seed)
     m = size(subpop, 2)
-    pool = hcat(subpop, background)
+    pool = hcat(subpop, background)  # used only as sampling frame
     N = size(pool, 2)
-    tree = KDTree(pool)
     
-    idxs, dists = knn(tree, subpop, k + 1, true)
-    obs_mNND = mean([d[end] for d in dists])
+    # Observed: mean within-group k-NN distance
+    obs_mNND = mean_within_knn(subpop, k)
     
+    # Null: random subsets, each with their own within-group distances
     null_mNNDs = zeros(B)
     for b in 1:B
         perm_idx = randperm(rng, N)[1:m]
         rand_pts = pool[:, perm_idx]
-        _, dists_perm = knn(tree, rand_pts, k + 1, true)
-        null_mNNDs[b] = mean([d[end] for d in dists_perm])
+        null_mNNDs[b] = mean_within_knn(rand_pts, k)
     end
     
     p_value = count(≤(obs_mNND), null_mNNDs) / B
@@ -620,10 +632,9 @@ If you find $> 1\%$ near-duplicates, the $k=1$ result is suspect. Either:
 **Check for outlier 1-NN distances:**
 
 ```julia
-function check_outlier_nnd(subpop, background; k=1)
-    pool = hcat(subpop, background)
-    tree = KDTree(pool)
-    idxs, dists = knn(tree, subpop, k + 1, true)
+function check_outlier_nnd(subpop; k=1)
+    tree = KDTree(subpop)
+    _, dists = knn(tree, subpop, k + 1, true)
     nn_dists = [d[end] for d in dists]
     
     # How much does the smallest 10% of distances dominate the mean?
@@ -632,7 +643,7 @@ function check_outlier_nnd(subpop, background; k=1)
     bottom_10pct = sorted_d[1:max(1, m ÷ 10)]
     top_90pct = sorted_d[max(1, m ÷ 10)+1:end]
     
-    println("k=$k NND statistics:")
+    println("k=$k within-group NND statistics:")
     println("  Mean of all:        $(round(mean(nn_dists), digits=4))")
     println("  Mean of bottom 10%: $(round(mean(bottom_10pct), digits=4))")
     println("  Mean of top 90%:    $(round(mean(top_90pct), digits=4))")
@@ -642,9 +653,9 @@ function check_outlier_nnd(subpop, background; k=1)
 end
 
 println("=== k=1 ===")
-d1 = check_outlier_nnd(your_subpop, your_background; k=1)
+d1 = check_outlier_nnd(your_subpop; k=1)
 println("\n=== k=5 ===")
-d5 = check_outlier_nnd(your_subpop, your_background; k=5)
+d5 = check_outlier_nnd(your_subpop; k=5)
 ```
 
 If the bottom 10% of 1-NN distances are dramatically smaller than the rest (ratio $< 0.1$), the mean is being dominated by a few unusually close pairs. This is a red flag for $k=1$.

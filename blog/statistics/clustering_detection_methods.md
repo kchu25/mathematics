@@ -142,21 +142,24 @@ p-value = P(D_k^random ≤ D_k^observed)
 ```julia
 using NearestNeighbors, Statistics, Random
 
+function mean_within_knn(pts, k)
+    tree = KDTree(pts)
+    _, dists = knn(tree, pts, k+1, true)
+    return mean(d[end] for d in dists)
+end
+
 function nnd_permutation_test(subpop, bg; k=5, B=10_000)
-    pool = hcat(subpop, bg)
-    tree = KDTree(pool)
+    pool = hcat(subpop, bg)  # sampling frame only
     m = size(subpop, 2)
     N = size(pool, 2)
     
-    # Observed
-    _, dists = knn(tree, subpop, k+1, true)
-    obs = mean([d[end] for d in dists])
+    # Observed: within-group k-NN distance
+    obs = mean_within_knn(subpop, k)
     
-    # Null
-    nulls = [mean([d[end] for d in knn(tree, pool[:, randperm(N)[1:m]], k+1, true)[2]]) 
-             for _ in 1:B]
+    # Null: random subsets, each with their own within-group distances
+    nulls = [mean_within_knn(pool[:, randperm(N)[1:m]], k) for _ in 1:B]
     
-    return mean(obs .≤ nulls) / B
+    return count(≤(obs), nulls) / B
 end
 ```
 
