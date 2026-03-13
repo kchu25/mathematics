@@ -111,6 +111,20 @@ The outcome $(\text{Defect}, \text{Defect})$ with payoff $(-2, -2)$ is the uniqu
 >
 > The key feature: **mutual cooperation is better than mutual defection, but individual defection beats mutual cooperation**. This creates a tragic misalignment between what's good for each person individually and what's good for the group.
 
+### Real-World Examples of Dominant Strategies
+
+Not every game has dominant strategies, but when they do, they're psychologically revealing. Here are some real-world cases:
+
+| Scenario | Players | Dominant Strategy | Why It Matters |
+|---|---|---|---|
+| **Auction (first-price sealed-bid)** | Bidders | Bid your true valuation | Bidding higher is dominated: you win less often or pay more. Bidding lower is dominated: you lose profitable wins. |
+| **Public speaking / class participation** | Student + peers | Speak up honestly | Staying silent is dominated: you miss learning, and others don't benefit from your insights. |
+| **Defection in repeated games (finite rounds)** | Game players | Defect in last round | Once you know there's no future, cooperation's benefit (reciprocity) vanishes. Defection dominates. |
+| **Truth-telling in cheap talk** | Informed player | May NOT have dominant strategy | This is why cheap talk can fail—no credible commitment to honesty. |
+| **Disclosure of safety information** | Company | Disclosure (in perfect regulation) | If regulation perfectly penalizes non-disclosure, honesty dominates lying. But real regulation is imperfect... |
+
+> **Why dominant strategies are rare in practice:** Most real-world games are **not** dominance solvable. The interesting strategic tension arises precisely when no dominant strategy exists—players must reason about what others will do, which leads to Nash equilibrium analysis.
+
 > **Dominant strategy equilibria are rare.** Most games don't have them, which is why we need a more general concept.
 
 ## Iterated Elimination of Strictly Dominated Strategies (IESDS)
