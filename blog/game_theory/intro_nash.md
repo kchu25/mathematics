@@ -12,9 +12,9 @@ A **finite game in strategic (normal) form** is a tuple $\Gamma = (N, \{S_i\}_{i
 
 - $N = \{1, 2, \ldots, n\}$ is the set of **players**
 - $S_i$ is a **finite set** of **strategies** (or **actions**) available to player $i$ — think: the set of all moves player $i$ can possibly make
-- $u_i : S_1 \times S_2 \times \cdots \times S_n \to \mathbb{R}$ is the **payoff function** (or utility function) for player $i$
+- $u_i : S_1 \times S_2 \times \cdots \times S_n \to \mathbb{R}$ is the **payoff function** for player $i$. It takes as input a strategy profile (one strategy from each player: one from $S_1$, one from $S_2$, ..., one from $S_n$) and outputs a single payoff number for player $i$.
 
-> **Key point:** $S_i$ is a *set*. Each element $s_i \in S_i$ is an individual strategy. Player $i$ chooses one element from $S_i$ when they play the game.
+> **Key point:** $S_i$ is a *set*. Each element $s_i \in S_i$ is an individual strategy. Player $i$ chooses one element from $S_i$ when they play the game. The payoff function $u_i$ then takes that choice *along with everyone else's choices* and produces player $i$'s payoff.
 
 A **strategy profile** is a tuple $s = (s_1, s_2, \ldots, s_n) \in S := S_1 \times S_2 \times \cdots \times S_n$.
 
@@ -63,11 +63,22 @@ where $(a_{ij}, b_{ij})$ means: Player 1 gets $a_{ij}$, Player 2 gets $b_{ij}$.
 
 **Example: Prisoner's Dilemma.**
 
+> **The Setup**
+>
+> Two suspects are arrested for a crime. The police don't have enough evidence to convict either one, so they offer each a deal:
+> - If you **both stay silent**, you each get a light sentence (say, 1 year prison)
+> - If you **defect** (rat out the other) while the other stays silent, you walk free (0 years) but they get a harsh sentence (3 years)
+> - If **you both defect**, you both get moderate sentences (2 years each) — the police have some evidence now
+>
+> Crucially: each prisoner doesn't know what the other will do, and they can't communicate or make binding agreements.
+>
+> How does this translate to payoffs? Use negative numbers for jail time (worse is more negative). So the payoff matrix is:
+
 $$\begin{array}{c|cc}
- & \text{Cooperate} & \text{Defect} \\
+ & \text{Cooperate (silent)} & \text{Defect (rat out)} \\
 \hline
-\text{Cooperate} & (-1, -1) & (-3, 0) \\
-\text{Defect} & (0, -3) & (-2, -2) \\
+\text{Cooperate (silent)} & (-1, -1) & (-3, 0) \\
+\text{Defect (rat out)} & (0, -3) & (-2, -2) \\
 \end{array}$$
 
 Each player independently decides to cooperate or defect. Higher payoff is better (so $0 > -1 > -2 > -3$). We'll come back to this example shortly.
