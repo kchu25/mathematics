@@ -145,7 +145,9 @@ U & (1, 0) & (1, 2) & (0, 1) \\
 D & (0, 3) & (0, 1) & (2, 0) \\
 \end{array}$$
 
-**Round 1:** For Player 1, neither $U$ nor $D$ is strictly dominated (check: $U$ gives $(1,1,0)$ across columns while $D$ gives $(0,0,2)$—neither is uniformly better). For Player 2, compare $R$ against $M$: $M$ gives $(2,1)$ across rows while $R$ gives $(1,0)$. So $M$ strictly dominates $R$. Eliminate $R$.
+**Round 1:** For Player 1, neither $U$ nor $D$ is strictly dominated. To check: when Player 2 plays $L$, $U$ gives Player 1 payoff 1 and $D$ gives 0 (so $U$ is better); when Player 2 plays $M$, $U$ gives 1 and $D$ gives 0 (so $U$ is better); when Player 2 plays $R$, $U$ gives 0 and $D$ gives 2 (so $D$ is better here). Since $D$ is not better in all cases, neither strategy dominates the other.
+
+For Player 2, compare $R$ against $M$: when Player 1 plays $U$, $M$ gives payoff 2 and $R$ gives 1 (so $M$ is better); when Player 1 plays $D$, $M$ gives 1 and $R$ gives 0 (so $M$ is better). Thus $M$ strictly dominates $R$ for Player 2. Eliminate $R$.
 
 **Reduced game:**
 
