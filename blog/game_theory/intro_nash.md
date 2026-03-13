@@ -1,5 +1,5 @@
 @def title = "Non-Cooperative Game Theory: From Scratch to Nash Equilibrium"
-@def published = "27 January 2026"
+@def published = "13 March 2026"
 @def tags = ["game-theory"]
 
 # Non-Cooperative Game Theory: From Scratch to Nash Equilibrium
@@ -104,6 +104,12 @@ For Player 1:
 So Defect strictly dominates Cooperate for Player 1. By symmetry, the same holds for Player 2. Both players have a strictly dominant strategy: Defect.
 
 The outcome $(\text{Defect}, \text{Defect})$ with payoff $(-2, -2)$ is the unique prediction—even though $(\text{Cooperate}, \text{Cooperate})$ gives $(-1, -1)$, which is better for both. This tension between individual rationality and collective welfare is the whole point of the Prisoner's Dilemma.
+
+> **Why This Matters in Real Life**
+>
+> The PD structure shows up everywhere: dating/relationships (both benefit from honesty, but each has incentive to be deceptive), arms races (both countries worse off in mutual arms buildup, but each fears being vulnerable), climate change (everyone benefits if everyone cuts emissions, but individuals benefit from polluting while others cut back).
+>
+> The key feature: **mutual cooperation is better than mutual defection, but individual defection beats mutual cooperation**. This creates a tragic misalignment between what's good for each person individually and what's good for the group.
 
 > **Dominant strategy equilibria are rare.** Most games don't have them, which is why we need a more general concept.
 
