@@ -11,12 +11,27 @@
 A **finite game in strategic (normal) form** is a tuple $\Gamma = (N, \{S_i\}_{i \in N}, \{u_i\}_{i \in N})$ where:
 
 - $N = \{1, 2, \ldots, n\}$ is the set of **players**
-- $S_i$ is a finite set of **strategies** (or **actions**) available to player $i$
+- $S_i$ is a **finite set** of **strategies** (or **actions**) available to player $i$ — think: the set of all moves player $i$ can possibly make
 - $u_i : S_1 \times S_2 \times \cdots \times S_n \to \mathbb{R}$ is the **payoff function** (or utility function) for player $i$
+
+> **Key point:** $S_i$ is a *set*. Each element $s_i \in S_i$ is an individual strategy. Player $i$ chooses one element from $S_i$ when they play the game.
 
 A **strategy profile** is a tuple $s = (s_1, s_2, \ldots, s_n) \in S := S_1 \times S_2 \times \cdots \times S_n$.
 
 We write $s_{-i} = (s_1, \ldots, s_{i-1}, s_{i+1}, \ldots, s_n)$ for "everyone's strategy except player $i$'s," so a profile can be written $(s_i, s_{-i})$.
+
+### How Two-Player Games Fit This Definition
+
+A **two-player game** is just the special case where $N = \{1, 2\}$. So:
+
+- Player 1 has their own set of strategies $S_1 = \{s_1^1, s_1^2, \ldots, s_1^{m}\}$
+- Player 2 has their own set of strategies $S_2 = \{s_2^1, s_2^2, \ldots, s_2^{k}\}$
+- The strategy profile $s = (s_1^i, s_2^j)$ means "Player 1 played their $i$-th strategy, Player 2 played their $j$-th strategy"
+- Each profile determines payoffs: $u_1(s_1^i, s_2^j)$ for Player 1 and $u_2(s_1^i, s_2^j)$ for Player 2
+
+The strategies in $S_1$ and $S_2$ are **not subsets of each other** — they're distinct sets for distinct players. A strategy is labeled by which player it belongs to. Player 1 cannot play one of Player 2's strategies.
+
+When we say "Player 1 deploys strategy $s_1 \in S_1$," we mean Player 1 picks one element from their own set $S_1$. Similarly, Player 2 picks one element from $S_2$.
 
 ---
 
